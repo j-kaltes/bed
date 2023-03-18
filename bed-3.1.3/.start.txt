@@ -1,0 +1,29 @@
+
+
+		  BBBB                d 
+		  B   B               d 
+		  B   B    eee     dddd 
+		  BBBB    e   e   d   d 
+		  B   B   eeeee   d   d 
+		  B   B   e       d   d 
+		  BBBB     eee     dddd 
+				
+For more documentation look at the manpage (cd doc;make bed.1; cat bed.1|nroff -man|less).
+
+Before compiling you should have installed ncurses development library
+(library + headers) and X11 windows development library if you want to
+exchang selection and clipboard content with X programs. 
+
+If you want to compile press first:
+
+     ./configure
+
+This generates ./config (take a look at it and edit it if needed)
+Now press:
+
+     make dep;make
+
+To install it you should become root and type
+
+     make install
+

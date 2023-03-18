@@ -1,0 +1,5 @@
+Opening in existing browser session.
+[65422:65422:0100/000000.086803:ERROR:vaapi_wrapper.cc(1299)] vaQuerySurfaceAttributes failed, VA error: invalid parameter
+[65422:65422:0100/000000.086838:ERROR:vaapi_wrapper.cc(1246)] FillProfileInfo_Locked failed for va_profile VAProfileH264Main and entrypoint VAEntrypointVLD
+[65422:65422:0100/000000.086856:ERROR:vaapi_wrapper.cc(1299)] vaQuerySurfaceAttributes failed, VA error: invalid parameter
+[65422:65422:0100/000000.086862:ERROR:vaapi_wrapper.cc(1246)] FillProfileInfo_Locked failed for va_profile VAProfileH264High and entrypoint VAEntrypointVLD

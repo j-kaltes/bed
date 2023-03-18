@@ -1,0 +1,69 @@
+Press bed to start the program.
+
+If you are running bed in gnome-terminal you should disable gnome-terminal
+catching your keystrokes by Edit->Keyboard shortcuts-> Disable all menu access
+keys.
+
+Sometimes problems with the screen or keys are solved by copying another
+terminfo file to /usr/share/terminfo/x/xterm or setting TERM to another value.
+For example, in my variant of Redhat 7.1 and ncurses-5.2, Konsole 1.0.1 gives 
+a messed up screen when paging with 
+TERM=xterm bed /dev/hda
+gnome-terminal 1.2.4 makes paint errors with TERM=xterm
+both are solved by using TERM=rxvt
+For if you don't have this terminfo file, you can copy it from
+CONFDIRLINK/r/rxvt to TERMINFO/r/rxvt. (TERMINFO is you terminfo dir,
+something like /usr/share/terminfo).
+
+If the coloring is terrible you can try black and white only with 
+"bed -B".  If this is o.k. you can try to edit ~/.bedrc (copy from bedrc) 
+to change the color names. 
+
+If you use a different configuration from me, some keys possibly don't work.
+
+If you Alt-key combinations don't work, there is probably some misconfiguration
+of you operating system, Xwindows or the xterminal you are using. Try other 
+terminal programs and system environments to find out were the problem is 
+located and read its manual or ask someone in the IRC how to change it. 
+In my Debian 2.2R6 installation in xterm and rxvt the alt keys don't work. 
+But after the following commands the Alt keys worked in newly created rxvt's 
+but not in xterm's:
+	xmodmap -e "keycode 115 = 0x6a1"
+	xmodmap -e "keycode 116 = 0x6a2"
+	xmodmap -e "keycode 117 = 0x6a3"
+	xmodmap -e "keycode 22 = BackSpace"
+after adding
+	xmodmap -e "keysym Alt_L = Meta_L Alt_L"
+the Alt keys also worked in newly created xterm's. 
+Yes Linux isn't as popular as MS windows because of it's difficult user 
+interface.
+
+The following only applies to function keys other then Alt or Control 
+combinations. 
+
+If you use Linux console and you are using a diffent keyboard translation
+table then me, you can use ./bedkeys instead of bed.
+It saves the current translation table, loads my keyboard table and
+after termination of bed reloads the old table again (this 
+keyboard table is shared by all virtual consoles). 
+
+You can also modify how bed interprets keys (see man bed). 
+With Alt-t,k you can view the current keybinding and how to describe
+a key combination.
+
+The missing keybinding of bed as mentioned in it's menu can be set by pressing:
+
+     bed -k
+
+If keys are disabled by the keyboard translation tables this will not work. 
+It will also not work if you keyboard translation tables have 
+codes bound to a different key. In that case you can possibly remove
+the old key defintions out of ~/.bedrc.
+
+The new key bindings will be applied if the TERM variable has the same
+value as now. If you want to make it dependent on an other variable
+place it below a different "context var val" statement (see man 1 bed).
+
+If something is unclear or wrong send me an email.
+
+Jaap Korthals Altes <binaryeditor@gmx.com>

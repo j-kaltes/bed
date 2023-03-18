@@ -1,0 +1,11 @@
+{
+  "name": "bed",
+  "version": "VERSION",
+  "arch": "HOST_CPU",
+  "maintainer": "Jaap Korthals Altes",
+  "description": "TITLE",
+  "provides": ["bed"],
+  "files" : {
+  }
+}
+

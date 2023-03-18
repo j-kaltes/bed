@@ -1,0 +1,2377 @@
+bed(1)                      General Commands Manual                     bed(1)
+
+
+
+NNAAMMEE
+       bed - adjustable data format binary editor
+
+SSYYNNOOPPSSIISS
+       bbeedd [ _O_p_t_i_o_n_s ] [ _F_i_l_e_s ]
+
+DDEESSCCRRIIPPTTIIOONN
+       Adjustable  data format binary editor. Data formats are ASCII, unsigned
+       and signed integers, float, bit-flags, bit-fields, labels,  ebcdic  and
+       time_t. Different sizes and byte orderings are possible. Data types can
+       be used in structures. Other data formats, filters and  procedures  can
+       be  defined  in  plugins.  Contains copy, past, undo, redo, search, re-
+       place, marks, record/play and context sensitive help. Raw edit of  hard
+       drives. Under Linux and FreeBSD even usable without X windows.
+
+   IInntteerrffaaccee
+       Some  general remarks about working with bed.  In bed you can do every-
+       thing with the menu. You open a menu by  pressing  Alt  in  combination
+       with  the highlighted key. A menu item is selected by pressing only the
+       highlighted key or using movement keys followed by Enter. You  can  get
+       help  about  a  menu  item by pressing F1.  You escape from the menu by
+       pressing Esc.  In dialog boxes you can jump to the highlighted  charac-
+       ter  by pressing Alt-char or by using Tab and Alt-tab or shift-tab. Op-
+       tions are switched on by pressing space or *.  Buttons like Ok and Can-
+       cel are operated by moving to the button and pressing Enter.
+
+       While  editing  the  usual movement keys should work, if they don't run
+       bed -k.
+
+       Select works wp5.1 (and vi) like: You specify a  starting  point  (Alt-
+       e,s)  and  with whatever moving function exist you go to an other point
+       and you then press copy (Alt-e,c) or save selection (Alt-e,a).
+
+       bed has only a type-over mode, so your data  doesn't  move  to  another
+       offset  without  explicitly  saying so. To extend a file you should ex-
+       plicitly call Alt-e,x. If you like to leave something  out  you  should
+       copy  everything  after  it,  past  it over what you like to remove and
+       truncate the file with Alt-e,t.
+
+       To be able to handle large files (e.g.  whole  hard  drives)  bed  only
+       holds in memory what is  changed and reads the other parts from disk at
+       the moments they are needed.
+
+       If bed seems to get into a time consuming operation, you can try Ctrl-C
+       (Ctrl-Break  when  using win95 with pdcurses). It should bring bed back
+       to it's main loop, but  sometimes problems arise.
+
+   DDaattaa ttyyppeess
+       In bed you can display the file content in  different  dataformats  for
+       example: ASCII, signed and unsigned integers of variable base and size,
+       and Floating point number of size 4 (float),8(double) and 12 (long dou-
+       ble).   Beside  this  standard types there are lots of other data types
+       like:  bitflags, bitfields, translate (enum), ebcdic etc. You can  also
+       also add new data types in plugins.
+
+       ccoommppoosseedd ddaattaa ttyyppee
+       It  is also possible to form composed data types (structures, records).
+       At different offset within a unit the file content  is  displays  in  a
+       different data type.
+       struct nameincome {
+            char name[20];
+            unsigned long income;
+            };
+       For  example if the file contains a database of strings of size 20 fol-
+       lowed by a digit of 4 bytes, you can  make  a  composed  data  type  of
+       ASCII/20  and Dec/4. You do this simple by first making a ascii of size
+       20 by pressing Alt-d,a and filling in 20 for Nr Bytes and setting Sepa-
+       rate  and  then  adding a unsigned integer by pressing Alt-t,d,makemode
+       setting for Nr bytes 4 and check Dec and Add field.
+
+       All kind of operations which can be  applied  to  basic  (single)  data
+       types  can  also be applied on composed data types: search, replace and
+       the addition of a filter (e.g reorder). To do this you need to make the
+       composed data type the active data type. You can do this by setting the
+       cursor between two of its elements or by using Alt-y,t.
+
+       SSwwiittcchhiinngg ddaattaa ttyyppee
+       Moving between parts of the screen with different data types you can do
+       with Prev (Alt-d,v) and Next (Alt-d,n).
+       Zooming  a  data  type you do with Full (Alt-d,f), removing a data type
+       with Remove (Alt-d,r).
+       Save selection saves the selected part of the file in the format of the
+       active data type.
+       AAddddiinngg ddaattaa ttyyppeess
+       You  can  add  a  data  type with ASCII, Integer, Signed, Float, Clone.
+       Clone gives an identical copy of the currently active data type.
+       Integer (alt-d,i) gives the following window:
+
+          (*) Hex   ( ) Dec   ( ) Custom:
+          ( ) Oct   ( ) Bin   Base nr:
+
+          Nr bytes:   1
+                                 (*) Add field
+            Ok        Cancel     ( ) Separate
+
+       You can specify the base of the integer in the field Base nr or you can
+       use  one of the options Hex,Oct,Dec or Bin. Hex stands for hexadecimal,
+       Oct for octal, Dec for decimal and bin for binary. You can  also  check
+       Custom and specify a base number.
+       You  can  specify  the number of bytes and the order in which the bytes
+       are interpreted.
+       You can set Add field or Separate.   Separate  makes  a  separate  data
+       type. Add field means that this data type is added to the currently ac-
+       tive data type, making a composed data type (struct, record).   In  the
+       last  case  where in the existing data type the new field is placed de-
+       pends on the cursor position:
+       - At the end of the existing data type if the cursor is at the  end  of
+       the screen
+       -  At  the  beginning of the existing data type if the cursor is at the
+       beginning of the screen
+       - Otherwise at the place closest to the cursor.
+       - After the cursor position if the distances are equal
+       MMooddiiffyyiinngg ddaattaa ttyyppeess:
+       Basic data types you can change by pressing Alt-y,g (Config).  This are
+       operation  you  can  apply on some data types which changes certain as-
+       pects while leaving other aspects the same.  It are  usually  the  same
+       options you had when creating a data type.
+       FFiilltteerrss:
+       It  is possible to place filters between the file and a data type. Such
+       a filter can transform the file content before interpretating it  as  a
+       certain kind of data type.  Currently there are the following filters:
+       Reorder (Alt-y,o)
+       Duplicate (Alt-y,i)
+       Skip (Alt-y,k)
+       Backward (Alt-t,d,backward)
+       Index2table (Alt-t,d,index2table)
+       Translate (Alt-d,l)
+       You  can  find a description by pressing F1 in the menu with the appro-
+       priate menu item selected. The same description you can  find  somewhat
+       further  in this file in the list of all procedures. You can remove the
+       last added filter by pressing Alt-y,m (Rm filter).
+       When using some filters, filters, like Skip, Index2table and and possi-
+       bly  Backward,  differences in file content are not always shown on the
+       screen. Skip for example skips some bytes. Normal search translates the
+       search string in a string of bytes and then searches for this string in
+       the raw content of the file. This is obviously not possible if  skipped
+       bytes  can contain different data within the file.  Regex search uses a
+       different method. It first transformes the file content to  the  search
+       data  type  and  then searches in this data type for the search string.
+       So if you use this kind if filters you should check regex  search.  The
+       same  applies  for  other  data  type were what is displayed can corre-
+       sponced to different bytes like Float and Empty.
+
+       SSaavviinngg ddaattaa ttyyppeess:
+       Press Alt-y,w (Write Type) to save a data type. You can read  it  again
+       with  Alt-y,d  (Read Type). /cygdrive/c/Program Files/bed/misc contains
+       some   example   saved    data    types.    Read    /cygdrive/c/Program
+       Files/bed/misc/README.txt for a description.
+
+   SSeeaarrcchh
+       When  you  press  on search of the Move menu (Alt-m,s), you come in the
+       search window. Standard you search in the currently active  data  type.
+       To select a different data type you press on space when the appropriate
+       data type is selected (like ASCII).
+       When you instead presses on Return the search string is also  converted
+       from the old data type to the new data type.
+       Beside  this  there  are also the usual features like starting from the
+       top or the bottom of the file instead of the cursor position, searching
+       backwards, searching case insensitive and using regular expressions.
+
+       RReegguullaarr  eexxpprreessssiioonn:  Use the GNU regular expression library to match a
+       pattern against the text (See rreeggeexx((77)) ). When using regular expression
+       you  can  search  forward and backward in ascii text. In any other data
+       type you can only search forward.  When  "Regular  expression"  is  not
+       checked everything is first converted to a general byte string and then
+       for this byte string is searched in the file. When searching  with reg-
+       ular  expressions  enabled the file is block for block converted to the
+       currently  active  data  type  and  this  printable  representation  is
+       searched  for  regular  expressions in exactly the same way as when the
+       file was originally in this form.  This means  for  example  that  when
+       searching case sensitively the hex data type ff is different from FF.
+       When using  a floating point plugin different byte strings can give the
+       same superficial appearance. When you convert the search pattern  first
+       into  bytes  and  then  search for the bytes, you will only find one of
+       this underlying byte strings. When searching in  regex  mode  you  will
+       find  all  of  them. The char2 plugin contains a data type which leaves
+       out every other byte. And when converting to bytes  you  have  to  fill
+       them  in  with something and when in the file they are filled different
+       you will not find the byte string. But when searching only in  the  su-
+       perficial appearance you can find them.
+       I  haven't tried any attempt to optimize regular expressions so regular
+       expression search in ascii is very slow, and this conversion  to  other
+       data  types  before  searching makes it even slower. So only small dis-
+       tances can be searched this way.
+       Further shortcoming of regular expressions search:
+       - Only one hit in a single data type is returned. When searching for  1
+       in a hex data type it stops only once in 11.
+       -  The  same byte can generate a hit in different alignments.  Only one
+       is shown. To see them all you should change the alignment around  every
+       hit.
+
+       CCaassee  sseennssiittiivvee: When checked upper and lower case are treated distinc-
+       tively
+       BBoouunnddaarriieess: Multibyte data types can be aligned differently  a  4  byte
+       digit  can  start  at  offset 0,1,2 or 3 and give then different 4 byte
+       digits. Without checking Boundaries all will be returned.  With  Bound-
+       aries checked only bytes aligned in the same way as is now shown on the
+       screen are returned.
+       FFoorrwwaarrdd: When checked the file is searched in the forward direction go-
+       ing  from  lower  to  higher  offsets.   When  not  checked the file is
+       searched backward.
+       EEddggee ffiillee: When checked the file is searched from the edge of the file.
+       From  offset  0 when searching forward, from end of file when searching
+       backward.
+       FFiinndd: Here you type the search pattern
+       LLiisstt: Generated a list of all hits. If compiled with  CONFIG_THREADS=y,
+       you  can  go  on  editing while hits are marked so you can view them in
+       marklist (Alt-t,d,showmarks).
+       AASSCCIIII, DDeecc etc give when checked the current  active  data  type.   The
+       last  data  type  is  the currently active. In this case that it char2.
+       Which is a plugin data type.
+       NNrr bbyytteess: give the number of bytes each data  item  occupies.  By  some
+       data type you can change this for example by unsigned integers.
+
+   RReeppllaaccee
+       Everything  has  the  same  meaning as in search, with a replace string
+       added.
+       At the place where the search string  is  found  the  replacestring  is
+       placed. The replace string
+       overwrites  the data. When Regular expression is checked you can insert
+       the whole search string by & or
+       subexpressions by \1 \2 to \9. In the searchstring  subexpressions  are
+       demarcated by \(pattern\).
+
+   TToooollss
+       A few options not handles by other menus.
+       NNuummbbeerrttyyppee: changing the number type in which the offset in the file is
+       shown (or removing offset numbers).
+       MMeessssaaggeelliinnee: switching the messageline on and off,
+       MMeennuu: switching the menu bar on and off
+       CCoommmmaannddmmooddee:  setting commandmode on and off. Inside command  mode  the
+       normal  keys are not automatically put into the document. This makes it
+       possible to bound commands to normal keys, like is done inside  vi.  By
+       default there are no key bindings of this kind, but you can put it into
+       the configuration file if you want.
+       PPrroocceedduurreess: View list off all procedures which can be bounded  to  keys
+       or  are  part  of  the menu. Press return on a procedure to execute the
+       procedure.
+       DDyynnaammiicc: view procedures defined in plugins
+       LLooaadd pplluuggiinn: file manager to select a plugin
+       KKeeyy bbiinnddiinngg: shows the procedure bounded to a particular key
+
+OOPPTTIIOONNSS
+TTEERRMMIINNAALLSS
+   LLiinnuuxx
+       Bed is a terminal program. So you can use it with an X windows terminal
+       emulator  like rrxxvvtt or xxtteerrmm or with LLiinnuuxx ccoonnssoollee without using X win-
+       dows.  These terminals give always problems with functions  keys.  What
+       they do changes constantly and differs between computers. Here are some
+       suggestions to make them work. As you can guess, this is probably  also
+       outdated.
+       Add
+
+       XTerm*metaSendsEscape:  true
+       XTerm*altSendsEscape:   true
+       to  ~/.Xdefaults  or  /etc/X11/app-defaults/XTerm  to use bed in xterm.
+       Changes take effect in newly created xterms after the next restart of X
+       windows or after running xrdb filename.
+       ggnnoommee--tteerrmmiinnaall becomes usable after the following changes:
+       If
+
+            set|grep TERM
+
+       returns TERM=xterm, you probably get a messed up screen.
+
+            export TERM=rxvt
+
+       will  solve  the problem (if you have the right bedrc file, this is al-
+       ready done for you).
+       If you run Ubuntu 18.04 under Windows 10 (Windows Subsystem for  Linux)
+       you have to set TERM to one of the following values: xterm, xterms-sun,
+       xterm-sun or rxvt-unicode-256color
+       xterm-sco works also for bed, but not mc.
+
+       In the
+
+       Edit->Keyboard Shortcuts
+
+       menu of  gnome-terminal you switch off
+
+            [ ] Enable menu access keys
+
+       and
+
+            [ ] Enable menu shortcut key
+
+       Also change the following Shortcut keys:
+
+       Help
+            Contents  Ctrl+Alt+H
+
+       (instead of F1)
+
+       View
+            Full Screen    Ctrl+Alt+F
+
+       (instead of F11)
+
+   FFrreeeeBBSSDD
+       With the keymap of my FreeBSD installation Alt-key combinations  didn't
+       work properly in virtual consoles. In /usr/local/share/bed/README.Free-
+       BSD I explain how to solve that.
+
+   MMSS WWiinnddoowwss
+       Bed has two MS Windows versions. The ppddccuurrsseess version runs  only  under
+       MS  Windows consoles like ccmmdd, ccoommmmaanndd and ppoowweerrsshheellll. The nnccuurrsseess ver-
+       sion also runs within cygwin's rxvt and xterm. Within xterm, koi8rxterm
+       and  uxterm  you  should check "Main Options->Meta Sends Escape" to use
+       Alt-key combinations.  To  make  it  permanent  add  the  following  to
+       ~/.Xresources (or ~/.Xdefaults) or KOI8RXTerm, UXTerm, XTerm and XTerm-
+       color in /usr/X11R6/lib/X11/app-defaults
+
+       XTerm*metaSendsEscape:  true
+       XTerm*altSendsEscape:   true
+       UXTerm*metaSendsEscape: true
+       UXTerm*altSendsEscape:  true
+       KOI8RXTerm*metaSendsEscape:     true
+       KOI8RXTerm*altSendsEscape:      true
+
+       urxvt uses Alt-s itself. You can make urxvt send it to bed, by  putting
+       the following in ~/.Xresources
+
+       URxvt.Keysym.M-s: builtin:
+       On  my computer urxvt did only read ~/.Xresources after I had also exe-
+       cuted:
+
+       export XENVIRONMENT="${HOME}/.Xresources"
+
+CCOONNFFIIGGUURRAATTIIOONN
+       In the configuration file you can change colors,  assign  keys,  change
+       the menulayout, loud plugins. and configure to call procedure's at cer-
+       tain moments.  As configuration file is used the first  file  found  of
+       following:  the  argument to -f at the command line , the environmental
+       variable BEDRC, ~/.bedrc or /cygdrive/c/Program Files/bed/bedrc.
+
+   CCoommmmaannddlliinnee OOppttiioonnss
+       ooppttiioonnss options
+       After the keyword ooppttiioonnss options are given in exactly the same way  as
+       after  bed  in  the command line. These options are processed after the
+       commandline options and in the order they are given in  the  configura-
+       tion  file  (when multiple ooppttiioonnss keywords are specified). For example
+       if you add
+       options -C
+       to the /cygdrive/c/Program Files/bed/bedrc (and that is the  only  con-
+       figuration file) -B on the command line loses its effect.
+       With
+       options -w
+       you  can for example make bed always experimentally determine the sizes
+       of hard drives and DVD's instead of relying on the  sizes  returned  by
+       system calls end the like.
+
+   PPaatthh
+       pplluuggiinnddiirr path
+       Sets  plugindir  to path. This makes bed search for plugins in path. It
+       also affects Alt-t,l.
+       ddaattaattyyppeeddiirr path
+       Saved datatypes will be looked for in path. Affects  Alt-y,w  and  Alt-
+       y,d.
+       mmaaccrrooddiirr path
+       Save  recorded  (Alt-t,s) en Play File (Alt-t,y) will open the fileman-
+       ager in path.
+       bbeeddrrccbbiinn filename
+       Filename bed uses to save (search) settings.  Default  ~/.bedrc-bin  on
+       unix.
+       nneewwffiilleessiizzee num
+       The  size of new files is num bytes, when created startup or with (Alt-
+       f,n).
+
+   KKeeyyss
+       When the keys don't work or you want to make  different  key  bindings,
+       you can assign
+        new key bindings in the configuration file.
+       In bedrc the keys are defined by lines of the following format:
+       keys key1 key2 ...keyn = procedure
+
+       for example:
+
+       keys 27 115 = search
+
+       In which case Alt-s is bound to 'search' which is the search function.
+
+       The numbers are a decimal representation of the escape sequences gener-
+       ated by a key or a key combination. Within bed you can press Alt-t,k to
+       press a key and see the keycodes and keybinding.
+
+       Bed  version 0.2.7 added the possibility to make keys statements of the
+       following format:
+       keys capname  = procedure
+       capname is a terminfo name for a key sequence. For example
+       keys kf1  = selectprocedure
+       binds selectprocedure to function key F1. See man terminfo(5)  for  de-
+       tails.   There  seems to be as much variation in keylabels as keycodes,
+       so don't expect to much.
+
+       bbeedd --kk
+       If you only want to assign the right meaning to the keys  used  by  the
+       program  (instead  of making new keybinding), you can press bed -k. You
+       are asked to press function keys and it will append  the  corresponding
+       key assignments to ~/.bedrc.
+       PPeerrssoonnaall kkeeyybbiinnddiinnggss
+       If  you  want  to make personal keybindings you should come to know the
+       procedure argument to keys. To come to know the  name  of  a  procedure
+       mentioned in the menu or bounded to an other key you press Alt-t,k fol-
+       lowed by the key or menukey combination.
+       If you want for example to know what the name is of the  procedure  be-
+       hind  Alt-f,o  you press Alt-t,k followed by Alt-f,o and on the command
+       line you see something like "menu item Alt-f,o  =  addfile".   To  bind
+       this to insert you press Alt-t,k ,INS and get as answer something like:
+       No keybinding for 27 91 50 126 You add now at the bottum of ~/.bedrc
+       keys 27 91 50 126 = addfile
+       An other way to learn the names of the procedures is the read the  Pro-
+       cedures  section later in this manual, but the program itself is always
+       more up to date then the manual.
+
+   MMeennuu
+       New in bed-0.2.12 is the possibility to change the  menu  layout.   You
+       can  add new items to the menu, add new menus and delete menu items and
+       menu's. A 'menu' corresponds to the list of  names  you  get  when  you
+       press  for  example Alt-f, (the menu with menulabel "~File").  A 'menu-
+       item' corresponds on name in this list for example "~Open     C-o".
+       The menu's are numbered. The first menu on the left usually "~File" has
+       number  0, the following menu "~Edit" number 1 etc.  This number I will
+       call 'menunum' in this manual.
+
+       mmeennuu [menunum] menulabel [+]
+       This command is used to give a menu a  certain  label  and  keybinding.
+       One  character  in  label  should  be prefixed by ~ meaning that is the
+       highlighted letter what should be pressed in combination  with  Alt  to
+       open the menu. The menu label should be surrounded by  "'-s.  e.g.
+            menu 0 "My F~ile"
+       Changes  the  label of the "~File" menu to "My ~File".  To insert a new
+       empty menu at position 0 shifting the other menu's to  the  right,  you
+       should add a + after the previous command, getting:
+            menu 0 "My F~ile" +
+       To create an empty menu at the very right you can use:
+            menu 8 "~Hallo"
+       In this case you can also leave out 8,
+            menu "~Hallo"
+       In the menu command menunum defaults to the highest used menu number+1.
+
+       mmeennuuiitteemm [menunum] menuitemlabel [keylabel] [menitemnum] [+]= procedure
+       This command is used to add menu items to menu's.  For example:
+            menuitem 0 "~Quit" 1 = quit
+
+            menuitem menunum menuitemlabel menuitemnum
+       Replaces  the existing menu item at position 1 in menu 0 with the label
+       "~Quit" and the procedure quit.  Menuitem's are numbered from 0  start-
+       ing  from  above.   If you like to insert the menu item, while shifting
+       the existing menu items downwards, you can add a +, which gives:
+            menuitem 0 "~Quit" 1 + = quit
+       If you like to add a keylabel (e.g. M-q) you can change it to
+            menuitem 0 "~Quit" "M-q" 1 + = quit
+       this will be displaced as something like " QQuit     M-q " to  make  M-q
+       work you should also add something like:
+            keys 27 113 =quit
+       In  menu  item menunum defaults to the last mentioned menu. menuitemnum
+       defaults to the highest menu item number + 1 (in this menu).   You  can
+       write:
+            menu "S~imple"
+            menuitem "~New" = emptyfile
+            menuitem "~Open" = addfile
+            menuitem "~Save" = dosave
+            menuitem "~Quit" = quit
+
+       mmeennuuiitteemm [menunum] LINE [menitemnum] [+]
+       This  command  is used to create a blank like in a menu (leaving a menu
+       item empty).
+       To insert a line after "~Open" in the previous menu you can write:
+            menuitem LINE 2 +
+
+       ddeelleetteemmeennuu [menunum]
+       This command is used to delete a menu and all it's menu items.  If  you
+       dislikes the first menu ("~File") you simply writes:
+            deletemenu 0
+       In deletemenu menunum defaults to the highest numbered menu.
+
+       ddeelleetteemmeennuuiitteemm [menunum] [menitemnum]
+       Deletes  menu  item  menuitemnum from menu menunum. menunum defaults to
+       the last mentioned menu, menuitemnum to the highest numbered menu item.
+       When  only  one  number is given it is interpret as meaning menuitemnum
+       (for menunum the default is used).  To delete the fourth menu item  out
+       of the first menu, you write:
+            deletemenuitem 0 3
+       In  all menu commands you can explicitly use the default value by using
+       a negative number.
+
+   CCaallll__oonn
+       Instead of calling a procedure after pressing a key or  using  a  menu,
+       you  can  also specify in the configuration file that procedure will be
+       called at certain moment (on startup,open,switch).
+       ccaallll__oonn__ssttaarrtt procedure
+       Calls procedure at startup,  which  means  after  the  program  is  has
+       started, and a file is opened. Operated is on this file.
+       ccaallll__oonn__ooppeenn procedure
+       Procedure is called every time a file is opened.
+       ccaallll__oonn__sswwiittcchh procedure
+       Procedure is called every time you switch to a file.
+
+   CCoonntteexxtt
+       When  you  use  more  than  one terminal (for example linux console and
+       rxvt), you can set a environmental variable  to  differentiate  between
+       the type of terminal and use the context key word in ~/.bedrc.
+       Everything started with the context keyword until the following context
+       keyword or end of file is only used when the right environmental  vari-
+       able set.
+       The format of context is the following.
+       context [!] variablename [variablevalue]
+       For example:
+       context term xterm
+       You can also say
+       context variablename
+       when it should apply for all cases in which the variablename has a def-
+       inition.
+       For example
+       context termcap
+       applies in all cases in which termcap is defined.
+       If you like to apply the next configuration only when  an  enviromental
+       variable  is  not set or has a different value, you have to write ! be-
+       fore the enviromental variable.
+       context ! DISPLAY
+       means to apply the statements following this context statement and  be-
+       fore the next context statement only when DISPLAY is not set.
+       If there is no environmental variable shared by the context you like to
+       give the same configuration you can set a  environmental  variable  and
+       use  this  at  a  context  argument. It is possible to set enviromental
+       variables within the configuration file with:
+       sseetteennvv name val
+       To do the same by TERM=cons25 as with TERM=cons50 you can write:
+            context TERM cons25
+            setenv consoleterm yes
+            context TERM cons50
+            setenv consoleterm yes
+            context TERM cons43
+            setenv consoleterm yes
+            context consoleterm
+            keys  27 91 97 = beginfile #S-F3
+            keys  27 91 98 = endfile #S-F4
+            keys  27 91 101 = middlepage #S-F7
+       In combination with '!' you can this way create every possible  boolean
+       logic  formula  (using  the  statement that every propositional logical
+       formula can be written with only not and or).  With setenv you have  an
+       or  and  '!' adds the not.  To apply statementZ only if X and Y you use
+       "X and Y"<=>"not (not X or not Y)" transforming this to bedrc you get
+       context ! X
+       setenv dont 1
+       context ! Y
+       setenv dont 1
+       context ! dont 1
+       statementZ
+
+   CCoolloorr
+       Colors can also be changed in the configuration file. There are  around
+       17 screen elements which you can give a foreground and background color
+       and a list of attributes (standout, underline, etc).
+       The format is:
+
+       color screen-element [foreground background] [attr,attr...]
+
+       You can give only attributes or both the foreground and the  background
+       color and any number of attributes.
+
+       The screen parts are the following:
+       TEXT:  The color the text is showed in. It is better not to give this a
+       color because this makes the screen updating much slower (some  feature
+       of ncurses)
+       COMMAND: the command line
+       SELECTION: selection
+       CURSOR: cursor in active datatype
+       CURSORPAS: cursor in passive datatype
+       SELCURSOR: cursor during selection
+       BAR: the menubar
+       BARKEY: Key highlighting in the menubar
+       MENU: Opened menu's
+       MENUKEY: key highlighting in menu
+       MENUSEL: color of menu element which is selected
+       OPENTITLE: title of file manager
+       OPENKEY: key highlighting of key manager
+       OPENNORMAL: background key manager
+       OPENLIST: color of non active items of list
+       OPENLISTSEL: color of active item
+       OPENLISTACT: color of active item when this piece is used
+       SHOWBACK: Search/replace window
+       SPACEAFTER: color of space before and between datatypes
+
+       The  colors  and  attributes  are  just  the  colors  and attributes of
+       ncurses. When they don't look the way the name suggests you should send
+       your complains to the makers of ncurses.
+
+       Colors: BLACK RED GREEN YELLOW BLUE MAGENTA CYAN WHITE
+       Attributes:  NORMAL  STANDOUT  UNDERLINE REVERSE BLINK DIM BOLD PROTECT
+       INVIS ALTCHARSET CHARTEXT
+
+       For me only STANDOUT UNDERLINE REVERSE BLINK BOLD have a  useful  mean-
+       ing.
+       On example:
+
+       color BAR WHITE RED blink
+
+       Which  makes a blinking white on red menu bar (on my computer it blinks
+       only under linux console and not in xterm or rxvt).
+
+       To make the cursor bold and underlined you can do
+
+       color cursor bold underline
+
+       The color lines can be intermixed with the keys lines and can  also  be
+       specific to a context.
+
+
+   PPrroocceedduurreess
+       When  you  want to make you own key bindings you need to know the names
+       of the procedures you can bind to keys. A selected subset of the proce-
+       dures  can  also be assigned by using the name of the key they are nor-
+       mally bound to. There are the following key labels: _h_o_m_e , end, f1, up,
+       down,  left,  right,  pgup, pgdn, stab, delete, backspace and esc. When
+       you assign a key sequence to a key label the meaning  in  the  fileman-
+       ager, search window  and menu is also changed.  so
+            keys 1 = home
+       gives Contr-A the home functionality in all this application parts.
+
+       For  the  filemanager and search window this is the only way the change
+       keybindings. Inside the menu you can also change keybindings by putting
+       _2_5_3 in front of the key numbers. See  firstmenuitem.
+       What  follows  are all procedures mentioned in the menu with a descrip-
+       tion and their place in the menu. It is exactly the same information as
+       you get when you press F1 within the menu.
+
+                                aaddddffiillee
+       Open (Alt-f,o)
+
+       Filemanager: Name: Alt-n: switch to line were you can write a filename.
+       Del,Backspace,C-h,C-u,left,right,home,end,C-a and C-e  should  work  if
+       bed  is  well  configured (see bed.1 for key definitions) Files: Alt-f:
+       switch to list of files. You can open a file by pressing Enter. Use  UP
+       and  DOWN to move between files.  Directories: Alt-d: switch to list of
+       directories. Change to directory by pressing Enter.
+
+       Tab,Alt-Tab and/or Shift-Tab can be used to jump between  File,Directo-
+       ries and Name.
+
+                                ddoossaavvee
+       Save (Alt-f,s)
+
+       Save current file.
+
+                                ssaavveeaass
+       Save as (Alt-f,a)
+
+       Save currently active file to a file with another name.
+
+                                rreewwrriittee
+       Refresh (Alt-f,r)
+
+       Rewrites screen.
+
+                                sseelleeccttpprroocceedduurree
+       Procedures (Alt-t,p)
+
+       Listing  of  available  built-in  procedures  to bind to keys or use in
+       plugins.  You can press return on the name to run the procedure.  Press
+       F1 to get help about the procedure.
+
+                                sseelleeccttddyynnpprroocceedduurree
+       Dynamic (Alt-t,d)
+
+       Listing of available dynamic procedures (procedures defined in plugins)
+       or faked dynamic procedures (plugins compiled  in  the  main  program).
+       The  procedures  can  be  bound  to keys, placed in the menu or used in
+       other plugins. You can press return on the name to let it  work.  Press
+       F1 to get help about a procedure.
+
+       To  load  a plugin in bed you should use Alt-t,l or use a plugin state-
+       ment in bed's configuration file:
+
+       plugin PLUGINFILENAME
+
+       Where PLUGINFILENAME is the filename of a  plugin  (ends  with  .plug).
+       (See  the  PLUGINS  section of bed.1).  To change the default directory
+       used by bed for looking for plugins use:
+
+       plugindir PATH
+
+       Where PATH is a unix path (see the CONFIGURATION  section  of  the  bed
+       manual).
+
+       Bed  comes  with  a certain number of plugins. Some are compiled in the
+       main program, others are precompiled dynamic modules and some  have  to
+       be compiled by the user. Details differ depending on the operating sys-
+       tem.  The MS windows version of bed doesn't currently  support  dynamic
+       plugins,  so to be used a plugin should be compiled in the main program
+       and not all plugins (that work under MS windows) are compiled in by de-
+       fault.
+
+       Plugins  supplied  with bed reside in the plugins/examples directory of
+       bed support files. To compile all plugins copy the whole bed  directory
+       tree  to  a place were you have write access, goto plugins/examples and
+       press make. Depending on you gcc installation you have sometimes to use
+       a  home  compiled  bed  before  you can load a plugin you have compiled
+       yourself.
+
+       A description of the plugins is given in plugins/examples/README.
+
+       The same descriptions you can get in this procedure listing by pressing
+       F1.   You can can also find it in the Procedures subsection of the CON-
+       FIGURATION section of the manual page.
+
+                                cclloosseetthhiiss
+       Close (Alt-f,c)
+
+       Close the current file.
+
+                                qquuiitt
+       Exit (Alt-f,x)
+
+       Quit application. For all changed files you are asked to save it.
+
+                                uunnddoo
+       Undo (Alt-e,u)
+
+       Undo last change. It can't  always  undo  all  changes.  Currently  re-
+       stricted  to the last 5000 changes or how MAXUNDO was otherwise defined
+       during the compilation of bed.
+
+                                rreeddoo
+       Redo (Alt-e,r)
+
+       After you have undone something with undo, you can redo it  with  redo.
+       Redo is impossibly following a change after the undo.
+
+                                sseettsseelleecctt
+       Select (Alt-e,s)
+
+       Turns selection on or off.
+
+                                ccooppyysseelleecctt
+       Copy (Alt-e,c)
+
+       Copies selected part of the file to copy buffer.
+
+                                ppaassttsseelleecctt
+       Past (Alt-e,p)
+
+       Past selection.
+
+                                ssaavveesseelleecctt
+       Save selection (Alt-e,a)
+
+       Save selection or copy buffer.
+
+                                rreeppllaaccee
+       Replace (Alt-e,e)
+
+       Regular  expression:  [1-9]  matches  characters between 1 and 9 [^1-9]
+       matches everything except [1-9]  1{3,5}  matches  111  1111  and  11111
+       (Linux|Unix) matches Linux and Unix \b boundary. \b123 matches 1234589,
+       not 9123458 \B the reverse. \B123 matches  9123458  not  1234589  Unit:
+       Match  regex  expression with single units.  Align: Multibyte datatypes
+       can be aligned differently. For example a 4 byte  digit  can  start  at
+       offset  0,1,2  or 3 and that will give different 4 byte digits. Without
+       checking Boundaries all will be returned. With Boundaries checked  only
+       bytes  aligned  in  the  same way as is now shown on the screen are re-
+       turned.  Case sensitive: When checked upper and lower case are  treated
+       distinctively.   Forward: When checked the file is searched in the for-
+       ward direction going from lower to higher offsets. When not checked the
+       file  is  searched  backward.   Edge  file:  When  checked  the file is
+       searched from the edge of the file. From offset 0 when  searching  for-
+       ward,  from  end  of file when searching backward.  Find: Here you type
+       the search pattern Replace: At the place where  the  search  string  is
+       found  the  replace string is placed. The replace string overwrites the
+       data.  When Regular expression is checked  you  can  insert  the  whole
+       search  string by \0 or supexpressions by \1 \2 upto \9.  In the search
+       string subexpressions are demarcated by (pattern).  For example:  Find:
+       (FBA041D3)  ([^ ]*) (B0300048) Replace: \3 \1 \2 exchanges the position
+       of three digits.  List: Generates a list of  all  hits.  When  compiled
+       with  CONFIG_THREADS=y  you  can go on editing while hits are marked so
+       you can view them in marklist (Alt-t,d,showmarks).   Ascii,  Digit  etc
+       are when checked the current active datatype.  Base: Base of digit. E.g
+       16 for heximal.  Nr bytes: Gives the number of bytes each data item oc-
+       cupies.  By  some datatypes you can change this for example by unsigned
+       integers.  Reverse: Applied filter Revers: reverse bytes  while  trans-
+       forming from shown datatype to file.  Set: After changing datatype info
+       (base,bytes,type) you press Return on  Set  to  make  this  the  search
+       datatype.   Convert:  the  same  as  Set in addition the current search
+       string is converted.  Ok: search Keep: Makes current search options the
+       default.  Cancel: Cancel
+
+                                eexxtteenndd
+       Extend file (Alt-e,x)
+
+       Make the file larger, adding zeros to the end of file.
+
+                                ttrruunnccaattee
+       Truncate (Alt-e,t)
+
+       Truncates file on the right of cursor.
+
+                                rreeppeeaatt
+       Repeat nr (Alt-e,n)
+
+       Repeats keystrokes a certain number of times. Caveat: Doesn't show dia-
+       log screens during recording.
+
+                                sseeaarrcchh
+       Search (Alt-m,s)
+
+       You can move through the dialog by pressing Alt in combination  with  a
+       highlighted  character, or by pressing Tab,Shift-Tab or Alt-Tab.  Press
+       Shift to check options.  Standard you search within the  currently  ac-
+       tive  datatype, but you can also use Ascii or Digit (unsigned integers)
+       by selecting them, specifying base and bytes and pressing Set.   Regex:
+       Regular  expression  [1-9]  matches  characters  between 1 and 9 [^1-9]
+       matches everything except [1-9]  1{3,5}  matches  111  1111  and  11111
+       (Linux|Unix) matches Linux and Unix \b boundary. \b123 matches 1234589,
+       not  9123458  \B  the  reverse.  \B123  matches  9123458  not   1234589
+       (\b([ADF]{8}|[0-9]{8})\b  ){3} Matches 3 units of 8 characters consist-
+       ing only of the characters A D or F or if digits 0-9 beginning and end-
+       ing     on    a    word    boundary    followed    by    space.     See
+       https://github.com/google/re2/wiki/Syntax Depending on  with  what  op-
+       tions  bed  is  compiled,  regex  expressions  can  be matched with gnu
+       regex-0.13, google re2 or intel hyperscan.  The main difference is that
+       hyperscan  shows  only the last position of a match and is the fastest,
+       closely followed by re2. Re2 can miss  long  matches  stretching  block
+       borders  (at least 100 bytes in previous block). When one hit is inside
+       another hit, the others can return the first ending and not  the  first
+       starting  hit  when list is not set. On next search search starts after
+       the cursor position, so that it is  never  returned  therafter.   Unit:
+       Match  regex  expression  with  single units. When checked, search runs
+       through the file matching successive datatype units with the regex  ex-
+       pression.  When  not  checked the regex expression is matched with more
+       than one unit in the selected  datatype.  For  example  8A[^E]{5,100}8E
+       finds  A088008A  41100A90  00200882 3108E051, when not checked, but not
+       when unit is checked.  When Unit is not checked a space is placed after
+       each  number:  Searching  for '1.' 01 is seen as '01 ' and '1 ' matches
+       '1.'.  Align: Multibyte datatypes can be aligned differently. For exam-
+       ple  a  4  byte digit can start at offset 0,1,2 or 3 and that will give
+       different 4 byte digits. Without checking Boundaries all  will  be  re-
+       turned.  With  Boundaries checked only bytes aligned in the same way as
+       is now shown on the screen are returned.  Case:  Case  sensitive:  When
+       checked  upper and lower case are treated distinctively.  Forward: When
+       checked the file is searched in the forward direction going from  lower
+       to  higher  offsets.  When  not  checked the file is searched backward.
+       Edge file: When checked the file is searched from the edge of the file.
+       From  offset  0 when searching forward, from end of file when searching
+       backward. If not checked searching  starts  at  the  current  position.
+       Find:  Here  you  type the search pattern List: Generates a list of all
+       hits. During search for each hit hit a  mark  (Alt-k,m)  is  generated.
+       You  can view the hits in marklist (Alt-t,d,showmarks).  If checked [#]
+       you can go on editing while searching goes on  in  the  background.  If
+       checked [x] searching is in the foreground and marklist is shown there-
+       after.  When in multi byte datatypes alignment is not checked, hits are
+       not  strictly  sorted on file position.  Keep: Makes current search op-
+       tions the default.
+
+       Ascii, Digit etc are when checked the current active  datatype.   Base:
+       Base of digit. E.g 16 for heximal.  Nr bytes: Gives the number of bytes
+       each data item occupies. By some datatypes you can change this for  ex-
+       ample  by  unsigned  integers.  Reverse: Applied filter Revers: reverse
+       bytes while transforming from  shown  datatype  to  file.   Set:  After
+       changing  datatype  info  (base,bytes,type)  you press Return on Set to
+       make this the search datatype.  Convert: the same as  Set  in  addition
+       the current search string is converted.  Ok: search Cancel: Cancel
+
+                                nneexxttsseeaarrcchh
+       Nextsearch (Alt-m,n)
+
+       Search again for the same search string.
+
+                                ggeettttooppooss
+       Position (Alt-m,p)
+
+       Ask for a file offset and jumps to this offset.  Forward: count up Edge
+       File: If checked: count from begin (forward) or  end  (backward)  file.
+       If  not checked you count from the cursor position.  Align: If checked:
+       In multibyte units the screen  is  aligned  at  the  current  alignment
+       (boundary)  after changing position.  Position: Offset to jump to.  You
+       can specify in what format to specify the offset.  All: specify  offset
+       with  0x for hex and 0 for oct. Numbers not starting with 0 are decimal
+       numbers.  Hex,Dec,Oct: type of number without need to use 0x or 0
+
+
+                                kkeeyymmaarrkk
+       Make (Alt-k,m)
+
+       Set mark
+
+                                ttoommaarrkk
+       Goto (Alt-k,g)
+
+       Goto mark. You are asked to type the corresponding key.
+
+                                nneexxttmmaarrkk
+       Next (Alt-k,x)
+
+       Goto next mark
+
+                                pprreevvmmaarrkk
+       Previous (Alt-k,p)
+
+       Goto previous mark.
+
+                                sshhoowwmmaarrkkss
+       Shows list of all marks. Press Return to jump to the file offset of the
+       selected mark.
+
+                                ddeelleetteemmaarrkk
+       Delete (Alt-k,t)
+
+       Delete  mark.  You  get  an  overview of current marks. Press return to
+       delete the currently selected mark.
+
+                                cclleeaarrmmaarrkkss
+       Clear (Alt-k,c)
+
+       Delete all marks.
+
+                                ssaavveemmaarrkkss
+       Save (Alt-k,s)
+
+       Save marks to file.
+
+                                rreeaaddmmaarrkkss
+       Read (Alt-k,r)
+
+       Read saved marks.
+
+                                ssoorrttmmaarrkkss
+       Sort (Alt-k,o)
+
+       Reorder marks so they increase in offset.
+
+                                ssuubbttrraaccttmmaarrkkss
+       Subtract (Alt-k,u)
+
+       Removes marks with the same position as one of  the  marks  saved  with
+       Alt-k,s. Asks for such a file.
+
+                                ppoossttoottoopp
+       Top (Alt-i,t)
+
+       Moves  file  display  so that the file offset at the cursor position is
+       shifted to the upper left corner of the file display.
+
+                                bbeeggiinnffiillee
+       Begin file (Alt-m,b)
+
+       Goto the beginning of file.
+
+                                eennddffiillee
+       End file (Alt-m,e)
+
+       Goto end of file.
+
+                                bbeeggiinnppaaggee
+       Begin Pg (Alt-m,i)
+
+       To the top of page.
+
+                                eennddppaaggee
+       End Pg (Alt-m,d)
+
+       Goto end of page
+
+                                mmiiddddlleeppaaggee
+       Middle Pg (Alt-m, )
+
+       Goto the middle of the page.
+
+                                nneexxttmmooddee
+       Next (Alt-d,n)
+
+       Goto the data type on the right of this data type.
+
+                                pprreevvmmooddee
+       Prev (Alt-d,v)
+
+       Goto the data type shown on the left of current active data screen.
+
+                                rreemmoovveemmooddee
+       Remove (Alt-d,r)
+
+       Closes data type screen part.
+
+                                zzoooommmmooddee
+       Full (Alt-d,f)
+
+       Zooms current data type (For example ASCII).
+
+                                aaddddpprreevv
+       Add Prev (Alt-w,d)
+
+       Adds previous file to the screen
+
+                                aaddddnneexxtt
+       Add Next (Alt-w,a)
+
+       Adds the next file to the screen.
+
+                                pprreevvffiillee
+       Prev (Alt-w,p)
+
+       Goto previous file. Zooming the file.
+
+                                nneexxttffiillee
+       Next (Alt-w,n)
+
+       Goto next file.
+
+                                ffiirrssttffiillee
+       First (Alt-w,f)
+
+       Goto the first opened buffer.
+
+                                llaassttffiillee
+       Last (Alt-w,t)
+
+       Goto last opened file.
+
+                                zzoooommwwiinnddooww
+       Zoom (Alt-w,z)
+
+       Zooms current window
+
+                                hhiiddeewwiinnddooww
+       Hide (Alt-w,h)
+
+       Get opened file from the screen without closing it
+
+                                lliissttffiilleess
+       List (Alt-w,l)
+
+       List opened files. Press Enter to edit selected file.
+
+                                aasskkbbaassee
+       Offset (Alt-t,o)
+
+       Changes the file offset number type. Offsets can be shown  as  decimal,
+       hexadecimal  or octal numbers. You can also turn of the display of off-
+       sets.
+
+                                ccoonnssoolleerreessiizzee
+       This operation makes it possible to resize the  console  in  the  usual
+       way.  For example with the mouse or windows Alt-Space menu. At start up
+       bed equals the screen buffer size with the window size. The current op-
+       eration  temporally  sets the screen buffer back to a previous size, so
+       you can resize the window up to that size. If you  want  another  size,
+       you should use Alt-Space,Properties, Layout to change the Screen buffer
+       size.
+
+       (MS Windows Consoles only)
+
+                                sswwiittcchhmmeessssaaggee
+       Messageline (Alt-t,m)
+
+       Show the message line only when a new message arrives  and  letting  it
+       override with displayed data, or keep it always on (default).
+
+                                sswwiittcchhmmeennuu
+       Menu (Alt-t,u)
+
+       Hides or shows menu bar.
+
+                                sswwiittcchhccoommmmaanndd
+       Commandmode(on/off) (Alt-t,c)
+
+       Switches  command  mode on or off. In command mode procedures are bound
+       to normal characters as in pagers like 'less' and 'more'  and  in  vi's
+       command  mode.   Some  of less's and vi's keys are already bound in the
+       configuration file.  If you like some more you should add them  to  the
+       configuration  file.   You can mail them to me if you like to help oth-
+       ers.
+
+                                bbaacckkcchhaarr
+       Left
+
+       Go back one character.
+
+                                bbeeggiinnlliinnee
+       Go to begin line (Home).
+
+                                eennddlliinnee
+       Goto end line (End).
+
+                                ffiilleeiinnffoo
+       Show the name and size of file in the message line. (No key binding).
+
+                                ffiirrssttmmeennuuiitteemm
+       Goto the first menu element. (Home).
+
+       Only applies within an opened menu. You have to put 253 immediately af-
+       ter the keys keyword. So for example:
+
+       keys 253 1 = firstmenuitem
+
+       makes that within an opened menu contr-a jumps to the first menu item.
+
+                                llaassttmmeennuuiitteemm
+       Goto last menu element. See firstmenuitem for more information. (End).
+
+                                ffrroommccoommmmaanndd
+       Turns command mode off.
+
+                                lliinneeddoowwnn
+       Down one line (Down).
+
+                                lliinneeuupp
+       Up one line (Up).
+
+                                nneexxttcchhaarr
+       Next character. (Right).
+
+                                nneexxttmmeennuu
+       Goto  next  opened  menu.  (Right).  Only applies in the context of the
+       menu.  See firstmenuitem for more information,
+
+                                nneexxttmmeennuuiitteemm
+       Goto next menu item. (Down). See firstmenuitem for more information.
+
+                                nnoopp
+       Does nothing.
+
+                                ppaaggeeddoowwnn
+       Page down. (Pgdn).
+
+                                ppaaggeeuupp
+       Page up. (Pgup).
+
+                                pprreevvmmeennuu
+       Goto previous menu. (Left). See firstmenuitem for more information.
+
+                                pprreevvmmeennuuiitteemm
+       Goto previous menuitem (Up). See firstmenuitem for more information.
+
+                                ttooccoommmmaanndd
+       Turns command mode on.
+
+                                ttoossuubbssccrreeeenn
+       Goto the data screen corresponding to the number you  type  after  this
+       command.  0 is the first from the left, 1 the second etc. (No key bind-
+       ing).
+
+                                eemmppttyyffiillee
+       New (Alt-f,n)
+
+       Opens new document filled with zeros. You can enlarge the document with
+       Alt-e,x.  Shrink it with Alt-e,t.
+
+                                ffiilleeddaattaa
+       Fileinfo (Alt-f,f)
+
+       Displays information about current file.
+
+                                cchheecckkcchhaannggeedd
+       Modified? (Alt-f,m)
+
+       Checks  if current file is modified by comparing changed parts with the
+       original file.
+
+                                sshheellll
+       Shell (Alt-f,h)
+
+       Starts a new shell or cmd.com.
+
+       If a new shell is evoked, it uses the SHELL environmental  variable  to
+       decide  which shell to use. You can also set environmental variables in
+       beds configuration file (see manual bed.1).
+
+                                iinnppuutt
+       Input (Alt-e,i)
+
+       Modifies current data item.  With this procedure you edit  the  current
+       item  and  only  after  pressing  Enter the modifications are inserted.
+       Certain datatypes you can't edit without this  procedure  (e.g.   Float
+       and  Time_t).   If  you don't use this procedure, then the data item is
+       converted to and from binary format after every key you press.
+
+                                eeddiittddaattaa
+       Edit (Alt-e,d)
+
+       Evokes text editor to edit selected data in active datatype.
+
+       If the environmental variable EDITOR is set to the full path of an edi-
+       tor  that  editor is used.  You can set environmental variables in beds
+       configuration file with the following command:
+
+       setenv name [val]
+
+       Leaving out val means unsetenv.
+
+       See manual page bed.1 or bed -h for more information.
+
+                                sseelleeccttssttaannddoouutt
+       Select Standout (Alt-e,o)
+
+       Select standout. Search and goto mark can show the hit in  a  different
+       color. You can make this coloring the selection.
+
+                                sseelleecctt
+       Turn  on  or off selection. Selections can be copied and pasted, saved,
+       edited etc.
+
+                                ssaavveesshhoowwnn
+       Save Shown (Alt-e,v)
+
+       Save selection in the active datatype as shown on the screen.   So  the
+       selected  data is first converted to the active datatype and then saved
+       to a file.
+
+                                rreeaaddsshhoowwnn
+       Insert shown (Alt-e,h)
+
+       Insert file content within active datatype. The content of the file  is
+       interpreted as consisting of data in the active datatype.
+
+                                ggoottoollaassttsseeaarrcchhppooss
+       Last searched (Alt-m,l)
+
+       Jumps to file offset last searched. Useful if you interrupted searching
+       or are searching on the background and want to know  where  search  was
+       left.
+
+                                nneexxttiitteemm
+       Next Item (Alt-m,x)
+
+       Moves one item forwards. Item is the active datatype unit.
+
+                                bbaacckkiitteemm
+       Back Item (Alt-m,a)
+
+       Moves one item backwards. Item is the active datatype unit.
+
+                                pprreevvppooss
+       Undo move (Alt-m,m)
+
+       Go to previous file offset.
+
+                                nneexxttppooss
+       Redo move (Alt-m,v)
+
+       Go again to file offset before undo move.
+
+                                ssccrroolllluupp
+       Up (Alt-i,u)
+
+       Scrolls file up. The second line is scrolled up to the first line posi-
+       tion.
+
+                                eeddsscchhoollllddoowwnn
+       Down (Alt-i,w)
+
+       Scrolls file down. The first line is scrolled down to the  second  line
+       position.
+
+                                ssccrroolllliitteemm
+       Left item (Alt-i,l)
+
+       Shift  left one item. The second item is shifted leftwards to the first
+       item position.
+
+                                ssccrroollllbbaacckkiitteemm
+       Right item (Alt-i,r)
+
+       Shift right one item. The first item is shifted rightwards to the  sec-
+       ond item position.
+
+                                ssccrroollllbbyyttee
+       Left byte (Alt-i,f)
+
+       Shift left one byte. The second byte is shifted leftwards to the second
+       byte position.
+
+                                ssccrroollllbbaacckkbbyyttee
+       Right byte (Alt-i,g)
+
+       Shift right one byte. The first byte is shifted rightwards to the first
+       byte position.
+
+                                aadddduunnssiiggnneedd
+       Unsigned (Alt-d,i)
+
+       Create  unsigned  integer  datatype. You can select bases from 2 to 36.
+       The number of bytes per unit range from 1 to some unknown limit depend-
+       ing  on  hardware  speed.   You  can start a separate datatype or add a
+       field to an existing datatype.  In the last case where in the  existing
+       datatype  the  new field is placed depends on the cursor position: - At
+       the end of the existing datatype if the cursor is at  the  end  of  the
+       screen  - At the beginning of the existing datatype if the cursor is at
+       the beginning of the screen - Otherwise at the  place  closest  to  the
+       cursor.  - After the cursor position if the distances are equal
+
+                                nnaaaarrAASSCCIIII
+       Ascii (Alt-d,a)
+
+       Create  ascii  datatype.   No  print:  character to show if byte is not
+       printable.  You can also decide which byte values  are  interpreted  as
+       printable  characters.  Strict  is ascii only, +161-255 adds byte value
+       161-255 etc.  It is possible to make units of more then one  character.
+       The  meaning  of separete/add field is explained under unsigned integer
+       help (Alt-d,i).
+
+                                eemmppttyyccoonnttaaiinn
+       Empty (Alt-d,y)
+
+       Skip empty parts within a composed datatype.  Useful if a file contains
+       records with parts you are not interested in.
+
+                                ccooppyymmooddee
+       Clone (Alt-d,c)
+
+       Create a datatype that is identical to the active (sub) datatype.
+
+                                aaddddSSiiggnneedd
+       Signed (Alt-d,s)
+
+       Create signed integer datatype. See unsigned integer help (Alt-d,i) for
+       more information.
+
+                                aaddddFFllooaatt
+       Float (Alt-d,o)
+
+       Create float datatype: 4 bytes: float 8 bytes: double  12  bytes:  long
+       double
+
+       It is not possible to use normal search in the float datatype, you need
+       to use regex search. Normal search translates the  search  string  from
+       the datatype format back to raw bytes and searches for these raw bytes.
+       This is not possible because float as displayed has not a perfect  pre-
+       cision  so  that  that the float that is displayed can correspondent to
+       more then one raw byte array.
+
+                                aaddddBBiittFFllaaggss
+       BitFlags (Alt-d,b)
+
+       Create bitflags. Give every bit a label which is shown if that bit  has
+       value  1.   Not  char:  If  that  bit is zero, the value of Not char is
+       shown.  Add: Bit-label correspondences are assigned  by  typing  a  bit
+       number  after  Bit and the corresponding label after Label and pressing
+       return on Add. Bits are numbered from 0 to (8*bytenr-1). With the  low-
+       est  bit  having number 0.  This creates a list of bit-label correspon-
+       dences under Flags.  Flags: You can edit  one  such  correspondence  by
+       pressing  Alt-f  followed  by selecting the correspondence and pressing
+       return. You change the Bit and label values and again press  Return  at
+       Add.   Del:  If  you  press  on  delete  the selected correspondence is
+       deleted.  Between: What to write between bytes. Default: nothing.   Or-
+       der: When editing a file in bitflags every item is shown as some flags.
+       If you want to set a certain flag you write the label. If order is  set
+       this  is  only possible if you are above the position of this label. If
+       order is not set you can set the label at every position.  Example:  If
+       the  flags  are  zyx and order is set you can change --- in --x only by
+       pressing x at position 0, without order you can press x also  at  posi-
+       tion 1 or 2.
+
+                                bbiittffiieellddeerr
+       Bitfield (Alt-d,e)
+
+       This is a record/struct in which you specify the number of bits for ev-
+       ery field. After making a bitfield around a datatype it  works  like  a
+       normal  composed  datatype.  You just add the other fields.  You change
+       the number of bits of a certain field by setting  the  cursor  on  that
+       field and selecting again Alt-d,e but now you press 'Change Bits'.  An-
+       other way is to make the bitfield the active datatype by pressing  Alt-
+       y,t (Parent) and then selecting Config (Alt-y,g).
+
+                                ttrraannssllaattee
+       Translate (Alt-d,l)
+
+       Translate  assigns labels to values of another datatype. You can use it
+       when  numbers  have  a  certain  meaning.   After  selecting  'New'  or
+       'Change': Type: The To datatype is what is shown on the screen (usually
+       Ascii).  For certain values of the 'From'  datatype  you  specify  what
+       should  be shown in the To datatype.  Add: After specifiying the To and
+       From datatypes, you specify the From and To values and press Add.   De-
+       fault:  If there is no assignment Default is shown.  Assignments: After
+       pressing Alt-g you can select a certain existing assignment.   Pressing
+       Return makes it editable, pressing Del deletes it.
+
+       After  selecting  'Use;  Select  label  and press return to insert this
+       value.
+
+                                lliissttttyyppeess
+       List (Alt-d,t)
+
+       List of all datatypes. Use movement keys to  select  one  of  them  and
+       press Return to create it.
+
+                                rreeoorrddeerruunniitt
+       Reorder (Alt-y,o)
+
+       One  of the filters that is transforms the data when read from the file
+       and before interpreted by the datatype.  Reorders  bytes  within  item.
+       Unit  gives  the  number  of  bytes to keep together.  If the bytes are
+       'abcdef',  reorder  with  unit=1  gives  'fedcba',  with  unit=2  gives
+       'efcdab', with unit=3 gives 'defabc'.
+
+                                dduupplliiccaattee
+       Duplicate (Alt-y,i)
+
+       Useful  if  you  like to use the same data more than once in a composed
+       datatype. It acts like an union in c.  Filter that duplicates bytes be-
+       fore being interpret by the active (sub-) datatype. You have to specify
+       how many times it is duplicated (dubnr).   The  active  (sub)  datatype
+       consists of a certain number of bytes (size).  usenr=(size/dubnr) gives
+       the number of bytes used for every item.  dubnr times  the  same  usenr
+       bytes are appended and given to the datatype.  Example: You use ascii/4
+       (ascii consisting of 4 bytes). You say duplicate 2 and  the  file  con-
+       sists  of  abcdefghijkl.  Before applying the filter this was displayed
+       as abcd efgh ijkl.  After applying the duplicate filter it becomes abab
+       cdcd efef ghghe ijij klkl.
+
+                                aaddddsskkiipp
+       Skip (Alt-y,k)
+
+       Filter  to  skips a certain number of bytes.  You have to specify after
+       how many bytes and how many bytes are to be skipped. This is  then  re-
+       peatedly applied to every unit of the active (sub-) datatype.  Example:
+       The active datatype is ascii/4. The file contains 'abcdefghijkl'.  abcd
+       efgh  ijkl  is displayed.  Applying Skip with After=2 and Skip=1 gives:
+       abde ghjk.  After ab c is skipped after de f is skipped and after jk  l
+       is skipped.  It is not possible to use normal search in a datatype were
+       Skip is applied. You need to use regex search. Normal search translates
+       the  search  string  from  the  datatype  format  back to raw bytes and
+       searches for that string. This is not possible when Skip is applied be-
+       cause  one search string can correspondent to more then one raw content
+       bytes string.
+
+                                rrmmllaassttffiilltteerr
+       Rm filter (Alt-y,m)
+
+       Removes last filter (Reorder, Duplicate, Skip or some other filter  de-
+       fined in a plugin).
+
+                                rreeppeeaattccoonnttaaiinn
+       Repeat (Alt-y,p)
+
+       Repeats active (sub-)datatype a certain number of times. It behaves the
+       same as a composed datatype with multiple version of the current active
+       (sub-) datatype.
+
+                                ddaattaattyyppeeccoonnffiigg
+       Config (Alt-y,g)
+
+       Modify  parameters  of  active  (sub-)  datatype. Things like number of
+       bytes and the base of Integers.
+
+                                ddaattaaccoonnffiigg
+       Misc (Alt-y,s)
+
+       Modify some general display parameters of datatype.   Label:  Name  for
+       datatype  shown  on  the  message  line Apart: number of spaces between
+       items of this  datatype  Spaceafter:  number  of  spaces  between  this
+       datatype and an other datatype or the offset numbers.  Conf: Configura-
+       tion string every datatype has. Usually you don't need to change this.
+
+                                ssaavveeddaattaattyyppee
+       Write Type (Alt-y,w)
+
+       Save datatype to file so you don't have to  recreate  complex  datatype
+       everytime you need them.
+
+                                rreeaaddccoonnttaaiinn
+       Read Type (Alt-y,d)
+
+       Read saved datatype. So that the current file is displayed in that for-
+       mat.
+
+                                rreeccoorrdd
+       Record (Alt-t,r)
+
+       Start recording. Keystrokes are recorded until you press C-t.  You  can
+       save recorded keystrokes to replay them at some other moment.
+
+       Take  notice of the fact that RAW keystrokes are saved. This means that
+       the recorded keystrokes are very unportable. They are not portable  be-
+       tween  operating  systems  but  also not portable between terminals and
+       configurations.  What's is recorded within xterm does  not  necessarily
+       work  with  rxvt  or with linux console. You can use more portable key-
+       strokes by using only Alt-char and Control-char keys. The movement  and
+       function  keys are very unportable and also combinations of Alt or Con-
+       trol that make use of non alphabetic characters.
+
+                                ssaavveerreeccoorrdd
+       Save Recorded (Alt-t,s)
+
+       Save recorded keystrokes to file.
+
+                                ppllaayykkeeyyssffiillee
+       Play file (Alt-t,y)
+
+       Play saved keystrokes (recorded with Record).  The  program  runs  like
+       the  keystrokes are pressed by the user, except when other programs are
+       evoked from bed.
+
+                                ppllaayyrreeccoorrdd
+       Play Recorded (Alt-t,a)
+
+       If you have recorded keystrokes after program startup you can play them
+       off with this procedure.
+
+                                ooppeennddyynnlliibb
+       Load plugin (Alt-t,l)
+
+       Load plugin in program. The plugin can contain datatypes or procedures.
+       Procedures you can view under Dynamic (Alt-t,d), datatypes  under  Alt-
+       d,t.
+
+                                sshhoowwpprroocceedduurree
+       Key binding (Alt-t,k)
+
+       Shows  which  procedure is bounded to a key sequence in the format used
+       in bed's configuration file (bedrc).  You are asked to press a key  se-
+       quence.
+
+       Besides the procedure is shown what you need to write in the configura-
+       tion file to declare this key-procedure binding.
+
+       Examples After Alt-t,k, you press F12 and get keys 27 91 50  52  126  =
+       makeselection
+
+       The  procedure is makeselection which is bounded to escape sequence: 27
+       91 50 52 126 If you like to bind makeselection  to  an  other  key  se-
+       quence,  you  press  after Alt-t,k the key sequence you want to bind it
+       to.  You could for example press C-a get 1 as answer and replace '27 91
+       50  52  126'  in  the previous keys statement with 1.  So you could add
+       keys 1 = makeselection to the end of ~/.bedrc
+
+       To know a procedure bounded to the menu, you  press  the  key  sequence
+       needed  to operate the menu using only the highlighted characters.  Af-
+       ter Alt-t,k you press Alt-f,x and get
+
+       menuitem 0 "E~xit" "M-x" 12 = quit
+
+       Procedure quit is bounded to a menuitem. The menu item  is  in  menu  0
+       (the  first  menu)  has label 'E~xit' and had keylabel 'M-x' and is the
+       twelves menuitem in the  menu  (starting  with  0  and  counting  empty
+       places).
+
+       If you like to change to name from 'E~xit' to '~Quit' you can add menu-
+       item 0 "~Quit" "M-x" 12 = quit to the end of ~/.bedrc
+
+       See manual page bed.1 for more details about  assigning  procedures  to
+       menu items and keys.
+
+                                nneewwccoonnttaaiinn
+       Sub (Alt-y,u)
+
+       With  this  function  you can create a composed datatype within another
+       composed datatype. First make a element of a composed datatype the  ac-
+       tive  datatype  and then use this function (Alt-y,u) to make a sub com-
+       posed datatype around the active datatype.  After this you can add more
+       datatypes  to  this sub composed datatype, by using the "Add field" op-
+       tion while starting a new datatype or by using Alt-y,r.  New  datatypes
+       created with add field are always added to the lowest composed datatype
+       in which the active datatype is contained. The message line shows  what
+       datatype  is active.  Use Alt-y,t and Alt-y,c to change to the datatype
+       this datatype is contained in and back again. You  can  also  make  the
+       composed datatype the active datatype by placing the cursor between two
+       of it's member (child) datatypes.  Subcomposed datatypes can be  useful
+       if  you want to use a filter for only a subset of the members of a com-
+       posed datatype.  For example a file consists of records of three  ascii
+       strings and you like to exchange the position of the first two strings.
+       After creating three ascii  strings  of  10  in  one  record  (composed
+       datatype),  you  set  the  cursor on the first field and press Alt-y,u.
+       This makes a subcomposed datatype around this field. To add the  second
+       field  to this composed datatype you set the cursor at the second field
+       and press Alt-y,r. Now you set the cursor between the first two  fields
+       (or you press Alt-y,t) and you reorder with unit 10 using Alt-y,o.
+
+                                ssttrreettcchhccoonnttaaiinn
+       Stretch (Alt-y,r)
+
+       Used  to  handle nested composed datatypes (made with Alt-y,u).  If you
+       have  made   a   composed   (struct/record)   datatype   for   example:
+       {{a,b,c},d,g}  Here  the letters are datatypes and {..} is one composed
+       datatype.  {a,b,c} is a nested (or sub) composed datatype.  If you  put
+       the cursor on d and apply this function, you can add d to this sub com-
+       posed datatype. So you get then {{a,b,c,d},g}.
+
+                                lleevveelloouutt
+       Levelout (Alt-y,v)
+
+       Applies if active datatype is a composed/record  datatype.   With  this
+       function  the composed datatype is removed so that the item(s) endup at
+       a higher level.  It can be used in two cases: 1. a nested composed;  2.
+       a composed containing only one datatype.
+
+                                uupplleevveell
+       Parent (Alt-y,t)
+
+       Parent datatype. Make active datatype the datatype in which the current
+       datatype is contained.
+
+                                ddoowwnnlleevveell
+       Child (Alt-y,c)
+
+       If applied to a  composed  datatype,  this  makes  the  current  active
+       datatype the member of the composed datatype the cursor is on.
+
+                                ggoottoo11
+       Goto the first open file.
+
+                                ttoocclliippbbooaarrdd
+       To Clipboard (Alt-e,l)
+
+       Puts selection in active datatype in MS Windows clipboard.
+
+                                ppaassttcclliippbbooaarrdd
+       From Clipboard (Alt-e,f)
+
+       Insert MS Windows clipboard in active datatype.
+
+                                sseelleeccttddiisskk
+       Raw edit of disk drives.
+
+       Select  a device to edit like a large file.  When you make changes keep
+       in mind that bed saves information in blocks (of  something  like  512,
+       1024  or 4096 bytes long). So with the changes you make, you also write
+       back the old content around the  change.  If  another  process  changed
+       something  there,  you  will  write  old information back.  The devices
+       shown are taken out of /proc/partitions. Subvolumes of  LVM  partitions
+       are not included. To edit them start bed with something like
+
+       bed /dev/mapper/*
+
+       Before  editing  any hard disk device decide with which permissions and
+       under what user and group you want to do that. Before changing anything
+       in  a real hard drive, try you changes first on a test file or better a
+       test USB-stick.
+
+                                ffiilleettyyppee
+       Uses the unix program file to guess the filetype of the  data  starting
+       at  the  current  cursor position. It can be used when the cursor is on
+       the first byte of a file or when searching for files inside a harddrive
+       device.  plugin file.cpp
+
+                                ffiilltteerr
+       Gives the content of the selection as input to a user specified command
+       (e.g. grep '^X'|sort|uniq) and places the output of that command in the
+       copy buffer.  plugin filter.cpp
+
+                                ddiissaasssseemmbblleerr
+       File content at cursor position is translated to assembler code.  Makes
+       use of gdb. Use nextdisassem to jump to the next machine code.  Use go-
+       tosymol  (elftables.plug) to jump to procedure using its procedure name
+       plugin disass.cc
+
+                                nneexxttddiissaasssseemm
+       Jumps to next machine code instruction and disassembles it: The  cursor
+       position is moved the length of the current machine code statement fur-
+       ther and the disassembler is called.  plugin disass.cc
+
+                                uunnddooaallll
+       undoall
+
+       Repeatedly calls undo (Alt-e,u) plugin undoall.cpp
+
+                                rreeddooaallll
+       redoall
+
+       Repeatedly calls redo (Alt-e,r) plugin undoall.cpp
+
+                                bbaacckkwwaarrdd
+       Adds the backward filter.  This filter tries to reverse  the  direction
+       of the last applied filter.  plugin backward.cc
+
+                                ccoommppaarree
+       Compares  last made selection with current file at current cursor posi-
+       tion for the length of that selection.  Bed itself has no limit on  se-
+       lection  size,  but some Xwindows programs force such limits on others.
+       See the help of makeselection.  plugin searchclip.cc
+
+                                sseeaarrcchhcclliipp
+       Searches in current file for the content  of  bed's  copy  buffer.   It
+       takes  over some search settings (Direction) of Alt-m,s.  And sets oth-
+       ers: Case sensitive, Non-Regex, non-aligned, from cursor position,  not
+       within  Units.  Currently it repeatedly searches for the first block of
+       the copy buffer and then  compares  it  with  the  whole  copy  buffer.
+       plugin searchclip.cc
+
+                                ttrryyiinnssttaallll11
+       Installs Float with installpart/1 and getFLoat plugin install.cc
+
+                                ttrryyiinnssttaallll22
+       Installs Digit with installpart(part,0) and getDigit plugin install.cc
+
+                                ddaattaattyyppeeiinnffoo
+       Gives information on active datatype.  plugin datatypeinfo.cc
+
+                                ccuuttsseelleecctt
+       Standard  cut: selection is put in copy buffer, file after selection is
+       moved to begin selection and rest file is truncated plugin cut.cc
+
+                                iinnsseerrttppaasstt
+       Standard past: file is extended and content after current file position
+       moved so that copy buffer content can be inserted plugin cut.cc
+
+PPLLUUGGIINNSS
+   IInnttrroodduuccttiioonn
+       Bed  has  the  possibility to call C++ functions from within bed and to
+       access some of the data of bed.
+       Here is an example:
+       /*Begin example1.cpp */
+       #ifdef GLOBAL
+       #endif
+       #ifdef EDITOR
+       int  example1(void) {
+            message("Hello world!!!");
+            }
+       #endif
+       call(example1)
+       /* End example1 */
+       Everything in the area in which GLOBAL is defined is  code  outside  of
+       the EDITOR class. Everything inside the area in which EDITOR is defined
+       is inside the Editor class and at the end of the files are the names of
+       the procedures which should be bounded to a key in bed.
+       In  this  example  the procedure example1 uses an function of bed which
+       writes a message to the messageline and call(example1)  says  that  the
+       function example1 should be accessible by bed.
+       This function example1 you can bound to a key the same way as bed's own
+       procedures . For example
+       keys 1 = example1
+       to bind contr-A to example1.
+       To compile the example you need just to do
+            make example1.plug
+       in the plugings/examples directory. Which assumes  that  there  is  the
+       original  Makefile  and  the make variable PLUGINDIR is assigned to the
+       directory in which plugin.cpp, faked.h and mainprocedures.h reside.
+       Ones compiled you have to put the line
+       plugin ABSOLUTEFILENAME
+       in ~/.bedrc before you bind a key to the corresponding functions.
+       So in for this example you can add
+       plugin /cygdrive/c/Program Files/bed/plugins/example1.plug
+       keys 1 = example1
+       in ~/.bedrc to enjoy the pleasure of getting "Hello world!!"  when  you
+       press Contr-A.
+       In  the  procedures  you write you can use all the procedures which can
+       bounded to keys (which have the format int name(void)), plus some extra
+       procedures I am going to describe now.
+
+       Bed  running  the  Fedora 10 version of Linux doesn't load plugins.  It
+       has something to do with NSA Security-Enhanced  Linux  (SELinux).   See
+       sseelliinnuuxx(8)
+       If the command
+
+                   getenforce
+
+       returns  Enforcing,  your  installation  has this problem.  If you have
+       root permissions you can turn it of with the command
+
+                   setenforce 0
+
+       To keep it disabled after a reboot  you  have  to  make  the  following
+       changes in /etc/selinux/config:
+
+                   Remove:
+                           set SELINUX=enforcing
+                   Add:
+                           set SELINUX=disabled
+
+       For more information follow sseetteennffoorrccee(1)
+
+       You can also keep SELinux enforcing and do the following:
+
+                chcon -t textrel_shlib_t *.plug
+
+                for bedplug in  *.plug;  do semanage fcontext -a -t textrel_shlib_t $bedplug ;done
+
+   EEddiittoorr
+       The following functions are inside class Editor:
+
+       iinntt ttooppooss((OOFFFFTTYYPPEE ppooss))
+
+       Go to offset pos in the current file. pos is rounded down to boundaries
+       of active datatype.
+
+       iinntt ttoobboorrddeerrppooss((OOFFFFTTYYPPEE ppooss))
+
+       Go to offset pos in the current file.
+
+       OOFFFFTTYYPPEE ddoosseeaarrcchh((cchhaarr **ssttrr,, iinntt lleenn))
+
+       Search for str with length len in the current document
+
+       OOFFFFTTYYPPEE ggeettffiilleeppooss(())
+
+       Get the offset of the first byte on the screen.
+
+       iinntt ggeetteeddiittppooss(())
+
+       Get the offset of the cursor in the current screen.  The offset of  the
+       cursor in the file is getfilepos()+geteditpos()
+
+       OOFFFFTTYYPPEE ggeettmmeemm((OOFFFFTTYYPPEE ppooss,,cchhaarr **bbuuff,,OOFFFFTTYYPPEE lleenn))
+
+
+       Get from position pos a piece of the current file with length len.  Re-
+       turns OFFTYPEINVALID on error, otherwise len;
+
+       OOFFFFTTYYPPEE ppuuttmmeemm((OOFFFFTTYYPPEE ppooss,,cchhaarr **bbuuff,,OOFFFFTTYYPPEE lleenn))
+
+       Put at position pos the array buf of length len. Returns OFFTYPEINVALID
+       on error, otherwise len;
+       iinntt ggeettsseellbbuuff((cchhaarr ****bbuuff))
+       Put  a  pointer  to the cutbuffer in *buf and returns the length of the
+       cutbuffer. Returns negative on error;
+
+       iinntt ppuuttsseellbbuuff((cchhaarr **bbuuff,,iinntt lleenn))
+        Puts buf with length len in the cutbuffer.
+
+       OOFFFFTTYYPPEE ggeettsseelleecctt((vvooiidd))
+        OOFFFFTTYYPPEE sseettsseelleecctt((OOFFFFTTYYPPEE ppooss))
+
+       getselect returns the starting position of  the  current  selection  or
+       OFFTYPEINVALID  if  there is no selection. Putselect put's the starting
+       position of the selection or with OFFTYPEINVALID unselects.
+       (The end position is the cursor position).
+
+       OOFFFFTTYYPPEE EEddiittoorr::::ggeettsseellrreeggiioonn((OOFFFFTTYYPPEE **ssttaarrtt))
+       Returns length of selection and puts start position  in  start.   start
+       has to point to an OFFTYPE.
+
+       iinntt ssccrreeeennssiizzee(())
+
+       Get the number of bytes currently on the screen.
+
+       cchhaarr **ggeettffiilleennaammee((cchhaarr **bbuuff))
+
+       The current filename is copied to buf.
+
+       iinntt mmeessssaaggee((cchhaarr **ffoorrmmaatt ......))
+
+       Write to messageline. Same format as printf.
+
+       iinntt ggeettkkeeyyiinnppuutt((cchhaarr **ffoorrmmaatt ......))
+
+       Ask in the same format as printf. And get an key as answer.
+
+       iinntt iinnppuuttggeett((cchhaarr **aannsswweerr,,ccoonnsstt cchhaarr **ffoorrmmaatt,,......))
+
+       Ask  in  the  same format as printf and get an answer in answer (should
+       hold enough memory).
+
+       OOFFFFTTYYPPEE ffiilleessiizzee((vvooiidd))
+
+       Get filesize.
+
+       iinntt ttoossccrreeeenn((vvooiidd))
+
+       Makes that the effect of previous operations is shown on the screen.
+       vvooiidd ffiilleessuupp((vvooiidd))
+        When a newwin (of ncurses) is used you can with filesup get  the  file
+       windows of bed again on top.
+
+   GGlloobbaall
+       eexxtteerrnn EEddiittoorr **eeddiittffiillee((ccoonnsstt cchhaarr **ffiillee))
+
+       Open a new file. When you want to do operations on this file you should
+       hold in mind that the previous functions are part of the class  Editor.
+       So when you can do for example:
+       /*start stupid.cpp
+       #compile with make stupid.plug
+       #put in ~/.bedrc
+       plugin /cygdrive/c/Program Files/bed/plugins/stupid.plug
+       keys 1 stupid
+       # and call contr-A in bed
+       */
+       #ifdef EDITOR
+       int another(void) {
+            topos(400);
+            toscreen();
+            getkeyinput("I am going to delete everyting O.K. ");
+            putmem(0,"Hello",5);
+            }
+
+       int stupid(void) {
+            Editor *ed=editfile("/boot/zimage");
+            return ed->another();
+            }
+       #endif
+       call(stupid)
+       /*end stupid.c */
+
+       ccaallll((pprroocc))
+         Determines  that proc can by used to bind keys to, add to menu and is
+       seen in Alt-t,d (Dynamic).  proc is a procedure of the  form  int  Edi-
+       tor::proc(void). A call(proc) should not ended with ';'.
+
+        ccaallll__oonn__ssttaarrtt((pprroocc))
+        ccaallll__oonn__ooppeenn((pprroocc))
+        ccaallll__oonn__sswwiittcchh((pprroocc))  call  proc once after program start, everytime a
+       file is opened or everytime the program switches to a file.
+
+       sseetthheellpp((pprroocc,,tteexxtt))
+        Adds helptext text to procedure. Shown on pressing F1 in Dynamic  pro-
+       cedure listing (Alt-t,d) and in menu if procedure is added to menu with
+       menuitem statement.
+
+       eexxtteerrnn EEddiittoorr **nneewwffiillee((vvooiidd));;
+        Opens empty file.
+
+       eexxtteerrnn eeddiittoorr **ggeettaaccttiivvee((vvooiidd))
+        Get the currently active Editor.
+
+       eexxtteerrnn vvooiidd rreewwrriitteeaallll((vvooiidd))
+        Rewrites everything on the screen.
+
+       Some examples of plugins are put in plugins/examples: one shows the as-
+       sembler  labels  of  the bytes starting with the cursor (gdb.plug), one
+       shows the file type (when the cursor is on the first byte  of  a  file)
+       (file.plug)  and  and one filters what's selected through an other pro-
+       gram (filter.plug).
+       A new syntax uses class Editor {} instead of the defines.  If  you  use
+       the  old  syntax  the  file name should end at .cpp, when using the new
+       syntax at .cc.  In the new syntax you should put the  following  state-
+       ments above any code:
+       #include "global.h"
+       BEDPLUGIN
+       Instead of #ifdef EDITOR ... #endif you write
+       class Editor {
+       public:
+       #include "faked.h"
+       int proc(void) {
+            }
+       };
+       call(proc)
+       and put you procedures under #include "faked.h" the call statements you
+       place under the '}'.
+
+       WWAARRNNIINNGG!!!!
+       You should NEVER define any variables within class Editor  (or  between
+       #ifdef  EDITOR  and  its #endif. You should also never try access vari-
+       ables of the main program (relating to  class  Editor)  directly.  With
+       this  version  of  gcc it is possible to distribute the procedures of a
+       class over different files, but not it's data.
+
+   DDaattaattyyppeess
+       iinntt EEddiittoorr::::iinnssttaallllppaarrtt((SSccrreeeennPPaarrtt **ppaarrtt,,iinntt ffiieelldd));;
+
+       Installs datatype part, which means that this datatype is used to  dis-
+       play  the  curent  file.   If  field  is  zero  this becomes a separate
+       datatype, otherwise it is added to the active datatype. It uses the de-
+       fault settings and doesn't ask the user any questions.
+
+       iinntt EEddiittoorr::::iinnssttaallllppaarrtt((SSccrreeeennPPaarrtt **ppaarrtt));;
+
+       Installs  datatype part, which means that this datatype is used to dis-
+       play the curent file.  The user  is  presented  with  an  configuration
+       screen to set some options.
+
+       eexxtteerrnn SSccrreeeennPPaarrtt** ggeettAAsscciiii((EEddiittoorr **eedd))
+       eexxtteerrnn SSccrreeeennPPaarrtt** ggeettDDiiggiitt((EEddiittoorr **eedd))
+       eexxtteerrnn SSccrreeeennPPaarrtt** ggeettFFllooaatt((EEddiittoorr **eedd))
+
+       For  every datatype X there is a getX(Editor *ed) function that returns
+       an instance of this datatype. You can use it by  the  command  install-
+       part(part).  In plugins you can define new datatypes.
+
+       SSccrreeeennPPaarrtt **EEddiittoorr::aaccttiivveemmooddee((vvooiidd));;
+
+       Returns curently active datatype.
+
+       cchhaarr **SSccrreeeennPPaarrtt::::ggeettnnaammee(())
+
+       Returns  name  of  the class of this datatype. It is a string shared by
+       all instances of this class.
+
+       iinntt SSccrreeeennPPaarrtt::::eeqquuaall((SSccrreeeennPPaarrtt **ppaarrtt))
+
+       Test if part is equal to this datatype. Equal  means  a  different  in-
+       stance,  but no differences in behaviour. Not only the class is identi-
+       cal, but also its parameters like bytes, filters and base.
+
+       iinntt SSccrreeeennPPaarrtt::::ddaattbbyytteess((iinntt bb==--11))
+
+       Returns the number of bytes of one item of this datatype.  If b differ-
+       ent from -1 the number of bytes is changed to this number.
+
+       iinntt SSccrreeeennPPaarrtt::::ggeettbbyytteess(())
+
+       Returns  the  number  of  bytes one item correspondence to on the file.
+       This can be different then what is returned by datbytes() when  filters
+       like Skip (Alt-y,k) or Duplicate (Alt-y,i) are applied.
+
+       SSccrreeeennPPaarrtt **SSccrreeeennPPaarrtt::::ggeettcchhiilldd((iinntt &&ffoorrssttaarrtt,,iinntt &&bbiinnssttaarrtt,,iinntt ppooss))
+
+       If  the  datatype  (ScreenPart) upon which is procedure is applied is a
+       composed or Repeat it returns the child datatype under the cursor, oth-
+       erwise it returns the current datatype.
+
+        SSccrreeeennPPaarrtt **SSccrreeeennPPaarrtt::::ggeettssuubbppaarrtt(())
+
+       Repeatedly applies getchild until is finds a datatype without children.
+
+       SSccrreeeennPPaarrtt **SSccrreeeennPPaarrtt::::ggeettppaarreenntt(())
+
+       Returns  contain current Screenpart is contained in, or NULL when there
+       is not sucn thing.
+
+       SSccrreeeennPPaarrtt **SSccrreeeennPPaarrtt::::ggeettssuuppeerrppaarrtt((vvooiidd)) Repeatedly  applies  getpar-
+       tent until is finds a datatype without parent.
+
+       iinntt SSccrreeeennPPaarrtt::::ccaallccssiizzeess((vvooiidd))
+
+       Calculate  sizes of ScreenPart. Should sometimes be called after chang-
+       ing some parameter of a datatype or adding a filter.
+
+       WWrriittee yyoouu oowwnn ddaattaattyyppeess::
+       You define a class as a subclass of ScreenPart or one existing datatype
+       (Digit,Ascii, Signed, Float etc). Lets start with an example:
+       #include <stdio.h>
+       #include <limits.h>
+       #include <ctype.h>
+       #include "global.h"
+       BEDPLUGIN
+       #include "screenpart.h"
+       class char2 : public ScreenPart {
+       public:
+       declareparent
+       char2 ( Editor *ed): ScreenPart( ed, 1 ,256, 2 )  {
+       apart=0;
+       };
+       int form2bin(char *formal, unsigned char *bin, int &len) {
+       bin[0]=formal[0];
+       return 2;
+       }
+       ScreenPart *newone(void) {return new char2(*this);}
+       int bin2formal(unsigned char *bin, char *formal, int len) {
+            if(isprint(bin[0]))
+                 formal[0]=bin[0];
+            else
+                 formal[0]='.';
+            return 0;       }
+         int isel(int ch) {return isprint(ch);}
+               };
+       datatype(char2)
+       parentd(ScreenPart,char2)
+
+       After
+       #include "global.h"
+       BEDPLUGIN
+
+       which is included in every plugin,
+       #include "screenpart.h"
+       is included because we need to become a sub class of ScreenPart.
+
+       class char2 the new datatype.
+
+              declareparent
+
+       Is a statement what should be included in every datatype class. In com-
+       bination with parentd it is used to determine the  parent  child  rela-
+       tions between classes.
+
+              char2 ( Editor *ed): ScreenPart( ed, 1 ,256, 2 )  {
+
+       every datatype class should also contain a contructer with as first ar-
+       gument Editor *ed and it should call the parent  constructor.   Screen-
+       Part  takes  as  first argument ed, as second the numbers of characters
+       every item needs to be displayed on the screen. As third  argument  the
+       base  of  the  datatype (or something arbritary if this datatype has no
+       base) and ad fourth argument the number of bytes  of  the  screen  this
+       datatype uses.
+
+              apart=0
+
+       States that the items are zero space apart of each other on the screen.
+       The default is 1 space between items.  int form2bin(char  *formal,  un-
+       signed  char  *bin,  int  &len) { form2bin comes from format to bin. It
+       transforms formatted input to binary form (the raw form in  the  file).
+       formal  contains  the  formatted  input,  bin is filled with its binary
+       form. len is a reference to the length of formal and should be  set  to
+       the  length of formal that is actually used. form2bin should return the
+       number of bytes placed in bin.
+
+              int bin2formal(unsigned char *bin, char *formal, int len) {
+
+       bin2formal transforms binary input to formatted output.   bin  contains
+       the  binary  input, in formal the formatted output is placed.  len con-
+       tains the length of bin. It should return 0 on success and -1 on error.
+
+               int isel(int ch)
+
+       isel  determines  what  character  input  (e.g.  keyboard)  input  this
+       datatype  can  handle. Unsigned decimal integers can handle for example
+       0-9 (isdigit(ch)).  It should return nonzero when it can handle the in-
+       put and 0 when not.
+
+              datatype(char2)
+
+       The  datatype  statement  makes the datatype known to bed, it adds this
+       datatype to the datatype list so that it is seen with Alt-d,t  and  you
+       can  use it in saved datatypes. You can use ScreenPart *getchar2(Editor
+       *ed) to get char2.
+
+              parentd(ScreenPart,char2)
+
+       Also a obligatory statement, stating that char2 is a child  of  Screen-
+       Part.
+
+       Other  statements  functions which can be defined in datatypes (Screen-
+       Part's):
+
+       iinntt cchhbbyytteess((iinntt bbyytt))
+       Changes the number of bytes the datatype uses (used  by  Alt-y,g).   If
+       byt=-1  is should return a number greeter then 0 if the number of bytes
+       can be changed. If bytes>0 is should change its number of bytes to this
+       value  and  return  the number of bytes it occupies. On error is should
+       return -1.
+
+       iinntt cchhbbaassee((iinntt bbaassee))
+       Returns the current base (ScreenPart::type) with b==-1,  returns  -type
+       if b==0.  Returns -1 if base can't be set and changes to base base oth-
+       erwise returning the base.
+
+       cchhaarr **ggeettccoonnvvssttrr((vvooiidd))
+
+       A procedure that can be defined to return a string describing some  ex-
+       tra  options  set in the current instance of this datatype. When saving
+       datatypes this string will also be  saved  and  when  the  datatype  is
+       recreated from the saved datatype it will be given to the curresponding
+       procedure setconvstring to set these options.   The  string  can  be  a
+       static string if you like; it will not be freed by the main program.
+
+       iinntt sseettccoonnvvssttrr((cchhaarr **ssttrr))
+
+       Procedure  that  can  be  defined  to  set the options of a string this
+       datatype returned with getconvstr. It should return -1 on error, other-
+       wise it should return 0.
+
+       uusseerrccoonnffiigg((iinntt mmooddiiffyy))
+
+       Procedure  that  can  be defined to create your own dialog presented to
+       the user to configure the datatype If modify=1 the datatype is  already
+       shown  on  the  screen,  as  when it is called by Alt-y,g.  If modify=0
+       useconfig is called on creation of the datatype. In the last case  usr-
+       config  should  call installpart(sub,separ) to add this datatype to the
+       screen.
+
+       Most  datatype  classes  would  also   contain   a   copy   constructor
+       DDaattaattyyppee((DDaattaattyyppee &&ffll))
+
+       For  additions and modifications you can look at the example plugins or
+       in faked.h or the Tools menu inside bed (Key binding and Procedures).
+
+   FFiilltteerrss
+       iinntt SSccrreeeennPPaarrtt::::aaddddffiilltteerr((FFiilltteerr **ffiill))
+
+       Adds Filter fil to the filters of current datatype. Returns -1 on fail-
+       ure.  Otherwise it returns the number of filters.
+
+       iinntt SSccrreeeennPPaarrtt::::rrmmllaassttffiilltt((cchhaarr **nnaammee==NNUULLLL))
+
+       Removes  last filter. If name!=NULL it only removes this filter if name
+       is the name of the the last filter. Name is for example Duplicate,  Re-
+       order, Skip etc.
+
+       Filter *ScreenPart::getlastfilter(void)
+
+       Get the last applied filter if it exist, otherwise it returns NULL.
+
+       CCrreeaattiinngg ffiilltteerrss
+
+       A  filter  sits  between  the  datatype and the file and transforms the
+       data.  It is a sub class of Filter (lets call it SubFilter).
+
+       Filter contains the following variables:
+       char *name; /*All references to  this  name  should  contain  the  same
+       pointer.  set  by  name=filtername(SubFilter)  (without "") extern char
+       *filtername(SubFilter); should be defined above the class. */
+
+       int bytesfile; /*Number of bytes of each unit at the file side of  this
+       filter */
+       int bytesscreen; /*Number of bytes of each unit at the screen side */
+       int  err;  /*set  this if an error occured, that makes the filter unus-
+       able*/
+       Screen side and file side doesn't mean that this is also the number  of
+       bytes  per  bytes on respectively the screen or the file. Other filters
+       before or after can change this.
+
+       It contains the procedure fromfile which transfroms the data  from  the
+       file to the datatype (ScreenPart):
+
+       vviirrttuuaall  iinntt ffrroommffiillee((uunnssiiggnneedd cchhaarr **iinnppuutt,,iinntt &&lleenn,,uunnssiiggnneedd cchhaarr **oouutt--
+       ppuutt))
+
+       Input: contains the input, len the length of the input. If  less  bytes
+       are  used len is set to the acually used length. output points to a ar-
+       ray in which the output is written. The function returns the length  of
+       the output.
+
+       vviirrttuuaall iinntt ttooffiillee((uunnssiiggnneedd cchhaarr **iinnppuutt,,iinntt &&iinnpplleenn,,uunnssiiggnneedd cchhaarr **oouutt--
+       ppuutt))
+
+       To file is identical except that now the direction is from the datatype
+       to the file.
+
+       Beside these, it should contain the following procedures:
+
+       SSuubbFFiilltteerr((iinntt ffiilleebbyytteess,,iinntt ssccrreeeennbbyytteess,,cchhaarr **ccoonnff))
+
+       Constructor  with  as arguments the number of bytes at the file side of
+       the filter (filebytes), the number of bytes at the screen side  of  the
+       filter  (screenbytes)  and a config string (conf). conf is a string re-
+       turned by convstr of the same filter class and is used to save settings
+       of the filter when saving datatypes.
+
+       cchhaarr **ccoonnvvssttrr((vvooiidd))
+
+       Procedure that returns a configuration string used to set options while
+       recreating this filter.
+
+       SSuubbFFiilltteerr((FFiilltteerr &&rreevv))
+
+       A copy contructor.
+
+       FFiilltteerr **nneewwoonnee((vvooiidd))
+
+       Returns a new copy of this filter
+
+       iinntt cchhbbyytteess((iinntt bb))
+
+       Changes the number of bytesfile to b. Returns -1 on failure,  otherwise
+       returns bytesscreen (after having recalculated it's value).
+
+       iinntt cchhbbyytteessbbaacckk((iinntt bb))
+
+       Changes  the  number of bytesscreen to b. Returns -1 on failure, other-
+       wise returns bytesfile (after having recalculated it's value).
+
+       iinntt  eeqquuaall((FFiilltteerr **ffiill))
+
+       Returns 1 if fil is equal to this filter, 0 otherwise.
+
+       vviirrttuuaall iinntt ssccrreeeenn22ffiilleeppooss((iinntt ppooss))
+
+       Can be defined to return the byte position on the fileside given a  po-
+       sition on the screenside.
+
+       vviirrttuuaall iinntt ffiillee22ssccrreeeennppooss((iinntt ppooss))
+
+       The same as screen2filepos in the opposide direction.
+
+       Outside  of  the class you should register the filter with rreeggiisstteerrffiill--
+       tteerrccllaassss(SubFilter). Needed for example to use this filter while  read-
+       ing saved datatypes.
+
+       Currently  you  should  write  your  own procedure to add a filter to a
+       datatype.  The most simple procedure is the following:
+
+       #include "global.h"
+       #include "screenpart.h"
+       #include "reverse.h"
+       BEDPLUGIN
+       class Editor {
+       public:
+       #include "faked.h"
+       int addFilter(void) {
+               ScreenPart *part=activemode();
+               int byt=part->datbytes();
+                       Reverse *sub=new Reverse(byt,byt,"1");
+                       if(sub->error()) {
+                               message("cant add filter");
+                      return -1;
+                 }
+                          addfilter(sub);
+               return 0;
+            }
+       };
+       call(addFilter)
+       You should Reverse change in the name of the Filter and "1" to the con-
+       fig string.
+
+EENNVVIIRROONNMMEENNTT
+       BBEEDDRRCC  Absolute filename of configuration file.
+
+       EEDDIITTOORR Preferred editor
+              unix: export EDITOR=vi
+              windows: set EDITOR=notepad
+
+       PPAAGGEERR  Preferred  pager used to show context sensitive help in bed.  If
+              the pager returns immediately, bed refreshes its screen, so  you
+              can't use more.
+
+       LLIINNEESS__UUSSEE__PPAAGGEERR
+              The pager set by PAGER is only used when the help text is larger
+              (in lines) then LINES_USE_PAGER. Otherwise an internal pager  is
+              used.
+
+       SSHHEELLLL  Preferred shell. Use unix like / to separate dirs
+
+       TTMMPPDDIIRR ((uunniixx)) oorr TTMMPP oorr TTEEMMPP ((wwiinn9955))
+              Directory for temporary files
+
+       TTEERRMMIINNFFOO
+              Terminfo directory.
+
+       MMAAGGIICC  If magic.plug is loaded or linked in (procedure filetype): data-
+              base   file    used    to    determine    filetype.     Default:
+              /usr/share/misc/magic
+
+       NNCCUURRSSEESSDDEELLAAYY
+              Only  applicable  to  the MS Windows version running in cmd.com.
+              Can be to a number larger then 0.  Normally "set NCURSESDELAY=1"
+              should  be  the right value.  Once this gave problems, that were
+              solved by setting it to 5, but that made the responses to ESC  5
+              times slower (500 ms instead of 100 ms).
+
+       It  is  possible  to  set  environmental variables in the configuration
+       file:
+
+       sseetteennvv name [val]
+              Leaving out val means unsetenv.
+
+FFIILLEESS
+       ~~//..bbeeddrrcc
+              Individual configuration.
+
+       //ccyyggddrriivvee//cc//PPrrooggrraamm FFiilleess//bbeedd//bbeeddrrcc
+              System wide configuration.
+
+       //ccyyggddrriivvee//cc//PPrrooggrraamm FFiilleess//bbeedd//pplluuggiinnss//**
+              Files needed to compile plugins: plugin.cpp  faked.h  mainproce-
+              dures.h Makefile
+
+PPOORRTTAABBIILLIITTYY
+       Binaries  available for: Linux x86-32, x86-64, armhf and arm android-17
+       and  Windows 7/8/10 x86-64 and x86-32.
+       Previous versions compiled also under win95,  win32,  FreeBSD32,  Free-
+       BSD64, and OpenSolaris 32 bit.
+       See TERMINALS section for terminal requirements
+
+AAUUTTHHOORR
+       Jaap Korthals Altes
+
+       E-Mail:  binaryeditor@gmx.com
+
+HHOOMMEEPPAAGGEE
+       http://bed.dse.nl
+       http://binaryeditor.sourceforge.io
+
+DDOOWWNNLLOOAADD
+       http://bed.dse.nl/download.html
+       http://sourceforge.net/projects/binaryeditor/files/
+       The  windows  version  is  compiled  with  cygwin1.dll (See http://cyg-
+       win.com).  Using a very different version   of  cygwin1.dll  will  give
+       problems.  Using  this  version of cygwin1.dll with other programs com-
+       piled with a different version of cygwin1.dll will also give  problems,
+       the  same  is  true  for using different versions of cygwin1.dll beside
+       each other. There seems to be no other solution then constantly modify-
+       ing and recompiling all programs compiled with cygwin1.dll. You can get
+       especially funny effects when you use native Windows code to  speed  up
+       some  sections  and  leave the less crucial parts unchanged, which in a
+       new cygwin1.dll version can result, for example, in the windows and the
+       POSIX  functions using a different current directory. So if you want to
+       port something to Windows use another POSIX library. E-mail me if there
+       is some way to do that without having to spend weeks collecting and in-
+       stalling all kind of auxiliary software.
+
+       To compile bed for win64 you need:
+       - gcc,binutils,gnu make,grep,  sed,textutils,findutils,fileutils,diffu-
+       tils,which  and  probably  some other utilities from cygwin http://cyg-
+       win.com
+       -  GNU  regex   (different   from   libregex.a   from   cygwin):   e.g.
+       http://ftp.gnu.org/old-gnu/regex/regex-0.12.tar.gz
+       - pdcurses source http://pdcurses.sourceforge.net
+
+SSEEEE AALLSSOO
+       pprriinnttff(3),  ssccaannff(3),  ssttrriinnggss(1),  ggrreepp(1),  dddd(1)  hheeaadd(1),  ttaaiill(1),
+       rreeggeexx(7), nnccuurrsseess(3), oodd(1), hheexxdduummpp(1),  bbeeaavv(1),  bbvvii(1)  tteerrmmiinnffoo(5)
+       rreeaaddeellff(1)
+
+
+
+
+Bed Version 0.2.20                Jan 25 2004                           bed(1)

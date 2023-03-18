@@ -1,0 +1,8 @@
+The devices shown are taken out of /proc/partitions. Subvolumes of LVM 
+partitions are not included. To edit them start bed with something like
+
+ bed /dev/mapper/* 
+
+Before editing any hard disk device decide with which permissions and under 
+what user and group you want to do that. Before changing anything in a real
+hard drive, try you changes first on a test file or better a test USB-stick.

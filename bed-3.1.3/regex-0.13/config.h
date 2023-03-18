@@ -1,0 +1,1 @@
+#define HAVE_UINTPTR_T 1

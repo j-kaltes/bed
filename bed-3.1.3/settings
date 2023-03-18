@@ -1,0 +1,10 @@
+#set before ./configure
+CURSESLIB=ncurses
+CXXFLAGS=
+CPPFLAGS=
+CFLAGS=
+LDFLAGS=
+prefix=/usr
+#CC=clang
+#CXX=clang++
+

@@ -1,0 +1,15 @@
+if test .$FROMXBED != .true
+then
+	for prog in $RXVTS
+	do
+		$prog -h 2>&1 | grep -qi menubar && FROMXBED=true exec $prog -geometry 80x25 -fn 12x24 +sb -T "XBed: binary editor" -e sh $0  $*
+	done
+	echo No rxvt with menubar found. Tried $RXVTS.
+	echo Install a rxvt with menubar '(check rxvt -h for menubar)'
+	echo If you have a rxvt with menubar with a different name
+	echo add this to the RXVTS=\"$RXVTS\" line of 
+	which $0
+	exit
+else
+Echo="echo -n"
+$Echo "]10;[read:$0;bed]"

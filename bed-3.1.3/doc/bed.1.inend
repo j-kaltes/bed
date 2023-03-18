@@ -1,0 +1,775 @@
+.SH PLUGINS
+.SS Introduction
+Bed has the possibility to call C++ functions from within bed and to access some of the
+data of bed.
+.br
+Here is an example:
+.nf
+/*Begin example1.cpp */
+#ifdef GLOBAL
+#endif
+#ifdef EDITOR
+int  example1(void) {
+	message("Hello world!!!");
+	}
+#endif
+call(example1)
+/* End example1 */
+.fi
+Everything in the area in which GLOBAL is defined is code outside of the EDITOR
+class. Everything inside the area in which EDITOR is defined is inside the Editor
+class and at the end of the files are the names of the procedures which should be
+bounded to a key in bed.
+.br
+In this example the procedure example1 uses an function of bed which writes a
+message to the messageline and call(example1) says that the function example1
+should be accessible by bed.
+.br
+This function example1 you can bound to a key the same way as bed's own procedures . For example
+.br
+keys 1 = example1
+.br
+to bind contr-A to example1.
+.br
+To compile the example you need just to do 
+.br
+	make example1.plug 
+.br
+in the plugings/examples directory. Which assumes that there is the original Makefile
+and the make variable PLUGINDIR is assigned to the directory in which plugin.cpp,
+faked.h and mainprocedures.h reside.
+.br
+Ones compiled you have to put the line
+.br
+plugin ABSOLUTEFILENAME
+.br
+in ~/.bedrc before you bind a key to the corresponding functions.
+.br
+So in for this example you can add
+.br
+plugin CONFDIRLINK/plugins/example1.plug
+.br
+keys 1 = example1
+.br
+in ~/.bedrc to enjoy the pleasure of getting "Hello world!!" when you press Contr-A.
+.br
+In the procedures you write you can use all the procedures which can bounded to
+keys (which have the format int name(void)), plus some extra procedures I am going to describe now.
+.PP
+Bed running the Fedora 10 version of Linux doesn't load plugins. 
+It has something to do with NSA Security-Enhanced Linux (SELinux).
+See 
+.BR selinux (8)
+.br
+If the command 
+.in +4n
+.nf
+
+        getenforce
+
+.fi
+.in
+returns Enforcing, your installation has this problem.
+If you have root permissions you can turn it of with the command
+.in +4n
+.nf
+
+        setenforce 0
+
+.fi
+.in
+To keep it disabled after a reboot you have to make the following changes in /etc/selinux/config:
+.in +4n
+.nf
+
+        Remove:
+                set SELINUX=enforcing 
+        Add:
+                set SELINUX=disabled 
+.fi
+.in
+
+For more information follow
+.BR setenforce (1)
+.PP
+You can also keep SELinux enforcing and do the following:
+.in +4n
+.nf
+
+	chcon -t textrel_shlib_t *.plug
+
+	for bedplug in  *.plug;  do semanage fcontext -a -t textrel_shlib_t $bedplug ;done
+.fi
+.in
+.SS Editor
+The following functions are inside class Editor:
+.PP
+\fBint topos(OFFTYPE pos)
+.br
+\fP
+.br
+Go to offset pos in the current file. pos is rounded down to
+boundaries of active datatype.
+.PP
+\fBint toborderpos(OFFTYPE pos)
+.br
+\fP
+.br
+Go to offset pos in the current file.
+.PP
+\fBOFFTYPE dosearch(char *str, int len)
+.br
+\fP
+.br
+Search for str with length len in the current document
+.br
+
+.br
+\fBOFFTYPE getfilepos()
+.br
+\fP
+.br
+Get the offset of the first byte on the screen.
+.br
+
+.br
+\fBint geteditpos()
+.br
+\fP
+.br
+Get the offset of the cursor in the current screen.
+The offset of the cursor in the file is getfilepos()+geteditpos()
+.br
+
+.br
+\fBOFFTYPE getmem(OFFTYPE pos,char *buf,OFFTYPE len)
+
+.br
+\fP
+.br
+Get from position pos a piece of the current file with length len.
+Returns OFFTYPEINVALID
+on error, otherwise len;
+.br
+
+.br
+\fBOFFTYPE putmem(OFFTYPE pos,char *buf,OFFTYPE len)
+.br
+\fP
+.br
+Put at position pos the array buf of length len. Returns OFFTYPEINVALID
+on error, otherwise len;
+.br
+.br
+\fBint getselbuf(char **buf) 
+\fP
+.br
+Put a pointer to the cutbuffer in *buf and returns the length of the cutbuffer. Returns negative on error;
+.br
+.PP
+\fBint putselbuf(char *buf,int len)
+.br
+\fP
+Puts buf with length len in the cutbuffer. 
+.PP
+\fBOFFTYPE getselect(void) 
+.br
+\fP
+\fBOFFTYPE setselect(OFFTYPE pos)
+.br
+\fP
+.br
+getselect returns the starting position of the current selection or OFFTYPEINVALID if there is no
+selection. Putselect put's the starting position of the selection or with OFFTYPEINVALID unselects.
+.br
+(The end position is the cursor position).
+.PP
+\fBOFFTYPE Editor::getselregion(OFFTYPE *start)\fP 
+.br
+Returns length of selection and puts start position in start. 
+start has to point to an OFFTYPE.
+.PP
+\fBint screensize()
+.br
+\fP
+.br
+Get the number of bytes currently on the screen.
+.br
+
+.br
+\fBchar *getfilename(char *buf)
+.br
+\fP
+.br
+The current filename is copied to buf.
+.br
+
+.br
+\fBint message(char *format ...) 
+.br
+\fP
+.br
+Write to messageline. Same format as printf.
+.br
+
+.br
+\fBint getkeyinput(char *format ...)
+.br
+\fP
+.br
+Ask in the same format as printf. And get an key as answer.
+.br
+
+.br
+\fBint inputget(char *answer,const char *format,...)
+.br
+\fP
+.br
+Ask in the same format as printf and get an answer in answer (should hold enough
+memory).
+.br
+
+.br
+\fBOFFTYPE filesize(void) 
+.br
+\fP
+.br
+Get filesize.
+.br
+
+.br
+\fBint toscreen(void) 
+.br
+\fP
+.br
+Makes that the effect of previous operations is shown on the screen.
+.br
+.br
+\fBvoid filesup(void) 
+.br
+\fP
+When a newwin (of ncurses) is used you can with filesup get the file windows of bed
+again on top.
+.SS Global
+\fBextern Editor *editfile(const char *file)
+.br
+\fP
+.br
+Open a new file. When you want to do operations on this file you should hold in
+mind that the previous functions are part of the class Editor. So when you can do
+for example:
+.nf
+/*start stupid.cpp
+#compile with make stupid.plug
+#put in ~/.bedrc
+plugin CONFDIRLINK/plugins/stupid.plug
+keys 1 stupid
+# and call contr-A in bed
+*/
+#ifdef EDITOR
+int another(void) {
+	topos(400);
+	toscreen();
+	getkeyinput("I am going to delete everyting O.K. ");
+	putmem(0,"Hello",5);
+	}
+
+int stupid(void) {
+	Editor *ed=editfile("/boot/zimage");
+	return ed->another();
+	}
+#endif
+call(stupid)
+/*end stupid.c */
+.fi
+.PP
+\fBcall(proc)
+.br
+\fP
+Determines that proc can by used to bind keys to, add to menu and is seen
+in prockey selectdynprocedure (Dynamic).
+proc is a procedure of the form int Editor::proc(void). A call(proc) should not ended with ';'.
+.PP
+\fB call_on_start(proc)
+\fP
+\fB call_on_open(proc)
+\fP
+\fB call_on_switch(proc)
+\fP
+call proc once after program start, everytime a file is opened or everytime the program switches to a file.
+.PP
+\fBsethelp(proc,text)
+.br
+\fP
+Adds helptext text to procedure. Shown on pressing F1 in Dynamic procedure listing (prockey selectdynprocedure) and in menu if procedure is added to menu with menuitem statement.
+.PP
+\fBextern Editor *newfile(void);
+.br
+\fP
+Opens empty file.
+.PP
+\fBextern editor *getactive(void)
+.br
+\fP
+Get the currently active Editor.
+
+.br
+\fBextern void rewriteall(void) 
+.br
+\fP
+Rewrites everything on the screen.
+.br
+
+.br
+Some examples of plugins are put in plugins/examples: one shows the assembler labels of the bytes starting with the cursor
+(gdb.plug), one shows the file type (when the cursor is on the first byte of a file)
+(file.plug) and and one filters what's selected through an other program (filter.plug).
+.br
+A new syntax uses class Editor {} instead of the defines. If you use the old syntax the file name should end at .cpp, when using the new syntax at .cc.
+In the new syntax you should put the following statements above any code:
+.nf
+#include "global.h" 
+BEDPLUGIN
+.fi
+Instead of #ifdef EDITOR ... #endif you write
+.nf
+class Editor {
+public:
+#include "faked.h"
+int proc(void) {
+	}
+};
+call(proc)
+.fi
+and put you procedures under #include "faked.h"
+the call statements you place under the '}'.
+
+\fBWARNING!!\fP
+.br
+You should NEVER define any variables within class Editor (or between #ifdef EDITOR and its #endif. You should also never try access variables of the main program (relating to class Editor) directly. With this version of gcc it is possible to distribute the procedures of a class over different files, but not it's data.
+.br
+.SS Datatypes
+.PP
+\fBint Editor::installpart(ScreenPart *part,int field);\fP
+.PP
+Installs datatype part, which means that this datatype is used to display the curent file.
+If field is zero this becomes a separate datatype, otherwise it is added to the active datatype. It uses the default settings and doesn't ask the user any questions.
+.PP
+\fBint Editor::installpart(ScreenPart *part);\fP
+.PP
+Installs datatype part, which means that this datatype is used to display the curent file.
+The user is presented with an configuration screen to set some options.
+.PP
+\fBextern ScreenPart* getAscii(Editor *ed)
+.br
+extern ScreenPart* getDigit(Editor *ed)
+.br
+extern ScreenPart* getFloat(Editor *ed)\fP
+.PP
+For every datatype X there is a getX(Editor *ed) function that returns an instance of this datatype. You can use it by the command installpart(part).
+In plugins you can define new datatypes.
+.PP
+\fBScreenPart *Editor:activemode(void);\fP
+.PP
+Returns curently active datatype.
+.PP
+\fBchar *ScreenPart::getname()\fP 
+.PP
+Returns name of the class of this datatype. It is a string shared by 
+all instances of this class. 
+.PP
+\fBint ScreenPart::equal(ScreenPart *part)\fP
+.PP
+Test if part is equal to this datatype. Equal means a different instance, 
+but no differences in behaviour. Not only the class is identical, but
+also its parameters like bytes, filters and base.
+.PP
+\fBint ScreenPart::datbytes(int b=-1)\fP 
+.PP
+Returns the number of bytes of one item of this datatype.
+If b different from -1 the number of bytes is changed to this number.
+.PP
+\fBint ScreenPart::getbytes()\fP 
+.PP
+Returns the number of bytes one item correspondence to on the file. This
+can be different then what is returned by datbytes() when filters like
+Skip (prockey addskip) or Duplicate (prockey duplicate) are applied.
+.PP
+\fBScreenPart *ScreenPart::getchild(int &forstart,int &binstart,int pos)\fP
+.PP
+If the datatype (ScreenPart) upon which is procedure is applied is a composed
+or Repeat it returns the child datatype under the cursor, otherwise it returns the current datatype.
+.PP
+\fB ScreenPart *ScreenPart::getsubpart()\fP
+.PP
+Repeatedly applies getchild until is finds a datatype without children.
+.PP
+\fBScreenPart *ScreenPart::getparent() \fP
+.PP
+Returns contain current Screenpart is contained in, or NULL when there is not sucn thing.
+.PP
+\fBScreenPart *ScreenPart::getsuperpart(void)\fP
+Repeatedly applies getpartent until is finds a datatype without parent.
+.PP
+\fBint ScreenPart::calcsizes(void)\fP
+.PP
+Calculate sizes of ScreenPart. Should sometimes be called after changing 
+some parameter of a datatype or adding a filter.
+.PP
+\fBWrite you own datatypes:\fP
+.br
+You define a class as a subclass of ScreenPart or one existing datatype (Digit,Ascii, Signed, Float etc). Lets start with an example:
+.nf
+#include <stdio.h>
+#include <limits.h>
+#include <ctype.h>
+#include "global.h"
+BEDPLUGIN
+#include "screenpart.h"
+class char2 : public ScreenPart {
+public: 
+declareparent
+char2 ( Editor *ed): ScreenPart( ed, 1 ,256, 2 )  {
+apart=0;
+};
+int form2bin(char *formal, unsigned char *bin, int &len) {
+bin[0]=formal[0];
+return 2;
+}
+ScreenPart *newone(void) {return new char2(*this);}
+int bin2formal(unsigned char *bin, char *formal, int len) {
+	if(isprint(bin[0]))
+		formal[0]=bin[0];
+	else
+		formal[0]='.';
+	return 0;       }
+  int isel(int ch) {return isprint(ch);}
+        };
+datatype(char2)
+parentd(ScreenPart,char2)
+.fi
+.PP
+After 
+.nf
+#include "global.h"
+BEDPLUGIN
+.fi
+.PP
+which is included in every plugin,
+.nf
+#include "screenpart.h"
+.fi
+is included because we need to become a sub class of ScreenPart.
+.br
+
+class char2 the new datatype.
+.RS
+.PP
+declareparent
+.RE
+.PP
+Is a statement what should be included in every datatype class. In combination with parentd it is used to determine the parent child relations between classes.
+.RS
+.PP
+char2 ( Editor *ed): ScreenPart( ed, 1 ,256, 2 )  {
+.RE
+.PP
+every datatype class should also contain a contructer with as first argument Editor *ed and it should call the parent constructor.
+ScreenPart takes as first argument ed, as second the numbers of characters every item needs to be displayed on the screen. As third argument the base of the datatype (or something arbritary if this datatype has no base) and ad fourth argument the number of bytes of the screen this datatype uses.
+.RS
+.PP
+apart=0
+.RE
+.PP
+States that the items are zero space apart of each other on the screen. The default is 1 space between items.
+int form2bin(char *formal, unsigned char *bin, int &len) {      
+form2bin comes from format to bin. It transforms formatted input to binary form (the raw form in the file).
+formal contains the formatted input, bin is filled with its binary form. len is a reference to the length of formal and should be set to the length of formal that is actually used. form2bin should return the number of bytes placed in bin.
+.RS
+.PP
+int bin2formal(unsigned char *bin, char *formal, int len) {
+.PP
+.RE
+bin2formal transforms binary input to formatted output.
+bin contains the binary input, in formal the formatted output is placed.
+len contains the length of bin. It should return 0 on success and -1 on error.
+.RS
+.PP
+ int isel(int ch)
+.RE
+.PP
+isel determines what character input (e.g. keyboard) input this datatype can handle. Unsigned decimal integers can handle for example 0-9 (isdigit(ch)).
+It should return nonzero when it can handle the input and 0 when not.
+.PP
+.RS
+datatype(char2)
+.RE
+.PP
+The datatype statement makes the datatype known to bed, it adds this datatype to the datatype list so that it is seen with prockey listtypes and you can use it in saved datatypes. You can use ScreenPart *getchar2(Editor *ed) to get char2.
+.PP
+.RS
+parentd(ScreenPart,char2)
+.RE
+.PP
+Also a obligatory statement, stating that char2 is a child of ScreenPart.
+.br
+.PP
+Other statements functions which can be defined in datatypes (ScreenPart's):
+.PP
+\fBint chbytes(int byt)\fP
+.br
+Changes the number of bytes the datatype uses (used by prockey datatypeconfig).
+If byt=-1 is should return a number greeter then 0 if the number of bytes can be changed. If bytes>0 is should change its number of bytes to this value and return the number of bytes it occupies. On error is should return -1.
+.PP
+\fBint chbase(int base)\fP
+.br
+Returns the current base (ScreenPart::type) with b==-1, returns -type if b==0.
+Returns -1 if base can't be set and changes to base base otherwise returning the base.
+.PP
+\fBchar *getconvstr(void)\fP
+.PP
+A procedure that can be defined to return a string describing some extra 
+options set in the current instance of this datatype. When saving datatypes 
+this string will also be saved and when the datatype is recreated from the
+saved datatype it will be given to the curresponding procedure setconvstring 
+to set these options.
+The string can be a static string if you like; it will not be freed by the main program.
+.PP
+\fBint setconvstr(char *str)\fP
+.PP
+Procedure that can be defined to set the options of a string this datatype
+returned with getconvstr. It should return -1 on error, otherwise it should
+return 0.
+.PP
+\fBuserconfig(int modify)\fP
+.PP
+Procedure that can be defined to create your own dialog presented to the
+user to configure the datatype
+If modify=1 the datatype is already shown on the screen, as when it is called by prockey datatypeconfig.
+If modify=0 useconfig is called on creation of the datatype. In the last case usrconfig should call installpart(sub,separ) to add this datatype to the screen.
+.PP
+Most datatype classes would also contain a copy constructor \fBDatatype(Datatype &fl)\fP
+.PP
+For additions and modifications you can look at the example plugins or in faked.h or the Tools menu inside bed (Key binding and Procedures).
+.SS Filters
+
+\fBint ScreenPart::addfilter(Filter *fil)\fP
+.PP
+Adds Filter fil to the filters of current datatype. Returns -1 on failure.
+Otherwise it returns the number of filters.
+.PP
+\fBint ScreenPart::rmlastfilt(char *name=NULL)\fP
+.PP
+Removes last filter. If name!=NULL it only removes this filter if name is the name of the the last filter. Name is for example Duplicate, Reorder, Skip etc.
+.PP
+\fPFilter *ScreenPart::getlastfilter(void)\fP
+.PP
+Get the last applied filter if it exist, otherwise it returns NULL.
+.PP
+\fBCreating filters\fP
+.PP
+A filter sits between the datatype and the file and transforms the data.
+It is a sub class of Filter (lets call it SubFilter).
+.PP
+Filter contains the following variables:
+.br
+char *name; /*All references to this name should contain the same pointer. set by name=filtername(SubFilter) (without "") extern char *filtername(SubFilter); should be defined above the class. */
+
+.br
+int bytesfile; /*Number of bytes of each unit at the file side of this filter */
+.br
+int bytesscreen; /*Number of bytes of each unit at the screen side */
+.br
+int err; /*set this if an error occured, that makes the filter unusable*/
+.br
+Screen side and file side doesn't mean that this is also the number of bytes per bytes on respectively the screen or the file. Other filters before or after can change this.
+.PP
+It contains the procedure fromfile which transfroms the data from the file to the datatype (ScreenPart):
+.PP
+\fBvirtual int fromfile(unsigned char *input,int &len,unsigned char *output)\fP 
+.PP
+Input: contains the input, len the length of the input. If less bytes are used len is set to the acually used length. output points to a array in which the output is written. The function returns the length of the output.
+.PP
+\fBvirtual int tofile(unsigned char *input,int &inplen,unsigned char *output)\fP
+.PP
+To file is identical except that now the direction is from the datatype to the file.
+.PP
+Beside these, it should contain the following procedures:
+.PP
+\fBSubFilter(int filebytes,int screenbytes,char *conf)\fP
+.PP
+Constructor with as arguments the number of bytes at the file side of the filter (filebytes), the number of bytes at the screen side of the filter (screenbytes) and a config string (conf). conf is a string returned by convstr of the same filter class and is used to save settings of the filter when saving datatypes.
+.PP
+\fBchar *convstr(void)\fP
+.PP
+Procedure that returns a configuration string used to set options while recreating this filter.
+.PP
+\fBSubFilter(Filter &rev)\fP
+.PP
+A copy contructor.
+.PP
+\fBFilter *newone(void)\fP
+.PP
+Returns a new copy of this filter
+.PP
+\fBint chbytes(int b)\fP
+.PP
+Changes the number of bytesfile to b. Returns -1 on failure, otherwise returns bytesscreen (after having recalculated it's value).
+.PP
+\fBint chbytesback(int b)\fP
+.PP
+Changes the number of bytesscreen to b. Returns -1 on failure, otherwise returns bytesfile (after having recalculated it's value).
+.PP
+\fBint  equal(Filter *fil)\fP
+.PP
+Returns 1 if fil is equal to this filter, 0 otherwise. 
+.PP
+\fBvirtual int screen2filepos(int pos)\fP
+.PP
+Can be defined to return the byte position on the fileside given a position on the screenside.
+.PP
+.B
+virtual int file2screenpos(int pos) 
+..
+.PP
+The same as screen2filepos in the opposide direction.
+.PP
+Outside of the class you should register the filter with \fBregisterfilterclass\fP(SubFilter). Needed for example to use this filter while reading saved datatypes.
+.PP
+Currently you should write your own procedure to add a filter to a datatype.
+The most simple procedure is the following: 
+
+.nf
+#include "global.h"
+#include "screenpart.h"
+#include "reverse.h"
+BEDPLUGIN
+class Editor {
+public:
+#include "faked.h"
+int addFilter(void) {
+        ScreenPart *part=activemode();
+        int byt=part->datbytes();
+                Reverse *sub=new Reverse(byt,byt,"1");
+                if(sub->error()) {
+                        message("cant add filter");
+			return -1;
+		}
+                   addfilter(sub);
+        return 0;                                               
+	}
+};
+call(addFilter)
+.fi
+You should Reverse change in the name of the Filter and "1" to the config string.
+.SH ENVIRONMENT
+.TP
+.SM
+.B BEDRC
+Absolute filename of configuration file.
+.TP
+.SM
+.B EDITOR
+Preferred editor 
+.br
+unix: export EDITOR=vi
+.br
+windows: set EDITOR=notepad
+.TP
+.SM
+.B PAGER
+Preferred pager used to show context sensitive help in bed. 
+If the pager returns immediately, bed refreshes its screen, so you can't use
+more.
+.TP
+.SM
+.B LINES_USE_PAGER
+The pager set by PAGER is only used when the help text is larger (in lines) 
+then LINES_USE_PAGER. Otherwise an internal pager is used.
+.TP
+.SM
+.B SHELL
+Preferred shell. Use unix like / to separate dirs
+.TP
+.SM
+.B TMPDIR (unix) or TMP or TEMP (win95) 
+Directory for temporary files
+.TP
+.SM
+.B TERMINFO 
+Terminfo directory.
+.TP
+.SM
+.B MAGIC
+If magic.plug is loaded or linked in (procedure filetype): database file used to determine filetype.
+Default: /usr/share/misc/magic
+.TP
+.SM
+.B NCURSESDELAY
+Only applicable to the MS Windows version running in cmd.com.
+Can be to a number larger then 0.
+Normally "set NCURSESDELAY=1" should be the right value.
+Once this gave problems, that were solved by setting it to 5,
+but that made the responses to ESC 5 times slower (500 ms 
+instead of 100 ms).
+.TP
+It is possible to set environmental variables in the configuration file:
+.TP
+\fBsetenv\fP name [val]
+.br
+Leaving out val means unsetenv.
+.SH FILES
+.TP
+\fBPERSCONFIG\fP
+Individual configuration.
+.TP
+\fBGLOBALCONFIG\fP
+System wide configuration.
+.TP
+\fBCONFDIRLINK/plugins/*\fP
+Files needed to compile plugins: plugin.cpp faked.h mainprocedures.h Makefile
+.SH PORTABILITY
+Binaries available for: Linux x86-64, arm64 android8 and  Windows 10 x86-64 .
+.br
+Previous versions compiled also under win95, cygwin32/64, FreeBSD32, FreeBSD64, and OpenSolaris 32 bit.
+.br
+See TERMINALS section for terminal requirements
+.br
+.SH AUTHOR
+.br
+Jaap Korthals Altes
+.PP
+E-Mail:  binaryeditor@gmx.com
+.SH HOMEPAGE
+http://jkaltes.byethost16.com/bed
+.br
+http://binaryeditor.sourceforge.io
+.SH DOWNLOAD
+http://sourceforge.net/projects/binaryeditor/files/
+.PP
+To compile bed for win64 you need:
+.br
+- gcc,binutils,gnu make,grep, sed,textutils,findutils,fileutils,diffutils,which and probably some other utilities from https://www.msys2.org/
+.br
+- GNU regex (no longer included): e.g.  http://ftp.gnu.org/old-gnu/regex/regex-0.12.tar.gz
+.br
+- pdcurses source http://pdcurses.sourceforge.net
+.br
+.SH "SEE ALSO"
+
+.BR printf (3),
+.BR scanf (3),
+.BR strings (1),
+.BR grep (1),
+.BR dd (1)
+.BR head (1),
+.BR tail (1),
+.BR regex (7),
+.BR ncurses (3),
+.BR od (1),
+.BR hexdump (1),
+.BR beav (1),
+.BR bvi (1)
+.BR terminfo (5)
+.BR readelf (1)
+

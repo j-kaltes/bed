@@ -1,0 +1,2 @@
+bed-datatype:
+BitFlags(2,2,2,"x,w,r,x,w,r,x,w,r,d`-``1",[],"",1,1);

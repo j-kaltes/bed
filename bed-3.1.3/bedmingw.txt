@@ -1,0 +1,12 @@
+bed - adjustable data format binary editor
+
+In Program Files\bed\ is the following documentation:
+  README          - Install information
+  bed.html        - Manual
+  misc/README.txt - Information about saved composed data types
+
+The main program is Windows\bed.exe
+
+The mingw version for MS windows doesn't need any non-standard DLL.
+
+https://sourceforge.net/projects/binaryeditor

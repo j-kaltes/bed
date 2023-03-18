@@ -1,0 +1,88 @@
+In Fedora 10's default configuration, you should do
+
+  chcon -t textrel_shlib_t *.plug
+  for bedplug in  *.plug;  do semanage fcontext -a -t textrel_shlib_t $bedplug ;done
+
+to make the plugins generally usable. For that reason most 'plugins' are compiled in the main program.
+
+backward.plug: 
+	backward filter. 
+	This filter tries to reverse the direction of the last applied filter.        
+
+cut.plug:
+ Contains two procedures:
+ 	cutselect: implements the usual cut editor function
+	insertpast: implements the usual editor past function 
+ Both are very inefficient. Undoing the operation requires more then one step.
+
+datatypeinfo.plug
+	Gives information on active datatype.
+
+disass.plug
+	Contains the procedures disassembler and nextdisassem.
+	Disassembles one machine code instruction at the cursor position to 
+	assembler code and shows it at the message line. Makes use of gdb.
+
+ebcdic2ascii.plug
+	contains datatypes ebcdic2ascii and ascii2ebcdic to translate from ebcdic 
+	to ascii and back. ebcdic2ascii shows an ebcdic like it normally shows
+	ascii. 
+encodechar.sh: shell script to make the sources of character translation
+	plugins like ebcdic2ascii.plug
+
+elftables32.plug
+	Shows elf section tables. Doesn't run on 64 bit linux, but doesn't read
+	64 bit elf executables.
+	gotosymbol is to used to jump to the offset in a object file were 
+	a symbol is defined.
+	The procedures section,dynsym and symtab should be used in combination 
+	with elf datatypes you can find in the bed/misc directory and load with
+	prockey readcontain: sectionheader.bedda symtab.bedda and dynsym.bedda.
+	See README.txt in the bed/misc directory.
+
+file.plug
+	Uses the unix program "file" to guess the filetype of the data starting at
+	the current cursor position.
+
+filter.plug
+	Filters selection through program
+
+index2table.plug
+	Used to show procedure names in symbol table.
+
+putselect.plug
+	Plugin uses Xwindow systems selection and clipboard interface. 
+	Contains the procedures: pastclipboard, pastselection, copyclipboard,
+	makeselection, pastspecial and exportselection.
+	
+rxvt.plug
+	Contains rxvtmenu. Adds rxvt menu so that in a rxvt terminal you can
+	remove the scrollbar, reverse video change fonts.
+
+searchclip.plug
+	Contains procedures compare and searchclip. To compare selection and
+	and search for the content bed's copy buffer in a file.	
+
+subtract.plug
+	Datatype Substract  that contains of the Signed datatype with a certain 
+	number subtracted from every number.
+
+switchsize.plug
+	Contains procedure switchsize that maximizes or minimizes the terminal
+	size.
+
+title.plug
+	Set file and program information on xwindows title bars on switch of
+	file.
+
+undoall.plug
+	Contains procedures redo and undo. Repeatedly calls undo/redo until 
+	nothing is left to undo/redo.
+
+
+Just programming examples good for nothing:
+	char2.plug
+	install.plug
+	newdata.plug
+	oldsigned.plug
+	unsigned.plug

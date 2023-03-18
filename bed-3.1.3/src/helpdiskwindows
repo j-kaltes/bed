@@ -1,0 +1,23 @@
+Under Windows Vista you should run as administrator to make use of 
+it (press the right mouse button while selecting bed, cmd, powershell 
+or rxvt to see a menu with this option). 
+Under Windows Vista you are even then not allowed to write to the disk
+everywhere, unless you make Vista believe there is no file system on 
+the disk (http://support.microsoft.com/kb/942448). After erasing the 
+content of a disk with killdisk (http://www.killdisk.com/downloadfree.htm), 
+it is possible to write to all sectors of the disk. So you can best boot 
+Linux from an USB stick or DVD and run the Linux version of bed.
+Before making any changes you should ensure that the program is 
+working properly. Small changes in the installation can break the 
+program. For example an older or newer cygwin1.dll library in you path 
+can have catastrophic consequences. Or when you compile bed yourself 
+it is possible that ./configure switches on some totally untested 
+combination of options because of some idiosyncratic combinations of 
+programs and libraries on you hard disk. So copy what you want to 
+change to a USB stick and try to change it there before making the 
+file system unreadable. If possible, make first a backup of the 
+disk you want to change. 
+Under windows 95 bed determines size by an ad hoc heuristic. If the 
+size seems to be wrong, try to determine it and specify it with the -d 
+option at startup. Under windows 95 the size is saved at register key 
+HKEY_LOCAL_MACHINE\SOFTWARE\Bed\harddrives.

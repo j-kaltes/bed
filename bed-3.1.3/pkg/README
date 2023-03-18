@@ -1,0 +1,24 @@
+If the filenames included in the installation are changed you need
+to go to ./.. compile and install bed and then go back to this directory
+remove pkg-plist and press 'make pkg-plist'
+
+The source tar should reside ../../html/download/bed-$(PORTVERSION)$(EXTRACT_SUFX)
+Press 'make config' after change of this source tar.
+
+To make a pkg package do
+remove existing bed
+	if pkg-package
+		pkg_delete bed-VERSION 	
+	else		
+		sh  /usr/local/share/bed/uninstallbed.sh
+make
+make install
+make package
+
+To uninstall press
+pkg_delete bed-VERSION 	
+
+to reinstall press
+make reinstall
+
+to add package press pkg_add bed-package

@@ -1,0 +1,8 @@
+#!/bin/sh
+Echo="echo -n"
+$Echo "]10;[read:$0;clear]"
+exit
+[menu:clear]
+[clear]
+[hide]
+[done]

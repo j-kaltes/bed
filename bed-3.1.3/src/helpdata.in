@@ -1,0 +1,740 @@
+#addfile
+Filemanager:
+Name:
+	Alt-n: switch to line were you can write a filename.
+	Del,Backspace,C-h,C-u,left,right,home,end,C-a and C-e should work 
+	if bed is well configured (see bed.1 for key definitions)
+Files:
+	Alt-f: switch to list of files. You can open a file by pressing 
+	Enter. Use UP and DOWN to move between files.
+Directories:
+	Alt-d: switch to list of directories. Change to directory by 
+	pressing Enter.
+
+Tab,Alt-Tab and/or Shift-Tab can be used to jump between File,Directories and
+Name.
+#dosave
+Save current file. 
+#saveas
+Save currently active file to a file with another name. 
+#rewrite
+Rewrites screen. 
+#selectprocedure
+Listing of available built-in procedures to bind to keys or use in plugins. 
+You can press return on the name to run the procedure. 
+Press F1 to get help about the procedure.
+#selectdynprocedure
+Listing of available dynamic procedures (procedures defined in plugins) or
+faked dynamic procedures (plugins compiled in the main program).
+The procedures can be bound to keys, placed in the menu or used in other
+plugins. You can press return on the name to let it work. Press F1 to get 
+help about a procedure.
+
+To load a plugin in bed you should use prockey opendynlib or use a plugin 
+statement in bed's configuration file:
+
+plugin PLUGINFILENAME
+
+Where PLUGINFILENAME is the filename of a plugin (ends with .plug).
+(See the PLUGINS section of bed.1).
+To change the default directory used by bed for looking for plugins use:
+
+plugindir PATH
+
+Where PATH is a unix path (see the CONFIGURATION section of the bed manual).
+
+Bed comes with a certain number of plugins. Some are compiled in the main
+program, others are precompiled dynamic modules and some have to be 
+compiled by the user. Details differ depending on the operating system.
+The MS windows version of bed doesn't currently support dynamic plugins, 
+so to be used a plugin should be compiled in the main program and
+not all plugins (that work under MS windows) are compiled in by default.
+
+Plugins supplied with bed reside in the plugins/examples directory of
+bed support files. To compile all plugins copy the whole bed directory 
+tree to a place were you have write access, goto plugins/examples and
+press make. Depending on you gcc installation you have sometimes to
+use a home compiled bed before you can load a plugin you have 
+compiled yourself.
+
+A description of the plugins is given in plugins/examples/README.
+
+The same descriptions you can get in this procedure listing by pressing F1. 
+You can can also find it in the Procedures subsection of the 
+CONFIGURATION section of the manual page.
+#closethis
+Close the current file. 
+#quit
+Quit application. For all changed files you are asked to save it. 
+#undo
+Undo last change. It can't always undo all changes. Currently restricted
+to the last 5000 changes or how MAXUNDO was otherwise defined during the 
+compilation of bed.
+#redo
+After you have undone something with undo, you can redo it with redo.
+Redo is impossibly following a change after the undo.
+#setselect
+Turns selection on or off. 
+#copyselect
+Copies selected part of the file to copy buffer. 
+#pastselect
+Past selection. 
+#saveselect
+Save selection or copy buffer. 
+#replace
+Regular expression:  
+	[1-9] matches characters between 1 and 9
+	[^1-9] matches everything except [1-9]
+	1{3,5}  matches 111 1111 and 11111
+	(Linux|Unix) matches Linux and Unix
+	\b   boundary. \b123 matches 1234589,  not 9123458
+	\B   the reverse. \B123 matches 9123458 not 1234589
+Unit:   Match regex expression with single units.
+Align: 
+	Multibyte datatypes can be aligned differently. For example a 4
+	byte digit can start at offset 0,1,2 or 3 and that will give
+	different 4 byte digits. Without checking Boundaries all will
+	be returned. With Boundaries checked only bytes aligned in the
+	same way as is now shown on the screen are returned.
+Case sensitive: 
+	When checked upper and lower case are treated distinctively.
+Forward: 
+	When checked the file is searched in the forward
+	direction going from lower to higher offsets.  When not checked 
+	the file is searched backward.
+Edge file: 
+	When checked the file is searched from the edge of
+	the file. From offset 0 when searching forward, from end of
+	file when searching backward.
+Find:	Here you type the search pattern
+Replace:
+	At the place where the search string is found the 
+	replace string is placed. The replace string overwrites the data. 
+	When Regular expression is checked you can insert the whole search 
+	string by \0 or supexpressions by \1 \2 upto \9. 
+	In the search string subexpressions are demarcated by (pattern).
+	For example: 
+		   Find: (FBA041D3) ([^ ]*) (B0300048)
+		Replace:  \3 \1 \2
+	exchanges the position of three digits.
+List: 
+	Generates a list of all hits. When compiled with
+	CONFIG_THREADS=y you can go on editing while hits are marked
+	so you can view them in marklist (prockey showmarks).
+Ascii, Digit etc are when checked the current active datatype.
+Base:
+	Base of digit. E.g 16 for heximal. 
+Nr bytes: 
+	Gives the number of bytes each data item occupies. By
+	some datatypes you can change this for example by unsigned integers. 
+Reverse:
+	Applied filter Revers: reverse bytes while transforming from shown 
+	datatype to file.
+Set: 
+	After changing datatype info (base,bytes,type) you press Return
+	on Set to make this the search datatype.
+Convert: 
+	the same as Set in addition the current search string is converted.
+Ok: 	search
+Keep:	Makes current search options the default.
+Cancel:	Cancel
+#extend
+Make the file larger, adding zeros to the end of file. 
+#truncate
+Truncates file on the right of cursor. 
+#repeat
+Repeats keystrokes a certain number of times. Caveat: Doesn't show 
+dialog screens during recording.
+#search
+You can move through the dialog by pressing Alt in combination with a 
+highlighted character, or by pressing Tab,Shift-Tab or Alt-Tab.
+Press Shift to check options.
+Standard you search within the currently active datatype, but
+you can also use Ascii or Digit (unsigned integers) by selecting them,
+specifying base and bytes and pressing Set.
+Regex: Regular expression  
+	[1-9] matches characters between 1 and 9
+	[^1-9] matches everything except [1-9]
+	1{3,5}  matches 111 1111 and 11111
+	(Linux|Unix) matches Linux and Unix
+	\b   boundary. \b123 matches 1234589,  not 9123458
+	\B   the reverse. \B123 matches 9123458 not 1234589
+	(\b([ADF]{8}|[0-9]{8})\b ){3} Matches 3 units of 8 characters
+	consisting only of the characters A D or F or if digits 0-9 beginning
+	and ending on a word boundary followed by space. 
+	See https://github.com/google/re2/wiki/Syntax
+	Depending on with what options bed is compiled, regex expressions 
+	can be matched with gnu regex-0.13, google re2 or intel hyperscan.
+	The main difference is that hyperscan shows only the last position
+	of a match and is the fastest, closely followed by re2. Re2 can 
+	miss long matches stretching block borders (at least 100 bytes 
+	in previous block). When one hit is inside another hit, the
+	others can return the first ending and not the first
+	starting hit when list is not set. On next search search starts
+	after the cursor position, so that it is never returned therafter.
+Unit:   Match regex expression with single units. When checked, search runs 
+	through the file matching successive datatype units with the regex
+	expression. When not checked the regex expression is matched
+	with more than one unit in the selected datatype. For example
+	8A[^E]{5,100}8E finds A088008A 41100A90 00200882 3108E051, 
+	when not checked, but not when unit is checked. 
+	When Unit is not checked a space is placed after each number:  
+	Searching for '1.' 01 is seen as '01 ' and '1 ' matches '1.'.
+Align: 
+	Multibyte datatypes can be aligned differently. For example a 4
+	byte digit can start at offset 0,1,2 or 3 and that will give
+	different 4 byte digits. Without checking Boundaries all will
+	be returned. With Boundaries checked only bytes aligned in the
+	same way as is now shown on the screen are returned.
+Case:   Case sensitive: When checked upper and lower case are treated 
+	distinctively.
+Forward: 
+	When checked the file is searched in the forward
+	direction going from lower to higher offsets.  When not checked 
+	the file is searched backward.
+Edge file: 
+	When checked the file is searched from the edge of
+	the file. From offset 0 when searching forward, from end of
+	file when searching backward. If not checked searching starts
+	at the current position.
+Find:	Here you type the search pattern
+List: 
+	Generates a list of all hits. During search for each hit
+	hit a mark (prockey keymark) is generated.
+	You can view the hits in marklist (prockey showmarks).
+	If checked [#] you can go on editing while searching
+	goes on in the background. If checked [x] searching 
+	is in the foreground and marklist is shown thereafter.
+	When in multi byte datatypes alignment is not checked,
+	hits are not strictly sorted on file position.
+Keep:	Makes current search options the default.
+
+Ascii, Digit etc are when checked the current active datatype.
+Base:
+	Base of digit. E.g 16 for heximal. 
+Nr bytes: 
+	Gives the number of bytes each data item occupies. By
+	some datatypes you can change this for example by unsigned integers. 
+Reverse:
+	Applied filter Revers: reverse bytes while transforming from shown 
+	datatype to file.
+Set: 
+	After changing datatype info (base,bytes,type) you press Return
+	on Set to make this the search datatype.
+Convert: 
+	the same as Set in addition the current search string is converted.
+Ok: 	search
+Cancel:	Cancel
+#nextsearch
+Search again for the same search string. 
+#gettopos
+Ask for a file offset and jumps to this offset. 
+Forward: 
+	count up
+Edge File: 
+	If checked: count from begin (forward) or end (backward) file.  
+	If not checked you count from the cursor position.
+Align: 
+	If checked: In multibyte units the screen is aligned at the current 
+	alignment (boundary) after changing position.
+Position:
+	Offset to jump to.
+You can specify in what format to specify the offset. 
+All: specify offset with 0x for hex and 0 for oct. Numbers not starting with 0
+	are decimal numbers.
+Hex,Dec,Oct: type of number without need to use 0x or 0 
+
+#keymark
+Set mark 
+#tomark
+Goto mark. You are asked to type the corresponding key. 
+#nextmark
+Goto next mark 
+#prevmark
+Goto previous mark. 
+#showmarks
+Shows list of all marks. Press Return to jump to the file offset of the 
+selected mark.
+#deletemark
+Delete mark. You get an overview of current marks. Press return to delete
+the currently selected mark.
+#clearmarks
+Delete all marks.
+#savemarks
+Save marks to file.
+#readmarks
+Read saved marks.
+#sortmarks
+Reorder marks so they increase in offset.
+#subtractmarks
+Removes marks with the same position as one of the marks saved with
+prockey savemarks. Asks for such a file.
+#postotop
+Moves file display so that the file offset at the cursor position 
+is shifted to the upper left corner of the file display.
+#beginfile
+Goto the beginning of file. 
+#endfile
+Goto end of file.
+#beginpage
+To the top of page.
+#endpage
+Goto end of page 
+#middlepage
+Goto the middle of the page. 
+#nextmode
+Goto the data type on the right of this data type. 
+#prevmode
+Goto the data type shown on the left of current active data screen.
+#removemode
+Closes data type screen part. 
+#zoommode
+Zooms current data type (For example ASCII). 
+#addprev
+Adds previous file to the screen 
+#addnext
+Adds the next file to the screen. 
+#prevfile
+Goto previous file. Zooming the file. 
+#nextfile
+Goto next file. 
+#firstfile
+Goto the first opened buffer. 
+#lastfile
+Goto last opened file. 
+#zoomwindow
+Zooms current window 
+#hidewindow
+Get opened file from the screen without closing it 
+#listfiles
+List opened files. Press Enter to edit selected file.
+#askbase
+Changes the file offset number type. Offsets can be shown as decimal,
+hexadecimal or octal numbers. You can also turn of the display of
+offsets.
+#consoleresize
+This operation makes it possible to resize the console in the usual way.
+For example with the mouse or windows Alt-Space menu. At start up bed equals
+the screen buffer size with the window size. The current operation temporally
+sets the screen buffer back to a previous size, so you can resize the window up
+to that size. If you want another size, you should use Alt-Space,Properties,
+Layout to change the Screen buffer size.
+
+(MS Windows Consoles only)
+#switchmessage
+Show the message line only when a new message arrives and letting it override with 
+displayed data, or keep it always on (default).
+#switchmenu
+Hides or shows menu bar.
+#switchcommand
+Switches command mode on or off. In command mode procedures are bound
+to normal characters as in pagers like 'less' and 'more' and in vi's 
+command mode.
+Some of less's and vi's keys are already bound in the configuration file.
+If you like some more you should add them to the configuration file.
+You can mail them to me if you like to help others.
+#backchar
+Left
+
+Go back one character.
+#beginline
+Go to begin line (Home).
+#endline
+Goto end line (End).
+#fileinfo
+Show the name and size of file in the message line. (No key binding).
+#firstmenuitem
+Goto the first menu element. (Home).
+
+Only applies within an opened menu. You have to put 253 immediately after
+the keys keyword. So for example:
+
+keys 253 1 = firstmenuitem
+
+makes that within an opened menu contr-a jumps to the first menu item.
+#lastmenuitem
+Goto last menu element. See proconly firstmenuitem for more information. (End).
+#fromcommand
+Turns command mode off.
+#linedown
+Down one line (Down).
+#lineup
+Up one line (Up).
+#nextchar
+Next character. (Right).
+#nextmenu
+Goto next opened menu. (Right). Only applies in the context of the menu.
+See proconly firstmenuitem for more information,
+#nextmenuitem
+Goto next menu item. (Down). See proconly firstmenuitem for more information.
+#nop
+Does nothing.
+#pagedown
+Page down. (Pgdn).
+#pageup
+Page up. (Pgup).
+#prevmenu
+Goto previous menu. (Left). See proconly firstmenuitem for more information.
+#prevmenuitem
+Goto previous menuitem (Up). See proconly firstmenuitem for more information.
+#tocommand
+Turns command mode on.
+#tosubscreen
+Goto the data screen corresponding to the number you type after this command. 
+0 is the first from the left, 1 the second etc. (No key binding).
+#emptyfile
+Opens new document filled with zeros. You can enlarge the document with prockey extend. 
+Shrink it with prockey truncate.
+#filedata
+Displays information about current file.
+#checkchanged
+Checks if current file is modified by comparing changed parts with the
+original file. 
+#shell
+Starts a new shell or cmd.com.
+
+If a new shell is evoked, it uses the SHELL environmental variable 
+to decide which shell to use. You can also set environmental
+variables in beds configuration file (see manual bed.1).
+#input
+Modifies current data item. 
+With this procedure you edit the current item and only after 
+pressing Enter the modifications are inserted.
+Certain datatypes you can't edit without this procedure (e.g.
+Float and Time_t).
+If you don't use this procedure, then the data item is converted to
+and from binary format after every key you press.
+#editdata
+Evokes text editor to edit selected data in active datatype.
+
+If the environmental variable EDITOR is set to the full path 
+of an editor that editor is used.
+You can set environmental variables in beds configuration file 
+with the following command:
+
+setenv name [val]
+
+Leaving out val means unsetenv.
+
+See manual page bed.1 or bed -h for more information.
+#selectstandout
+Select standout. Search and goto mark can show the hit in a different
+color. You can make this coloring the selection.
+#select
+Turn on or off selection. Selections can be copied and pasted, saved,
+edited etc.
+#saveshown
+Save selection in the active datatype as shown on the screen.
+So the selected data is first converted to the active datatype and
+then saved to a file.
+#readshown
+Insert file content within active datatype. The content of the
+file is interpreted as consisting of data in the active datatype.
+#gotolastsearchpos
+Jumps to file offset last searched. Useful if you interrupted
+searching or are searching on the background and want to know
+where search was left.
+#nextitem
+Moves one item forwards. Item is the active datatype unit.
+#backitem
+Moves one item backwards. Item is the active datatype unit.
+#prevpos
+Go to previous file offset.
+#nextpos
+Go again to file offset before undo move.
+#scrollup
+Scrolls file up. The second line is scrolled up to the  first line position.
+#edscholldown
+Scrolls file down. The first line is scrolled down to the second line position.
+#scrollitem
+Shift left one item. The second item is shifted leftwards to the first item position.
+#scrollbackitem
+Shift right one item. The first item is shifted rightwards to the second item position.
+#scrollbyte
+Shift left one byte. The second byte is shifted leftwards to the second byte position.
+#scrollbackbyte
+Shift right one byte. The first byte is shifted rightwards to the first byte position.
+#addunsigned
+Create unsigned integer datatype. You can select bases from 2 to 36. 
+The number of bytes per unit range from 1 to some unknown limit 
+depending on hardware speed.
+You can start a separate datatype or add a field to an existing
+datatype.
+In the last case where in the existing datatype the new field is 
+placed depends on the cursor position:
+- At the end of the existing datatype if the cursor is at the end of
+  the screen
+- At the beginning of the existing datatype if the cursor is at the
+  beginning of the screen
+- Otherwise at the place closest to the cursor.
+- After the cursor position if the distances are equal
+#naarASCII
+Create ascii datatype.
+No print: 
+	character to show if byte is not printable.   
+You can also decide which byte values are interpreted as printable
+characters. Strict is ascii only, +161-255 adds byte value 161-255 
+etc. 
+It is possible to make units of more then one character. The meaning of 
+separete/add field is explained under unsigned integer help (prockey addunsigned).
+#emptycontain
+Skip empty parts within a composed datatype.
+Useful if a file contains records with parts you are not interested in.
+#copymode
+Create a datatype that is identical to the active (sub) datatype.
+#addSigned
+Create signed integer datatype. See unsigned integer help (prockey addunsigned) for 
+more information.
+#addFloat
+Create float datatype:
+	4 bytes: float
+	8 bytes: double
+	12 bytes: long double
+
+It is not possible to use normal search in the float datatype,
+you need to use regex search. Normal search translates
+the search string from the datatype format back to raw bytes and
+searches for these raw bytes. This is not possible because float as
+displayed has not a perfect precision so that that the float
+that is displayed can correspondent to more then one raw byte array.
+#addBitFlags
+Create bitflags. Give every bit a label which is shown if that bit
+has value 1. 
+Not char:
+	If that bit is zero, the value of Not char is shown.
+Add:
+	Bit-label correspondences are assigned by typing a bit number after 
+	Bit and the corresponding label after Label and pressing return on 
+	Add.  Bits are numbered from 0 to (8*bytenr-1). With the lowest bit 
+	having number 0.
+	This creates a list of bit-label correspondences under Flags.
+Flags:
+	You can edit one such correspondence by pressing Alt-f followed by
+	selecting the correspondence and pressing return. You change the
+	Bit and label values and again press Return at Add.
+Del:
+	If you press on delete the selected correspondence is deleted.
+Between:
+	What to write between bytes. Default: nothing.
+Order:
+	When editing a file in bitflags every item is shown as some flags.
+	If you want to set a certain flag you write the label. If order is
+	set this is only possible if you are above the position of this
+	label. If order is not set you can set the label at every position.
+	Example:
+	If the flags are zyx and order is set you can change --- in --x only
+	by pressing x at position 0, without order you can press x
+	also at position 1 or 2.
+#bitfielder
+This is a record/struct in which you specify the number of bits
+for every field. After making a bitfield around a datatype it works like
+a normal composed datatype. You just add the other fields. 
+You change the number of bits of a certain field by setting the cursor 
+on that field and selecting again prockey bitfielder but now you press 'Change Bits'.
+Another way is to make the bitfield the active datatype by pressing prockey uplevel
+(Parent) and then selecting Config (prockey datatypeconfig).
+#translate
+Translate assigns labels to values of another datatype. You can use it when numbers
+have a certain meaning.
+After selecting 'New' or 'Change':
+Type:
+	The To datatype is what is shown on the screen (usually Ascii).
+	For certain values of the 'From' datatype you specify what should be 
+	shown in the To datatype.
+Add:
+	After specifiying the To and From datatypes, you specify the From 
+	and To values and press Add. 
+Default:
+	If there is no assignment Default is shown.
+Assignments:
+	After pressing Alt-g you can select a certain existing assignment.
+	Pressing Return makes it editable, pressing Del deletes it.
+
+After selecting 'Use;
+	Select label and press return to insert this value.
+#listtypes
+List of all datatypes. Use movement keys to select one of them and press 
+Return to create it.
+#reorderunit
+One of the filters that is transforms the data when read from the file and
+before interpreted by the datatype.
+Reorders bytes within item. Unit gives the number of bytes to keep together.
+If the bytes are 'abcdef', reorder with unit=1 gives 'fedcba', with unit=2 
+gives 'efcdab', with unit=3 gives 'defabc'.
+#duplicate
+Useful if you like to use the same data more than once in a composed
+datatype. It acts like an union in c. 
+Filter that duplicates bytes before being interpret by the active (sub-)
+datatype. You have to specify how many times it is duplicated (dubnr).
+The active (sub) datatype consists of a certain number of bytes (size).
+usenr=(size/dubnr) gives the number of bytes used for every item.
+dubnr times the same usenr bytes are appended and given to the datatype.
+Example:
+You use ascii/4 (ascii consisting of 4 bytes). You say duplicate 2 
+and the file consists of abcdefghijkl.
+Before applying the filter this was displayed as abcd efgh ijkl.
+After applying the duplicate filter it becomes abab cdcd efef ghghe ijij klkl.
+#addskip
+Filter to skips a certain number of bytes.
+You have to specify after how many bytes and how many bytes are to be
+skipped. This is then repeatedly applied to every unit of the active (sub-)
+datatype.
+Example:
+The active datatype is ascii/4. The file contains 'abcdefghijkl'.  
+abcd efgh ijkl is displayed. 
+Applying Skip with After=2 and Skip=1 gives: abde ghjk.
+After ab c is skipped after de f is skipped and after jk l is skipped.
+It is not possible to use normal search in a datatype were Skip is
+applied. You need to use regex search. Normal search translates
+the search string from the datatype format back to raw bytes and
+searches for that string. This is not possible when Skip is applied
+because one search string can correspondent to more then one
+raw content bytes string.
+#rmlastfilter
+Removes last filter (Reorder, Duplicate, Skip or some other filter
+defined in a plugin).
+#repeatcontain
+Repeats active (sub-)datatype a certain number of times. It behaves the same
+as a composed datatype with multiple version of the current active (sub-)
+datatype.
+#datatypeconfig
+Modify parameters of active (sub-) datatype. Things like number of bytes
+and the base of Integers.
+#dataconfig
+Modify some general display parameters of datatype. 
+Label: 
+	Name for datatype shown on the message line
+Apart: 
+	number of spaces between items of this datatype
+Spaceafter: 
+	number of spaces between this datatype and an other datatype 
+	or the offset numbers.
+Conf:
+	Configuration string every datatype has. Usually you don't need
+	to change this.
+#savedatatype
+Save datatype to file so you don't have to recreate complex datatype  
+everytime you need them.
+#readcontain
+Read saved datatype. So that the current file is displayed in that format.
+#record
+Start recording. Keystrokes are recorded until you press C-t. You
+can save recorded keystrokes to replay them at some other moment.
+
+Take notice of the fact that RAW keystrokes are saved. This means that
+the recorded keystrokes are very unportable. They are not portable between
+operating systems but also not portable between terminals and configurations.
+What's is recorded within xterm does not necessarily work with rxvt or
+with linux console. You can use more portable keystrokes by using
+only Alt-char and Control-char keys. The movement and function keys are
+very unportable and also combinations of Alt or Control that make use of
+non alphabetic characters.
+#saverecord
+Save recorded keystrokes to file.
+#playkeysfile
+Play saved keystrokes (recorded with Record). 
+The program runs like the keystrokes are pressed by the user, except when 
+other programs are evoked from bed.
+#playrecord
+If you have recorded keystrokes after program startup you can play them
+off with this procedure.
+#opendynlib
+Load plugin in program. The plugin can contain datatypes or procedures.
+Procedures you can view under Dynamic (prockey selectdynprocedure), datatypes under prockey listtypes.
+#showprocedure
+Shows which procedure is bounded to a key sequence in the format used in 
+bed's configuration file (bedrc).
+You are asked to press a key sequence.
+
+Besides the procedure is shown what you need to write in the
+configuration file to declare this key-procedure binding.
+
+Examples 
+After prockey showprocedure, you press F12 and get
+	keys 27 91 50 52 126 = makeselection
+
+The procedure is makeselection which is bounded to escape 
+sequence: 27 91 50 52 126
+If you like to bind makeselection to an other key sequence, you
+press after prockey showprocedure the key sequence you want to bind it to. 
+You could for example press C-a get 1 as answer and replace '27 91 50 52 126' 
+in the previous keys statement with 1.
+So you could add keys 1 = makeselection to the end of ~/.bedrc
+
+To know a procedure bounded to the menu, you press the key sequence needed
+to operate the menu using only the highlighted characters. 
+After prockey showprocedure you press prockey quit and get
+
+menuitem 0 "E~xit" "M-x" 12  = quit
+
+Procedure quit is bounded to a menuitem. The menu item is in menu 0
+(the first menu) has label 'E~xit' and had keylabel 'M-x' and is the
+twelves menuitem in the menu (starting with 0 and counting empty places).
+
+If you like to change to name from 'E~xit' to '~Quit' you can add
+menuitem 0 "~Quit" "M-x" 12  = quit 
+to the end of ~/.bedrc
+
+See manual page bed.1 for more details about assigning procedures
+to menu items and keys.
+#newcontain
+With this function you can create a composed datatype within another
+composed datatype. First make a element of a composed datatype
+the active datatype and then use this function (prockey newcontain)
+to make a sub composed datatype around the active datatype.
+After this you can add more datatypes to this sub composed datatype, 
+by using the "Add field" option while starting a new datatype or 
+by using prockey stretchcontain. New datatypes created with add field
+are always added to the lowest composed datatype in which the active
+datatype is contained. The message line shows what datatype is active.
+Use prockey uplevel and prockey downlevel to change to the datatype
+this datatype is contained in and back again. You can also make the
+composed datatype the active datatype by placing the cursor between
+two of it's member (child) datatypes.
+Subcomposed datatypes can be useful if you want to use a filter for only
+a subset of the members of a composed datatype.
+For example a file consists of records of three ascii strings and you
+like to exchange the position of the first two strings.
+After creating three ascii strings of 10 in one record (composed datatype),
+you set the cursor on the first field and press prockey newcontain. This
+makes a subcomposed datatype around this field. To add the second field
+to this composed datatype you set the cursor at the second field and
+press prockey stretchcontain. Now you set the cursor between the first two 
+fields (or you press prockey uplevel) and you reorder with unit 10 using 
+prockey reorderunit.
+#stretchcontain
+Used to handle nested composed datatypes (made with prockey newcontain).
+If you have made a composed (struct/record) datatype for 
+example: {{a,b,c},d,g}
+Here the letters are datatypes and {..} is one composed datatype.
+{a,b,c} is a nested (or sub) composed datatype.
+If you put the cursor on d and apply this function, you can add d to
+this sub composed datatype. So you get then {{a,b,c,d},g}.
+#levelout
+Applies if active datatype is a composed/record datatype.
+With this function the composed datatype is removed so that the item(s)
+endup at a higher level.
+It can be used in two cases:
+	1. a nested composed;
+	2. a composed containing only one datatype.
+#uplevel
+Parent datatype. Make active datatype the datatype in which the current
+datatype is contained. 
+#downlevel
+If applied to a composed datatype, this makes the current active datatype
+the member of the composed datatype the cursor is on.
+#goto1
+Goto the first open file.
+#toclipboard
+Puts selection in active datatype in MS Windows clipboard.
+#pastclipboard
+Insert MS Windows clipboard in active datatype.
+#selectdisk
+Raw edit of disk drives.
+
+Select a device to edit like a large file.
+When you make changes keep in mind that bed saves information in 
+blocks (of something like 512, 1024 or 4096 bytes long). So with the 
+changes you make, you also write back the old content around the 
+change. If another process changed something there, you will write old 
+information back.

@@ -1,0 +1,3 @@
+/*#undef HAS_MEMINFO*/
+#define PRI_SIZE_T_MODIFIER "z"
+#undef REALLONGDOUBLE16

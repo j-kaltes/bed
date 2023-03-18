@@ -1,0 +1,51 @@
+#!/usr/bin/make -f
+
+package=bed
+
+
+build: buildonce
+
+buildonce:
+	dh_testdir
+	./configure --prefix=/usr
+#	$(MAKE) linuxconfig
+	$(MAKE) dep
+	$(MAKE)
+	touch buildonce
+
+clean:
+	dh_testdir
+	dh_clean
+	-rm -f buildonce
+	$(MAKE) realclean
+	-rm -rf debian/bed debian/*~ debian/files* debian/substvars
+
+install: buildonce
+	dh_clean
+	dh_installdirs
+	$(MAKE) installfiles ROOTDIR=`pwd`/debian/tmp/
+
+binary-arch:  install
+	 $(MAKE) control
+	 install -d debian/bed/DEBIAN/	
+	 install -d debian/tmp/DEBIAN/	
+	 dpkg-shlibdeps debian/tmp/usr/bin/bed
+	 dpkg-gencontrol 
+#	 dpkg-gencontrol -isp
+	 install -m 755  debian/preinst   debian/bed/DEBIAN
+	 install -m 755  debian/postinst   debian/bed/DEBIAN
+	 install -m 755  debian/postrm   debian/bed/DEBIAN
+	 install -m 755  debian/preinst   debian/tmp/DEBIAN
+	 install -m 755  debian/postinst   debian/tmp/DEBIAN
+	 install -m 755  debian/postrm   debian/tmp/DEBIAN
+	 dpkg-deb -Zxz  -b debian/tmp  ..
+#	 dpkg --build -Zxz debian/tmp  ..
+#	 dh_builddeb -Zxz 
+	 
+
+binary-indep:
+
+binary: binary-arch
+
+.PHONY: binary binary-arch binary-indep clean install build
+

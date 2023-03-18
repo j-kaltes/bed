@@ -1,0 +1,55 @@
+DATE=`date +"%d%b%y"`
+
+FILE=bed-$VERSION.src.tgz
+#RELEASE=`cat src/sourcenumber`
+
+SIZE=`ls -s --human-readable $DISTPATH/$FILE|cut -d ' ' -f 1`
+cat <<!
+Summary: Adjustable data format binary editor
+Name: bed
+Version: $VERSION
+License: GPL
+Release: 1
+Source: http://www.dse.nl/~bed/download/$FILE
+Url: http://bed.dse.nl
+Group: Applications/Editors
+%description 
+!
+sed -e 's/^[ 	]*//g' <description
+cat <<!
+%prep
+%setup
+
+%build
+make realclean
+#make linuxconfig
+#s/^[^%]*%_\([^ 	]*\)[ 	].*$/--\1=%{_\1} /g
+./configure       --prefix=%{_prefix} --exec_prefix=%{_exec_prefix} --bindir=%{_bindir} --datadir=%{_datadir} --libdir=%{_libdir} --mandir=%{_mandir} 
+make dep
+make
+%install
+########if test -e $CONFDIR/uninstallbed.sh; then bash $CONFDIR/uninstallbed.sh --force ; fi
+make  installfiles ROOTDIR=\$RPM_BUILD_ROOT
+%post
+ln -T -fs $CONFDIR $CONFDIRLINK
+cd $CONFDIR
+bash ./addmagic
+if  which update-menus 2>/dev/null; then update-menus; fi
+%files
+%config $CONFDIR
+$CONFDIRLINK
+$BINDIR/bed
+$MANDIR/bed.1.gz
+!
+if test $HAS_APPLICATIONS
+then
+cat <<!
+$HAS_APPLICATIONS/bed-binary-editor.desktop 
+!
+fi
+
+tr ' ' '\n' <<!
+$PROGMANEXTRA
+
+!
+

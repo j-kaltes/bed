@@ -1,0 +1,12 @@
+Usage: bed [Options] [Files]
+
+Options (applied to all files)
+-w: Always test filesize
+-d SIZE: Set filesize to SIZE (dangerous!!)
+-b BLOCKSIZE: disk read/write blocksize.  
+-V SIZE: set maximal DVD/CDROM size
+-v: Version information
+-c: Source and compile info
+-h: This screen
+-s FILE: play recorded keystrokes file FILE
+-e procedure: execute procedure at startup

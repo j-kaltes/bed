@@ -1,0 +1,18 @@
+bed - adjustable data format binary editor
+
+In Program Files\bed\ is the following documentation:
+  README          - Install information
+  bed.html        - Manual
+  misc/README.txt - Information about saved composed data types
+
+The main program is windows\bed.exe
+
+Put cygwin1.dll in windows, windows\system, windows\system32, in the 
+directory in which bed.exe resides or another directory in your PATH. 
+Using the wrong cygwin1.dll version can give problems. Only one 
+cygwin1.dll can be in use on your computer at the same time.
+
+bed -h shows which cygwin1.dll bed is using. 
+
+
+http://bed.dse.nl

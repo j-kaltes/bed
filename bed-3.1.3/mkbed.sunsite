@@ -1,0 +1,178 @@
+#	env SRCARGFILE=$(SRCARGFILE) WIN32ARGFILE=$(WIN32ARGFILE)  WIN95ARGFILE=$(WIN95ARGFILE)  OPENSOLARISFILE=$(OPENSOLARISFILE) FREEBSDARGFILE=$(FREEBSDARGFILE) NONSTATICARGFILE32=$(NONSTATICARGFILE32) NONSTATICARGFILE64=$(NONSTATICARGFILE64) STATICARGFILE=$(STATICARGFILE) ELFBASE=$(ELFBASE) SRCBASE=$(SRCBASE) VERSION=$(VERSION) DISTPATH=$*/download bash ./mkbed > $*/download.html
+#
+ DATE=`date +"%d%b%y"`
+
+# SRCFILE=$SRCBASE.tar.gz
+SRCFILE=$SRCARGFILE
+SRCLSM=$ELFBASE.lsm
+
+LSMFILE=bed-$VERSION.lsm
+ SRCSIZE=`ls -s --human-readable $DISTPATH/$SRCFILE|cut -d ' ' -f 1`
+RPMFILE=bed-$VERSION-1.i686.rpm
+ RPMSIZE=`ls -s --human-readable $DISTPATH/$RPMFILE|cut -d ' ' -f 1`
+
+#ELFFILE=bed-$VERSION-1.i586.rpm
+ELFFILE32=$NONSTATICARGFILE32
+ ELFSIZE32=`ls -s --human-readable $DISTPATH/$ELFFILE32|cut -d ' ' -f 1`
+
+ELFFILE64=$NONSTATICARGFILE64
+ ELFSIZE64=`ls -s --human-readable $DISTPATH/$ELFFILE64|cut -d ' ' -f 1`
+# ELFLSM=$ELFBASE.lsm
+# bed-$VERSION.ELF.tar.gz
+FREEBSDFILE=$FREEBSDARGFILE
+FREEBSDSIZE=`ls -s --human-readable $DISTPATH/$FREEBSDFILE|cut -d ' ' -f 1`
+
+OPENSOLARISFILE=$OPENSOLARISFILE
+OPENSOLARISSIZE=`ls -s --human-readable $DISTPATH/$OPENSOLARISFILE|cut -d ' ' -f 1`
+
+STATICLINUXFILE=bed-$VERSION.bin.ELF-static.tar.gz
+#STATICLINUXSIZE=`ls -s --human-readable $DISTPATH/$STATICLINUXFILE|cut -d ' ' -f 1`
+
+
+WIN32FILE=bed-$VERSION.win32.zip
+WIN32SIZE=`ls -s --human-readable $DISTPATH/$WIN32FILE|cut -d ' ' -f 1`
+
+WIN95FILE=bed-$VERSION.win95.zip
+WIN95SIZE=`ls -s --human-readable $DISTPATH/$WIN95FILE|cut -d ' ' -f 1`
+
+WIN32NCURFILE=bed-$VERSION.win32ncurses.zip
+WIN32NCURSIZE=`ls -s --human-readable $DISTPATH/$WIN32NCURFILE|cut -d ' ' -f 1`
+TERMIDENT=`sed -n -f terref.sed doc/menu.html`
+
+cat <<!
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (X11; I; Linux 2.0.33 i586) [Netscape]">
+   <META NAME="Author" CONTENT="Jaap Korthals Altes">
+   <META NAME="Description" CONTENT="Description of bed (binary editor for linux). Urls to download the source and the Elf binary.">
+   <META NAME="Keywords" CONTENT="Hex, editor, bed, binary, octal, decimal, ascii. Linux.">
+<title>bed - download</title>
+!
+cat doc/trackingcode.txt
+cat <<!
+</HEAD>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#55188A" alink="#FF0000">
+<div align=right><font face="Arial,Helvetica"><a href="bed.1.html">Manual</a></font></div>
+<h1>download</h1>
+<FONT SIZE=+1>Bed <B>source</B>:</FONT>
+<br><font size=+1>
+<A HREF="ftp://sunsite.unc.edu/pub/Linux/apps/editors/terminal/$SRCFILE">$SRCFILE (sunsite)</A>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+($SRCSIZE)&nbsp; ( <A HREF="ftp://sunsite.unc.edu/pub/Linux/apps/editors/terminal/$LSMFILE">LSM</A>
+)
+<A HREF="ftp://sunsite.unc.edu/pub/Linux/apps/editors/terminal/$SRCFILE.asc">SIGN</A>
+</font>
+<br><font size=+1>
+<A HREF="download/$SRCFILE">$SRCFILE</A>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+($SRCSIZE)&nbsp; ( <A HREF="download/$LSMFILE">LSM</A>
+)
+<A HREF="download/$SRCFILE.asc">SIGN</A>
+</FONT>
+
+<P><FONT SIZE=+1><B>Linux</B> x86-32 binary:</FONT>	
+<br><FONT SIZE=+1>
+See <A HREF="bed.1.html#$TERMIDENT">Terminal emulation requirements</A>
+<br>
+<A HREF="ftp://sunsite.unc.edu/pub/Linux/apps/editors/terminal/$ELFFILE32">$ELFFILE32 (sunsite)</A>&nbsp;&nbsp;&nbsp;&nbsp;
+($ELFSIZE32) 
+<A HREF="ftp://sunsite.unc.edu/pub/Linux/apps/editors/terminal/$ELFFILE32.asc">SIGN</A>
+</FONT>
+<br><font size=+1>
+<A HREF="download/$ELFFILE32"> $ELFFILE32</A>&nbsp;&nbsp;&nbsp;&nbsp;
+($ELFSIZE32) <A HREF="download/$ELFFILE32.asc">SIGN</A>
+</FONT>
+<br><FONT SIZE=+1>
+<A HREF="download/$RPMFILE"> $RPMFILE</A>&nbsp;&nbsp;&nbsp;&nbsp;
+($RPMSIZE) <A HREF="download/$RPMFILE.asc">SIGN</A>
+</FONT>
+<P><FONT SIZE=+1><B>Linux</B> x86-64 binary:</FONT>	
+<br><FONT SIZE=+1>
+See <A HREF="bed.1.html#$TERMIDENT">Terminal emulation requirements</A>
+<br>
+<A HREF="ftp://sunsite.unc.edu/pub/Linux/apps/editors/terminal/$ELFFILE64">$ELFFILE64 (sunsite)</A>&nbsp;&nbsp;&nbsp;&nbsp;
+($ELFSIZE64) 
+<A HREF="ftp://sunsite.unc.edu/pub/Linux/apps/editors/terminal/$ELFFILE64.asc">SIGN</A>
+</FONT>
+<br><font size=+1>
+<A HREF="download/$ELFFILE64"> $ELFFILE64</A>&nbsp;&nbsp;&nbsp;&nbsp;
+($ELFSIZE64) <A HREF="download/$ELFFILE64.asc">SIGN</A>
+</FONT>
+<PRE>
+!
+sh undeb.sh $ELFFILE64
+cat<<!
+</PRE>
+<P><FONT SIZE=+1><B>OpenSolaris</B> x86-32 binary:</FONT>
+<br><font size=+1>
+<A HREF="download/$OPENSOLARISFILE">$OPENSOLARISFILE</A>&nbsp;&nbsp;&nbsp;&nbsp;
+($OPENSOLARISSIZE) <A HREF="download/$OPENSOLARISFILE.asc">SIGN</A></FONT>
+
+
+<P><FONT SIZE=+1><B>FreeBSD</B> x86-64 binary:</FONT>
+<br><font size=+1>
+<!--
+<A HREF="download/bed-0.2.22.FreeBSD.tar.gz">bed-0.2.22.FreeBSD.tar.gz</A>&nbsp;&nbsp;&nbsp;&nbsp;
+(480K) <A HREF="download/bed-0.2.22.FreeBSD.tar.gz.asc">SIGN</A></FONT>
+// -->
+<A HREF="download/$FREEBSDFILE">$FREEBSDFILE</A>&nbsp;&nbsp;&nbsp;&nbsp;
+($FREEBSDSIZE) <A HREF="download/$FREEBSDFILE.asc">SIGN</A></FONT>
+
+<p><font size=+1><B>Windows 2000/XP/Vista/7</B> x86-32 cygwin binary (pdcurses):</font>
+<br><font size=+1>
+<a href="download/$WIN32FILE">$WIN32FILE</a>&nbsp;&nbsp;&nbsp;&nbsp;
+($WIN32SIZE)
+<a href="download/$WIN32FILE.asc">SIGN</a>
+<br><font size=+1>
+The unzip the zip file in c:\ (with create subdirectories enabled). bed.exe and cygwin1.dll end up in c:\windows other files in c:\Program Files\bed. If you like to use x:\Program Files\bed instead (with x another drive number), you should load a copy of bed.exe in bed.exe and change every occurrence of c/Program Files to x/Program Files and every occurrence of c:\Program Files to x:\Program Files (using replace: Alt-e,e).
+<br>
+cygwin1.dll is now included in the zip file (source <a href="http://bed.dse.nl/download/cygwin-1.7.5-1-src.tar.bz2">cygwin-1.7.5-1-src.tar.bz2</a>). 
+One and only one exemplar of cygwin1.dll should be in a directory included in PATH. Using multiple copies gives problems. Using a cygwin1.dll version very different from 1.7.5-1 is also likely to give problems. 
+<br>
+If you want to run the MS Windows version of bed within xterm or rxvt, download also the following package and put bedn.exe in c:\Program Files\bed
+<br>
+It is not advisable to use the ncurses version in cmd.com. I managed to make it work, but only by making the menu respond slower to keystrokes. Probably the exact delay is different on different computers. You can change the delay with the following command within cmd.com:
+set NCURSESDELAY=4
+The value of NCURSESDELAY is the number of tenths of seconds and is given to the ncurses command halfdelay(). De default value is 5. In earlier versions of ncurses it worked with a value of 1.
+This is only used in the ncurses version in a windows console.
+
+<br>
+<!--
+<a href="http://bed.dse.nl/download/$WIN32NCURFILE">$WIN32NCURFILE</a>&nbsp;&nbsp;&nbsp;&nbsp;
+($WIN32NCURSIZE)
+// -->
+<a href="download/$WIN32NCURFILE">$WIN32NCURFILE</a>&nbsp;&nbsp;&nbsp;&nbsp;
+($WIN32NCURSIZE)
+<a href="download/$WIN32NCURFILE.asc">SIGN</a>
+<br>
+WARNING: As in all cases where other cygwin programs are installed, when you use the ncurses version it is absolutely nessessary to remove cygwin1.dll out of c:\windows and to rely entirely on /bin/cygwin1.dll
+<br>
+Be carefull never to start bed in a directory where another cygwin1.dll is lying around.
+
+<p><font size=+1><B>Windows 95/98/ME </B> cygwin binary (pdcurses):</font>
+<br><font size=+1>
+<a href="download/$WIN95FILE">$WIN95FILE</a>&nbsp;&nbsp;&nbsp;&nbsp;
+($WIN95SIZE)
+<!--
+<a href="http://bed.dse.nl/download/$WIN95FILE">$WIN95FILE</a>&nbsp;&nbsp;&nbsp;&nbsp;
+($WIN95SIZE)
+// -->
+<a href="download/$WIN95FILE.asc">SIGN</a>
+</font>
+<br>
+This version is compiled with <A HREF="http://cygwin.xl-mirror.nl/release-legacy/cygwin/cygwin-1.5.25-15-src.tar.bz2">cygwin-1.5.25-15</A> and doesn't search in the background during editing. 
+<p><font size=+1>To compile bed for win32 you need:
+<ul><li>gcc, binutils, gnu make, grep, sed, textutils, findutils, fileutils, diffutils, which and probably some other utilities from <a href="http://sources.redhat.com/cygwin" TARGET="_top">cygwin</a>
+<li>GNU regex (different from libregex.a from cygwin): e.g.&nbsp; <A HREF="http://ftp.gnu.org/old-gnu/regex/regex-0.12.tar.gz">http://ftp.gnu.org/old-gnu/regex/regex-0.12.tar.gz</A> 
+<li>pdcurses source (<a href="http://pdcurses.sourceforge.net" TARGET="_top">http://pdcurses.sourceforge.net</a>)
+</ul>
+<p>
+<font size="+1"><A NAME="oldbeds">Old versions:</a> <a href="http://bedlinux.tripod.com/download">tripod</a> and <a href="http://bed.dse.nl/download">dse</a><br>
+</font></p>
+<p><font size="+1"><a href="pgpkey.bed">pgp public key</a>
+</font></p>
+
+
+
+</body>
+</html>
+!

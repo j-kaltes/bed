@@ -1,0 +1,2 @@
+bed-datatype:
+Digit(8,10,10,"",[Skip(10,8,"4#1"),Reverse(8,8,"4")],"",1,1);

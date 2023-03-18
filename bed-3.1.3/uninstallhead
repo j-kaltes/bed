@@ -1,0 +1,20 @@
+#!/bin/sh	
+if test     $# -gt 0  -a  .$1 = ".--force"  
+then
+	echo Remove
+else
+	echo WARNING this automatically generated list of files can contain
+	echo errors. Stop and check the files in $0 
+	echo to be certain.
+	echo
+	echo Do you want to continue? '(y/n)'
+	read ans
+	if test  x$ans = "xy" -o x$ans = x"Y"
+	then
+		echo Remove
+	else
+		echo Cancelled
+		exit
+	fi
+fi
+

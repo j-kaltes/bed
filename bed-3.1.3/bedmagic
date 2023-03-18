@@ -1,0 +1,14 @@
+#http://bed.dse.nl
+0	string		\276\320bed\040
+>6	string		marks\040of bed marks
+>>296	long		x		(%d)
+>>15	string		>\0		%s
+>>272	long		x		(%u +
+>>276	long		x		%d*2^32
+>>280	ledate		x		,%s)
+>>288	ledate	 	x		%s
+>>308	string	 	x		(%s)
+>6	string		macro Bed Macro
+>>38	ledate	x	%s
+0	string		bed-datatype: Bed datatype
+

@@ -1,0 +1,360 @@
+#@configure_input@
+ifneq ($(INCLUDEDCONFIG),yes)
+
+PROGRAMC=@PROGRAMC@
+PROGRAMLD=@PROGRAMLD@
+CPPFLAGS=@CPPFLAGS@
+GXXVERSION=@GXXVERSION@
+
+CFLAGS=$(CPPFLAGS) @CFLAGS@ 
+CXXFLAGS=$(CPPFLAGS) @CXXFLAGS@ -std=$(GXXVERSION)
+LDFLAGS= @LDFLAGS@ #-std=$(GXXVERSION)
+
+CFLAGS+= -Wall   #-Wno-write-strings -Wno-char-subscripts
+CXXFLAGS+= -Wall   #-Wno-write-strings -Wno-char-subscripts
+LDFLAGS+= 
+EXTRALIBS=@EXTRALIBS@
+OTHERLIBS=@LIBS@
+export GNUSTRIP=@GNUSTRIP@
+
+ifeq ($(BEDSRCDIR),)
+export BEDSRCDIR=@abs_srcdir@
+endif
+REGEX_DIR=$(BEDSRCDIR)/regex-0.13
+#include $(BEDSRCDIR)/prognames.mk
+INCLUDEDCONFIG=yes
+export LC_ALL=POSIX
+# test,sed,sort,grep etc should produce exactly the intented output.
+# Data access don't work anymore if e.g. sort order is changed
+# and some idiot made sort (Mandrake 7.2) produce different sort order
+# depending on locale. try
+#LC_ALL=nl sort
+#aA
+#AB
+export MAN2HTML=@MAN2HTML@
+#export LOWVERSION=@LOWVERSION@
+#export MIDVERSION=@MIDVERSION@
+#export UPVERSION=@UPVERSION@
+export VERSION=@PACKAGE_VERSION@
+export PROGRAM=bed
+SYSTEM=@SYSTEM@
+export WINDOWS=@WINDOWS@
+export HOST_CPU=@host_cpu@
+export HOST_OS=@host_os@
+HOSTCONF=@HOSTCONF@
+HOST_ALIAS=@HOST_ALIAS@
+export HOSTEXEEXT=@EXEEXT@
+export EXEEXT=$(HOSTEXEEXT)
+include $(BEDSRCDIR)/build
+
+CYGWIN=@CYGWIN@
+
+HAVE_MAGIC_H=@HAVE_MAGIC_H@
+export HAS_RE_SEARCH=@HAS_RE_SEARCH@
+export CONFFILE=$(PROGRAM)rc
+export CONFLASTDIR=$(PROGRAM)-$(VERSION)
+export ROOTDIR=
+HAS_APPLICATIONS=@HAS_APPLICATIONS@
+LN_S=@LN_S@
+HAVE_LN_R=@HAVE_LN_R@
+# compile support for the use of plugins. Needs libdl
+# if CONFIG_PLUGIN=n then GIVE=.. in plugin/examples/Makefile determines
+# which plugins are linked in instead
+DL_LIBRARY=@DLLIBS@
+CONFIG_PLUGIN=@CONFIG_PLUGIN@
+USE_RE2=@USE_RE2@
+ifeq ($(USE_RE2),1)
+CFLAGS+=-DUSE_RE2=1
+CXXFLAGS+=-DUSE_RE2=1
+EXTRALIBS+=@LIBRE2@ @THREADSLIB@ 
+
+endif
+USE_HYPERSCAN=@USE_HYPERSCAN@
+ifeq ($(USE_HYPERSCAN),1)
+CFLAGS+=-DUSE_HYPERSCAN=1
+CXXFLAGS+=-DUSE_HYPERSCAN=1
+EXTRALIBS+=@LIBHS@
+endif
+
+ifneq ($(HAS_RE_SEARCH),y) 
+OBJECTS=$(REGEX_DIR)/regex.o
+endif
+
+DYNAMICCURSES=@DYNAMICCURSES@
+STATICCURSES=@STATICCURSES@
+CURSESLIB=-l@CURSESLIB@
+
+CFLAGS+=-DCURSESTYPE=@CURSESLIB@ -DCURSES=1
+CXXFLAGS+=-DCURSESTYPE=@CURSESLIB@ -DCURSES=1
+
+# user threads to go on while making a searchlist. 
+# Adds instability, but is also the most widely used. 
+# Not tried with win95 requires ReadFile with offset in OVERLAPPED 
+CONFIG_THREADS=@CONFIG_THREADS@
+THREADSLIB=@THREADSLIB@
+ifneq ($(WINDOWS),yes)
+# The user of the program is unix minded
+FULLUNIX=y
+else
+CFLAGS+=-D_WIN32=1 -DWindows=1 -DUSE_WINFILE
+CXXFLAGS+=-D_WIN32=1 -DWindows=1 -DUSE_WINFILE
+FULLUNIX=n
+CONFIG_PLUGIN=n
+#export BIOSDISK=y
+#set to y if you want to to use raw disk edit under win95/98/ME 
+CYGWINDLL=@CYGWINDLL@
+# >= 1007 no support for Windows 95/98/ME anymore so
+		      #	shouldn't be defined  -DBIOSDISK  -DRUNONWIN95=1
+
+ifeq ($(shell if test 0$(CYGWINDLL) -ge 01007;then echo nowin95;else echo win95 ;fi),nowin95)
+export BIOSDISK=n
+endif
+ifeq ($(BIOSDISK),y)
+CFLAGS+= -DBIOSDISK  -DRUNONWIN95=1 
+CXXFLAGS+= -DBIOSDISK  -DRUNONWIN95=1 
+CONFIG_THREADS=n
+endif
+endif
+
+ifeq ($(FULLUNIX),y)
+#LINK some useful 'plugins' in main program instead of dynamic linkage?
+CONFIG_LINKINPLUGINS=@CONFIG_LINKINPLUGINS@
+
+prefix=@prefix@
+datarootdir = @datarootdir@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+datadir=@datadir@
+mandir=@mandir@
+libdir=@libdir@
+LDFLAGS+="-Xlinker -rpath=$libdir"
+TEMPDIR=$(prefix)/tmp
+CFLAGS+=-DTEMPDIR=\"$(TEMPDIR)\"
+CXXFLAGS+=-DTEMPDIR=\"$(TEMPDIR)\"
+export MANDIR=$(mandir)/man1
+ifneq ($(WINDOWS),yes)
+export CONFDIR=$(libdir)/$(CONFLASTDIR)
+HAS_X=y
+else
+# bed under CYGWIN uses windows find file
+export CONFDIR=$(datadir)/$(PROGRAM)
+TEMPDIR=$(prefix)/tmp
+endif
+export CONFDIRLINK=$(datadir)/$(PROGRAM)
+PERSCONFFILE=~/.$(CONFFILE)
+GLOBALCONFFILE=$(CONFDIRLINK)/$(CONFFILE)
+
+DEFAULTBEDRCBIN=$(PERSCONFFILE)-bin
+else
+
+prefix=/cygdrive/c
+bindir=$(prefix)/Windows
+datadir=$(prefix)/Program\ Files
+mandir=$(CONFDIR)
+export MANDIR=$(CONFDIR)
+export CONFDIR=$(datadir)/$(PROGRAM)
+export CONFDIRLINK=$(datadir)/$(PROGRAM)
+PERSCONFFILE=~/.$(CONFFILE)
+#BEDRCBINFILE="bedrc-bin"  #give only last part in MS Windows is placed in %APPDATA% if DEFAULTBEDRCBIN not defined 
+GLOBALCONFFILE=$(datadir)/bed/bedrc
+CFLAGS+=-DNCURSES_BED=\"$(CONFDIR)/bedn.exe\" -DNCURSES_BEDENV=\"BEDN\" 
+CXXFLAGS+=-DNCURSES_BED=\"$(CONFDIR)/bedn.exe\" -DNCURSES_BEDENV=\"BEDN\" 
+endif
+ifeq ($(SYSTEM),Android)
+PERSCONFFILE=/sdcard/.$(CONFFILE)
+endif
+CFLAGS+= -DPERSCONFFILE=\"$(PERSCONFFILE)\" 
+CXXFLAGS+= -DPERSCONFFILE=\"$(PERSCONFFILE)\" 
+ifneq ($(DEFAULTBEDRCBIN),)
+CFLAGS+=  -DDEFAULTBEDRCBIN=\"$(DEFAULTBEDRCBIN)\"
+CXXFLAGS+=  -DDEFAULTBEDRCBIN=\"$(DEFAULTBEDRCBIN)\"
+else 
+ifneq ($(BEDRCBINFILE),)
+CFLAGS+=-DBEDRCBINFILE=\"$(BEDRCBINFILE)\"
+CXXFLAGS+=-DBEDRCBINFILE=\"$(BEDRCBINFILE)\"
+endif
+endif
+CFLAGS+=  -DGLOBALCONFFILE=\"$(GLOBALCONFFILE)\" 
+CXXFLAGS+=  -DGLOBALCONFFILE=\"$(GLOBALCONFFILE)\" 
+
+export EXEPROGRAM=bed$(HOSTEXEEXT)
+
+#HAS_MAKEDEPEND=@HAS_MAKEDEPEND@
+export BASEDIR=$(prefix)
+export XPROGRAM=x$(PROGRAM)
+export BINDIR=$(bindir)
+
+export CONFVAR=BEDRC
+#s/AC_SUBST(\(.*\))/\1=@\1@
+
+ICONPATH=/usr/share/icons
+MENUPATH=/usr/lib/menu
+KDEMENU=/usr/share/applnk
+GNOMEMENU=/usr/share/gnome/apps
+BEDMENU=Editors
+XBEDMENU=Utilities
+XMENUNAME="bed - binary editor"
+MENUNAME="BED - BINARY EDITOR"
+DEFINES_H=$(BEDSRCDIR)/src/defines.h
+CFLAGS+= @DEFS@  @EXTRAFLAGS@ -imacros $(DEFINES_H) 
+CXXFLAGS+= @DEFS@  @EXTRAFLAGS@ -imacros $(DEFINES_H) 
+#CONFIG_XBED=@CONFIG_XBED@
+CONFIG_XBED=n
+NRXVT=@NRXVT@
+RXVT=@RXVT@
+CONFIG_PROGMAN=@CONFIG_PROGMAN@
+CROSS_COMPILING=@CROSS_COMPILING@
+CC=@CC@
+CXX=@CXX@
+GXX=$(CXX)
+GCC=$(CC)
+TOBUILDCC=@TOBUILDCC@
+TOBUILDCXX=@TOBUILDCXX@
+
+HAS_X=@HAS_X@
+X_CFLAGS=@X_CFLAGS@
+X_LIBS=@X_LIBS@
+#X_EXTRA_LIBS=@X_EXTRA_LIBS@ -lxcb -lXau -lXdmcp 
+X_EXTRA_LIBS=@X_EXTRA_LIBS@ -lxcb -lXau  
+
+
+X_PRE_LIBS=@X_PRE_LIBS@
+
+PDCURSES=@PDCURSES@
+
+
+USES_ELF=@USES_ELF@
+ELFSIZE=@ELFSIZE@
+
+HAS_NROFF=@HAS_NROFF@
+# *** spaces and tabs matter!!!! ***
+#configuration options:
+
+# link static=y
+CONFIG_STATIC=n
+
+
+ifeq ($(WINDOWS),yes)
+CONFIG_XBED=n
+endif
+
+
+
+
+# Uses mmap when searching makes searching (forward, casesensitive,
+# non regex) maybe a little bit faster. When true around 0.001%.
+# and until 0.2.4 it somehow didn't work on extended files
+CONFIG_MMAP=n
+
+# debug -g and making /tmp/bedtrace* and /tmp/beddebug* files. (y=do,m=only -g, n=nodebug, t=only debug files o=only -g -O2)
+CONFIG_DEBUG=n
+
+#y: offset in long long instead of long (not always supported)
+# needed for large harddrives
+CONFIG_LARGEFILES=@CONFIG_LARGEFILES@
+
+# Write the pieces between datatypes and offset numbers
+# Objective measures say that doing this makes the screen somehow faster,
+# but my subjective impression is that it becomes slower
+#y: write over with color TEXT which you should define  ~/.bedrc or $CONFDIR/bedrc
+#n: leave them background
+#c: give spacebetween new colour SPACEAFTER (little bit slower). When using rxvt
+#this leads sometimes to the wrong coloring.
+#b: same as c but no line after last datatype ("")
+#i: other colour APART between items (much slower)
+CONFIG_WRITEBETWEENPARTS=b
+
+# make msdos (edit, turbo-C IDE, Midnight/Norton Commander) lines around some menu's
+#y: do
+#n: don't do
+CONFIG_MENULINES=n
+
+#color support (depends also on color lines in (.)bedrc)
+#y: default color, black-white with option -B
+#n: not possible
+#o: default black-white, color with option -C
+CONFIG_COLOR=@CONFIG_COLOR@
+
+ifeq ($(CONFIG_STATIC),y)
+ifeq (@CURSESLIB@,ncurses)
+CURSESLIB+= -ltinfo  -lgpm
+endif
+CONFIG_PLUGIN=n
+endif
+
+#Plugins can also be linked in the main program
+#LINKIN: Puts it among other linked in procedures
+#LINKINDYN: shows the linked in plugin like a dynamic one. Can not be put in menu's
+#Plugins to choice from: bitcontains.plug bitflags.plug duplicate.plug ebcdic2ascii.plug elftables.plug (needs index2table.plug) file.plug filter.plug float.plug gdb.plug nextitem.plug record.plug signed.plug skip.plug index2table.plug time.plug translate.plug  xterm.plug
+#defaults:
+#
+ifeq ($(CONFIG_LINKINPLUGINS),)
+ifeq ($(CONFIG_PLUGIN),y)
+CONFIG_LINKINPLUGINS=n
+else
+CONFIG_LINKINPLUGINS=y
+endif
+endif
+ifndef MINIMAL
+ifneq ($(CONFIG_LINKINPLUGINS),y)
+LINKIN+=time.plug  signed.plug float.plug bitflags.plug bitcontains.plug  duplicate.plug skip.plug nextitem.plug translate.plug
+#LINKINDYN+=
+else
+LINKIN+= ebcdic2ascii.plug time.plug  signed.plug float.plug bitflags.plug bitcontains.plug translate.plug duplicate.plug skip.plug nextitem.plug  helpf1.plug
+LINKINDYN+= backward.plug searchclip.plug datatypeinfo.plug cut.plug undoall.plug
+
+ifneq ($(WINDOWS),yes)
+#ifeq ($(HAS_X),y)
+LINKINDYN+=title.plug #putselect.plug switchsize.plug rxvt.plug
+#	OTHERLIBS+= $(THREADSLIB)   #for putselect.plug
+#endif
+endif
+ifeq ($(FULLUNIX),y)
+UNIXPLUGINS=y
+endif
+ifeq ($(UNIXPLUGINS),y)
+LINKINDYN+=disass.plug filter.plug
+endif
+ifeq ($(HAVE_MAGIC_H),1)
+	LINKINDYN+=  magic.plug
+	OTHERLIBS+= -lmagic #-lz 
+	REMOVEPLUG+= file.plug
+else
+	REMOVEPLUG+= magic.plug
+	ifeq ($(HAS_FILE),y)
+	LINKINDYN+=  file.plug
+	endif
+endif
+ifeq ($(UNIXPLUGINS),y)
+
+ifeq ($(USES_ELF),y)
+LINKINDYN+=index2table.plug 
+endif
+ifeq ($(ELFSIZE),32)
+LINKINDYN+=elftables32.plug 
+endif
+endif
+endif
+
+ifeq ($(WINDOWS),yes)
+LINKIN+=clipboard.plug title.plug
+ifeq (@CURSESLIB@,ncurses)
+
+LINKINDYN+=rxvt.plug
+endif
+endif
+endif # MINIMAL
+LINKIN+=edit.plug # if left out edit src/menu.h
+INLINKLIB=inlink.a
+
+#CFLAGS+=-DVERSION=\"$(VERSION)\" -DPROGRAM=\"$(PROGRAM)\"  -DCONFDIR=\"$(CONFDIR)\" -DCONFDIRLINK=\"$(CONFDIRLINK)\" -DBINDIR=\"$(BINDIR)\" -DCONFVAR=\"$(CONFVAR)\"  -DCONFFILE=\"$(CONFFILE)\"
+CFLAGS+= -DVERSION=\"$(VERSION)\" -DPROGRAM=\"$(PROGRAM)\"  -DCONFDIR=\"$(CONFDIR)\" -DCONFDIRLINK=\"$(CONFDIRLINK)\" -DBINDIR=\"$(BINDIR)\" -DCONFVAR=\"$(CONFVAR)\"  -DCONFFILE=\"$(CONFFILE)\" 
+CXXFLAGS+= -DVERSION=\"$(VERSION)\" -DPROGRAM=\"$(PROGRAM)\"  -DCONFDIR=\"$(CONFDIR)\" -DCONFDIRLINK=\"$(CONFDIRLINK)\" -DBINDIR=\"$(BINDIR)\" -DCONFVAR=\"$(CONFVAR)\"  -DCONFFILE=\"$(CONFFILE)\" 
+INLINKALL=$(LINKIN) $(LINKINDYN)
+ifeq ($(CROSS_COMPILING),no)
+TOBUILDCXXFLAGS=$(CXXFLAGS)
+TOBUILDCFLAGS=$(CFLAGS)
+TOBUILDLDFLAGS=$(LDFLAGS)
+endif
+endif
+

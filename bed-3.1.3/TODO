@@ -1,0 +1,120 @@
+In composed datatypes use tab instead of space between fields, so it can easily be used as .tsv format
+Ask to save complex datatype
+Verandering anders kleuren.
+Create transform datatype: for example device by 180
+make termux-manifest
+Als door data grootte niet alles op scherm dit aangeven
+
+Search backwards with libre2. The source contains a run_forward flag, so maybe it is possible.
+mogelijke regex
+/gpl3/gcc/dist/libiberty/regex.c ./gpl3/gcc.old/dist/libiberty/regex.c ./gpl3/gdb/dist/libiberty/regex.c ./gpl3/binutils/dist/libiberty/regex.c ./gpl3/gdb.old/dist/libiberty/regex.c 
+./gpl2/diffutils/dist/lib/regex.c 
+./gpl2/gettext/dist/gettext-tools/libgrep/regex.c
+
+split double op in deel gebieden
+zoek approximate double 
+list in zoeken?
+replace once, without jumping to next?
+cursor op rand match?
+rm duplicates from, marks, show duplicates etc
+list can larger
+viewbuf met two buffers
+split into threads:
+	- sort
+	- conversion
+	- different shifts in search
+wchar_t version?
+up/down in dialogs?
+add to class check procedure option.
+
+marks with length element
+save mark position only 
+read mark position only: to compare with hits by other methods
+different mark lists
+add in order.
+
+Overlap regex search goed?
+
+Bij insert shown, oorspronkelijke data bij unprintable characters laten staan?
+geen blockread wanneer niet nodig en kostbaar
+Search:
+	- optie matchen met individuele items
+	- zet cursor binnen datatype
+
+bed gebruiken om andere bed tot leven te wekken
+
+
+wide character
+MAXDRIVES 40 te klein: 
+- Vergroten wanneer nodig?
+- Commandline option?
+- Zeer grote default?
+
+rewrite information manual/webpage etc:
+- What versions?
+- Advies test eerst op vdisk. Is voor gewone user toegankelijk.
+
+instellingen xterms
+ook toevoeging urxvt etc.
+gemakkelijker maken andere partities te bekijken onder windows
+datetype aan config schermtjes datatype label toevoegen
+Windows:
+	FILE_FLAG_NO_BUFFERING
+    * File access buffer addresses for read and write operations should be sector-aligned, which means aligned on addresses in memory that are integer multiples of the volume sector size. Depending on the disk, this requirement may not be enforced.
+	An application can determine a volume sector size by calling the GetDiskFreeSpace function.
+
+	Because buffer addresses for read and write operations must be sector-aligned, the application must have direct control of how these buffers are allocated. One way to sector-align buffers is to use the VirtualAlloc function to allocate the buffers. Consider the following:
+    * VirtualAlloc allocates memory that is aligned on addresses that are integer multiples of the system's page size. Page size is 4,096 bytes on x64 and x86 or 8,192 bytes for the Intel Itanium processor family. For additional information, see the GetSystemInfo function.
+    * Sector size is typically 512 to 4,096 bytes for direct-access storage devices (hard drives) and 2,048 bytes for CD-ROMs.
+    * Both page and sector sizes are powers of 2.
+	testen op compile windows versie en hardlinken als boven versie
+	Vervanging voor toetsen? Alt-;/: Alt-.,Alt-}, Alt-|, Alt-Tab
+	look for cygwin warning: Belangrijke opties duidelijk aan eind elke compilatie
+	get attributes if GetFileInformationByHandle fails of bij disk/biosdisk
+	gaat addmagic goed?
+
+changelog schrijven
+waarom arraysorti en geen qsort e.d.?
+user sysconf(_SC_PAGESIZE )? =65536
+all automatisch gegenereerde files markeren
+Voorkeur zonder ./configure
+test files weghalen
+Verwijder reclame uit normale versie bed.html
+Warnings afgaan 
+strcpy etc afgaan
+all functies uittesten
+
+Make foreground searching possible, during background search?
+
+type search duidelijker maken?
+In filemanager geselecteerde filenaam beter tonen?
+ /dev/sda etc kunnen editen?
+
+windows:
+	Make bed configfiles relative to
+	PROGRAMFILES='C:\Program Files'
+	ProgramData='C:\ProgramData'
+
+
+exception handling toevoegen?
+
+
+int Editor::fileok(void) { return 0;}
+plug*/exp*/mkhelp.exe geeft niets
+in getfile aangeroepen met filespe "*.bedm" worden directories niet getoond.
+Windows:
+	andere versies uitproberen
+	gebruikte procedures uit cygwin vissen in programma compileren of port naar MinGW
+	Search interrupt met andere key strokes?
+	ook //?/ herkennen in: int isdiskdevice(char *filename)
+	Cygwin Versie check? Opmerking webpage, installatie doc, manual?
+	Overgaan tot grotere privileges regelen
+
+
+Add history to open etc
+
+Make also possible to get bed to terminal by killing pid of other bed thread
+Use /proc/partitions to get SIZES of partitions. (after first reading right cd rom value).
+
+lock van drives leidt tot falen. Bij schrijven proberen?
+

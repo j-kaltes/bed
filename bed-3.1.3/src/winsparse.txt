@@ -1,0 +1,13 @@
+als Extend:
+	test cansparse
+	Ja
+		make sparse en set size extended area bij save
+	nee
+		extend size extended area bij save
+
+Saveas
+	make gesaved sparse etc.
+	
+Saveas
+	idem
+

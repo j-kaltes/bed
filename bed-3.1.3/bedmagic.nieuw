@@ -1,0 +1,16 @@
+
+#ftp://ftp.ibiblio.org/pub/Linux/apps/editors/terminal/bed-*.tar.gz
+0	string		\276\320bed\040marks\040of	bed marks
+>>296	long	x	(%d)
+>>15	string	>\0	%s
+>>272	long	x	(%u +
+>>276	long	x	%d*2^32
+>>280	ledate	x	,%s)
+>>288	ledate	 	x	%s
+>>308	string	 	x	(%s)
+0	string		\276\320bed\040macro	Bed Macro
+>>38	ledate	x	%s
+0	string	bed-datatype:	Bed datatype
+
+
+

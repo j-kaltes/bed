@@ -1,0 +1,3 @@
+
+g++  -I/usr/include/x86_64-linux-gnu/c++/6/  -DGLOBAL -DUNDER -I../ -I../../src/ -I../../src/empty     -DNEWTERM     -DBEDSRCDIR=/home/jka/src/bed-2.27.3 -fPIC -g -O2 -m32 -Wall    -DCURSESTYPE=ncurses -DCURSES=1 -DPERSCONFFILE=\"~/.bedrc\"  -DGLOBALCONFFILE=\"/usr/local/share/bed/bedrc\"  -DHAVE_CONFIG_H   -imacros ../defines.h  -DVERSION=\"2.27.3\" -DPROGRAM=\"bed\"  -DCONFDIR=\"/usr/local/lib/bed-2.27.3\" -DCONFDIRLINK=\"/usr/local/share/bed\" -DBINDIR=\"/usr/local/bin\" -DCONFVAR=\"BEDRC\"  -DCONFFILE=\"bedrc\"  -DLARGEFILES=1 -DUSETHREADS=1  -D_REENTRANT=1  -O3 -DPLUGINSRC=1   -DEXAMPLEDIR=\"/usr/local/lib/bed-2.27.3/plugins/examples\"  -DSOURCEFILENAME=\"examples/signed.cc\" -E signed.cc -o signed.ii
+

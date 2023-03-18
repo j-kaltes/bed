@@ -1,0 +1,29 @@
+		  BBBB                d 
+		  B   B               d 
+		  B   B    eee     dddd 
+		  BBBB    e   e   d   d 
+		  B   B   eeeee   d   d 
+		  B   B   e       d   d 
+		  BBBB     eee     dddd 
+
+
+For a short description read bed*.lsm, see the bed manual page for
+more documentation.
+
+Append bedmagic to the system magic file by pressing
+	
+	sh ./addmagic.sh
+
+
+This directory contains the following:
+	bedrc:	System wide configuration. Copy it to ~/.bedrc and modify it for
+		individual configuration
+	misc: saved data definitions
+	utils:
+		getch: find key codes
+		keyconfig: bind key definitions mentioned in bed menu
+		mkkeydef: make one key definition
+	plugins: files needed to make plugins and some example plugins
+		 some of them are already compiled into bed
+
+

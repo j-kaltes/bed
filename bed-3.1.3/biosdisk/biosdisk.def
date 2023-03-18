@@ -1,0 +1,11 @@
+LIBRARY    BIOSDISK 
+
+DESCRIPTION 'BIOSDISK.DLL'
+
+EXPORTS
+    WEP                            @1   ; WEP
+    GETDRIVEPARAMETERS         @2   ; GETDRIVEPARAMETERS
+    DOSALLOC                       @3   ; DOSALLOC
+    DOSFREE                        @4   ; DOSFREE
+    DISKREAD                       @5   ; DISKREAD
+    DISKWRITE                       @6   ; DISKWRITE

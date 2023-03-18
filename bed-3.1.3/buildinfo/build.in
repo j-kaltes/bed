@@ -1,0 +1,2 @@
+export BUILDEXEEXT=@EXEEXT@
+HAS_FILE := $(shell $(BEDSRCDIR)/has_file)

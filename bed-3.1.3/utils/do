@@ -1,0 +1,2 @@
+i686-linux-android-gcc   -O3 -s   -static-libstdc++ -L/home/jka/src/bed-3.1.3/libs/androidx86  -Xlinker -rpath=/data/local/tmp/nontmp/lib  bin2byte.c -o bin2bytec 
+

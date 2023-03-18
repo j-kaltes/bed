@@ -1,0 +1,13 @@
+#set before ./configure
+
+#GCCcompiler=i686-pc-cygwin-gcc.exe  doesn't work anymore
+#GXXcompiler=i686-pc-cygwin-g++.exe 
+#CURSESLIB=pdcurses
+CURSESLIB=ncurses
+LDFLAGS=
+CFLAGS=
+CXXFLAGS=
+#CC=clang
+#CXX=clang++
+CPPFLAGS=-D__ANDROID_API__=26
+prefix=/data/data/com.termux/files/usr

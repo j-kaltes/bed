@@ -1,0 +1,2 @@
+OFFTYPE Editor::posputbuf(OFFTYPE pos,char *buf,OFFTYPE len){
+

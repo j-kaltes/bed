@@ -1,0 +1,44 @@
+/* src/defines.h.  Generated from defines.h.in by configure.  */
+/* #undef const */
+#define HAS_REALPATH 1
+#define HAS_CURS_SET 1
+#define HASDELSCREEN 1
+#define HAS_GETUSERSHELL 1
+#define HAS_GETVALUE 1
+#define HAS_GMTIME_R 1
+/* #undef HAS_LSEEK64 */
+#define HAS_MAP_FAILED 1
+/* #undef HAS_MEMINFO */
+#define HAS_MKSTEMP 1
+/* #undef HAS_MREMAP */
+#define HAS_PREAD 1
+/* #undef HAS_RE_SEARCH */
+#define HAS_SEMAPHORE 1
+/* #undef HAS_SETNEWHANDLER */
+#define HAS_STRNLEN 1
+#define HAS_STRTOLL 1
+/* #undef HAS_TIGETSTR */
+#define HAS_TTYNAME_R 1
+#define HAS_WRESIZE 1
+/* #undef HAVE_ALLOCA_H */
+#define HAVE_FLOAT_H 1
+#define HAVE_NEW 1
+/* #undef inline */
+#define MY_PTHREAD_MUTEX_ERRORCHECK PTHREAD_MUTEX_ERRORCHECK
+/* #undef NODEFAULTCOLORS */
+/* #undef off_t */
+/* #undef OWNTRANSTIME */
+/* #undef pid_t */
+/* #undef _POSIX_SOURCE */
+/* #undef PROCARRAY */
+#define PROCEXEFILENAMEFORMAT "/proc/%d/exe"
+/* #undef size_t */
+#define STDC_HEADERS 1
+#define TIMEZONENEEDED 1
+/* #undef uid_t */
+#define UNBLOCKSIGNALS 1
+/* #undef USE_KEYPAD */
+/* #undef HAVE_GNUREGEX_H */
+/* #undef NOSTOPANDTHREADS */
+#define SYSCONF_MEM 1
+/* #undef PDCURSES */

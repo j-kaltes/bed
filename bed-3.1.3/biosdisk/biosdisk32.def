@@ -1,0 +1,28 @@
+LIBRARY biosdisk32
+
+DESCRIPTION 'biosdisk32.dll'
+
+
+IMPORTS
+	kernel32.QT_Thunk
+	LoadLibrary16@4=kernel32.35
+	FreeLibrary16@4=kernel32.36
+	GetProcAddress16@8=kernel32.37
+	WOWGetVDMPointer@12=wow32.WOWGetVDMPointer
+	WOWGetVDMPointerFix@12=wow32.WOWGetVDMPointerFix
+	WOWGetVDMPointerUnfix@4=wow32.WOWGetVDMPointerUnfix
+	WOWGlobalAlloc16@8=wow32.WOWGlobalAlloc16
+	WOWGlobalFree16@4=wow32.WOWGlobalFree16
+	WOWGlobalLock16@4=wow32.WOWGlobalLock16
+	WOWGlobalUnlock16@4=wow32.WOWGlobalUnlock16
+
+EXPORTS
+	diskopen
+	getfilesize
+	getblocksize
+	diskread
+	diskclose
+	diskwrite
+	diskreopen
+	removebioslib	
+	diskpresent

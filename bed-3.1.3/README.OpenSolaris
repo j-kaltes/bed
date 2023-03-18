@@ -1,0 +1,33 @@
+To compile you absolutely need to have the following packages installed;
+gcc, gcc-dev, binutils, gdb, gmake, ncurses
+
+For added functionality add: xorgs-headers xorg-clientlibs SUNWxwinc SUNWlynx
+If you need to change something you maybe also need: autoconf
+
+The file ./settings last mention of CURSESLIB should be:
+
+CURSESLIB=ncurses
+
+Both during compile and during install (this can differ!!) your PATH environmental variable should include /usr/gnu/bin 
+
+press:
+
+env PATH=/usr/gnu/bin:$PATH ./configure
+
+edit config if you like
+
+then press
+
+env PATH=/usr/gnu/bin:$PATH make dep;make
+
+To install become root and press
+
+env PATH=/usr/gnu/bin:$PATH make install
+
+I got bed running under gnome-terminal. Search for gnome in bed's manual page to find out which changes in gnome-terminal
+you should make to get bed's keys working. Under opensolaris some keys remained unresponsive or are catched by some other program, these
+include: HOME, END, F12, Alt-TAB, Shift-F5. However, HOME and END on the numeric keypad (and Ctrl-a and Cntr-e) function properly.
+
+Send suggestions, questions and bug reports to
+
+Jaap Korthals Altes <binaryeditor@gmx.com>

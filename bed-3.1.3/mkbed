@@ -1,0 +1,148 @@
+#	env SRCARGFILE=$(SRCARGFILE) WIN32ARGFILE=$(WIN32ARGFILE)  WIN95ARGFILE=$(WIN95ARGFILE)  OPENSOLARISFILE=$(OPENSOLARISFILE) FREEBSDARGFILE=$(FREEBSDARGFILE) NONSTATICARGFILE32=$(NONSTATICARGFILE32) NONSTATICARGFILE64=$(NONSTATICARGFILE64) STATICARGFILE=$(STATICARGFILE) ELFBASE=$(ELFBASE) SRCBASE=$(SRCBASE) VERSION=$(VERSION) DISTPATH=$*/download bash ./mkbed > $*/download.html
+#
+ DATE=`date +"%d%b%y"`
+
+# SRCFILE=$SRCBASE.tar.gz
+SRCFILE=$SRCARGFILE
+SRCLSM=$ELFBASE.lsm
+
+LSMFILE=bed-$VERSION.lsm
+ SRCSIZE=`ls -s --human-readable $DISTPATH/$SRCFILE|cut -d ' ' -f 1`
+RPMFILE=bed-$VERSION-1.i686.rpm
+ RPMSIZE=`ls -s --human-readable $DISTPATH/$RPMFILE|cut -d ' ' -f 1`
+
+#ELFFILE=bed-$VERSION-1.i586.rpm
+ELFFILE32=$NONSTATICARGFILE32
+ ELFSIZE32=`ls -s --human-readable $DISTPATH/$ELFFILE32|cut -d ' ' -f 1`
+
+ELFFILE64=$NONSTATICARGFILE64
+ ELFSIZE64=`ls -s --human-readable $DISTPATH/$ELFFILE64|cut -d ' ' -f 1`
+
+ELFFILE_ARMHF=$NONSTATICARGFILE_ARMHF
+ ELFSIZE_ARMHF=`ls -s --human-readable $DISTPATH/$ELFFILE_ARMHF|cut -d ' ' -f 1`
+
+ ANDROIDSIZE=`ls -s --human-readable $DISTPATH/$ANDROIDARGFILE |cut -d ' ' -f 1`
+# ELFLSM=$ELFBASE.lsm
+# bed-$VERSION.ELF.tar.gz
+FREEBSDFILE=$FREEBSDARGFILE
+FREEBSDSIZE=`ls -s --human-readable $DISTPATH/$FREEBSDFILE|cut -d ' ' -f 1`
+
+OPENSOLARISFILE=$OPENSOLARISFILE
+OPENSOLARISSIZE=`ls -s --human-readable $DISTPATH/$OPENSOLARISFILE|cut -d ' ' -f 1`
+
+STATICLINUXFILE=bed-$VERSION.bin.ELF-static.tar.gz
+#STATICLINUXSIZE=`ls -s --human-readable $DISTPATH/$STATICLINUXFILE|cut -d ' ' -f 1`
+
+
+WIN32FILE=bed-$VERSION.win32.zip
+WIN32SIZE=`ls -s --human-readable $DISTPATH/$WIN32FILE|cut -d ' ' -f 1`
+
+WIN64FILE=bed-$VERSION.win64.zip
+WIN64SIZE=`ls -s --human-readable $DISTPATH/$WIN64FILE|cut -d ' ' -f 1`
+
+
+WIN95FILE=bed-$VERSION.win95.zip
+WIN95SIZE=`ls -s --human-readable $DISTPATH/$WIN95FILE|cut -d ' ' -f 1`
+
+WIN64NCURFILE=bed-$VERSION.win64ncuronly.zip
+WIN64NCURSIZE=`ls -s --human-readable $DISTPATH/$WIN64NCURFILE|cut -d ' ' -f 1`
+
+WIN32NCURFILE=bed-$VERSION.win32ncuronly.zip
+WIN32NCURSIZE=`ls -s --human-readable $DISTPATH/$WIN32NCURFILE|cut -d ' ' -f 1`
+
+TERMIDENT=`sed -n -f terref.sed doc/menu.html`
+
+cat <<!
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (X11; I; Linux 2.0.33 i586) [Netscape]">
+   <META NAME="Author" CONTENT="Jaap Korthals Altes">
+   <META NAME="Description" CONTENT="Description of bed (binary editor for linux). Urls to download the source and the Elf binary.">
+   <META NAME="Keywords" CONTENT="Hex, editor, bed, binary, octal, decimal, ascii. Linux.">
+<title>bed - download</title>
+!
+#cat doc/trackingcode.txt
+cat <<!
+</HEAD>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#55188A" alink="#FF0000">
+<div align=right><font face="Arial,Helvetica"><a href="bed.1.html">Manual</a></font></div>
+<h1>download</h1>
+<FONT SIZE=+1>Bed <B>source</B>:</FONT>
+<br><br><font size=+1>
+<A target="_blank" rel="noopener noreferrer" HREF="https://sourceforge.net/projects/binaryeditor/files/$SRCFILE">$SRCFILE</A>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+($SRCSIZE)&nbsp; <A   target="_blank" rel="noopener noreferrer" HREF="https://sourceforge.net/projects/binaryeditor/files/$SRCFILE.asc">SIGN</A>
+</FONT>
+
+<br><P><FONT SIZE=+1><B>Linux</B> 
+<br><FONT SIZE=+1>
+See <A HREF="bed.1.html#$TERMIDENT">Terminal emulation requirements</A>
+</FONT>
+<br>x86-64 binary:</FONT>	
+<font size=+1>
+<A  target="_blank" rel="noopener noreferrer" HREF="https://sourceforge.net/projects/binaryeditor/files/$ELFFILE64"> $ELFFILE64</A>&nbsp;&nbsp;&nbsp;&nbsp;
+($ELFSIZE64) <A  target="_blank" rel="noopener noreferrer" HREF="https://sourceforge.net/projects/binaryeditor/files/$ELFFILE64.asc">SIGN</A>
+</FONT>
+<p>
+Install with (you should have installed libhyperscan, libmagic  libncurses and libre2): <PRE>
+ar x $ELFFILE64
+rm control.tar.gz
+tar -a -xf data.tar.xz -C /
+</PRE>
+Uninstall with: <PRE>
+bash /usr/share/bed/uninstallbed.sh 
+</PRE>
+On some Linux distribution you can also install with:
+<PRE>
+apt install ./$ELFFILE64
+</PRE>
+and uninstall with
+<PRE>
+apt remove bed
+</PRE>
+<br><FONT SIZE=+1><b>Android</b> 8.0 arm64 binary: </FONT><A target="_blank" rel="noopener noreferrer" HREF="https://sourceforge.net/projects/binaryeditor/files/$ANDROIDARGFILE">$ANDROIDARGFILE</A> ($ANDROIDSIZE) <A HREF="https://sourceforge.net/projects/binaryeditor/files/$ANDROIDARGFILE.asc" target="_blank" rel="noopener noreferrer">SIGN</A>
+<br>
+    Run bed in an unix shell under adb or termux, for example to look in block
+    devices or saved data of an app. See <a href="README.android.txt">README.android.txt</a>
+    in the source for more information about using bed on android devices.
+
+   <p> <font size="+1"><b>Windows</b> :</font> <A  target="_blank" rel="noopener noreferrer" href="https://sourceforge.net/projects/binaryeditor/files/$WIN64FILE">$WIN64FILE</a> ($WIN64SIZE) <A  target="_blank" rel="noopener noreferrer" href="https://sourceforge.net/projects/binaryeditor/files/$WIN64FILE.asc">SIGN</a>
+
+   <br>
+      You can also run the linux version of bed under Linux running under
+      windows 10, but raw editing harddisk devices is then not possible.
+      <br>
+<br><font size="+1">
+          The unzip the zip file in c:\ (with create subdirectories enabled).
+          bed.exe ends up in c:\Windows other files in c:\Program Files\bed. If
+          you like to use x:\Program Files\bed instead (with x another drive
+          number), use a hex editor on bed.exe.<br>
+          &nbsp;
+          <br>
+          <font size="+1">To compile bed for win32/64 you need:
+          </font></font></font></p>
+    <ul>
+      <li><font size="+1"><font size="+1"><font size="+1">g++ or clang++,
+              binutils, gnu make,grep, sed, textutils, findutils, fileutils,
+              diffutils from https://www.msys2.org/.<br>
+            </font></font></font></li>
+      <li><font size="+1"><font size="+1"><font size="+1">pdcurses source (<a   target="_blank" rel="noopener noreferrer" href="http://pdcurses.sourceforge.net"
+                target="_top">http://pdcurses.sourceforge.net</a>)
+            </font></font></font></li>
+    </ul>
+    <font size="+1"><font size="+1"><font size="+1">
+          <p>
+            Previous versions compiled also under win95, cygwin, FreeBSD32,
+            FreeBSD64 and OpenSolaris. I haven't tried this version.
+          </p>
+          <p>
+            <font size="+1"><a name="oldbeds">Previous versions:</a> <br>
+	    <a target="_blank" rel="noopener noreferrer" href="http://bedlinux.tripod.com/download/" target="_top">Tripod</a><br>
+	    <a target="_blank" rel="noopener noreferrer" href="https://sourceforge.net/projects/binaryeditor/files/" target="_top">Sourceforge</a><br>
+            </font></p>
+          <p><font size="+1"><a href="pgpkey.bed">pgp public key</a>
+            </font></p>
+        </font></font></font>
+</body>
+</html>
+!

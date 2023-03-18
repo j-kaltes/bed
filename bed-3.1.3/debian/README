@@ -1,0 +1,16 @@
+
+Run relog to convert CHANGELOG in changelog
+Put new email address in control.sh
+You should have come to bed not via a symlink
+cd ..
+make control
+
+
+
+
+dpkg-buildpackage  --sign-key=0x815BC499536E8EBC61F216E441DE62F394BA03AE --sign-key=0xACA004A98BAA0FA5D2E99035D9EB884965D385A5 --host-arch i386 
+dpkg-buildpackage  --sign-key=0x815BC499536E8EBC61F216E441DE62F394BA03AE --sign-key=0xACA004A98BAA0FA5D2E99035D9EB884965D385A5 --host-arch arm64
+dpkg-buildpackage  --sign-key=0x815BC499536E8EBC61F216E441DE62F394BA03AE --sign-key=0xACA004A98BAA0FA5D2E99035D9EB884965D385A5 --host-arch amd64 
+Eerder:
+ dpkg --add-architecture armhf
+ apt update

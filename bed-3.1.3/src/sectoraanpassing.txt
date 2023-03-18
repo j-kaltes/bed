@@ -1,0 +1,20 @@
+
+https://support.microsoft.com/en-us/help/138434/how-win32-based-applications-read-cd-rom-sectors-in-windows-nt:
+As with floppy and hard disks, all sector reads must start on sector boundaries on the compact disc and must be an integral number of sectors long. Furthermore, the buffers used for the reads must be aligned on addresses that fall on sector boundaries. For example, because a sector on a compact disc is normally 2048 bytes, the buffer that receives the sector data must be a multiple of 2048 and must start on an address that is a multiple of 2048. An easy way to guarantee the that the buffer will start on a multiple of 2048 is to allocate it with VirtualAlloc. Finally, although sectors on compact discs are normally 2048 bytes, you should use the DeviceIoControl IOCTL_CDROM_GET_DRIVE_GEOMETRY command to return the sector size to avoid hard-coded limits remove remark at end of file
+
+\\.\PhysicalDrive0.
+	had segmentation violation
+	buffer moet op 16-bit grens of 2048 volgens ms
+	viewbuf groter nemen en begin en eind naar boven en onder bijstellen?
+	undo, marks etc moet ook gelezen worden
+	hergebruik wanneer dicht bij elkaar
+
+
+
+1. Mogelijkheid nonbuffered en bij lezen opslaan.
+Om te voorkomen dat er te veel opgeslagen wordt: op volgorde van laatst gelezen free-en als te groot.
+mogelijkheid: lijst en bij gebruik achteraan zetten. Markeren of veranderd.
+NADEEL: veel werk en kans op fouten/vreemd gedrag.
+
+
+2. Enkel recente gegevens hergebruiken.

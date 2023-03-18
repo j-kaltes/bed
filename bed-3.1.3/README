@@ -1,0 +1,95 @@
+ ¾Ð
+
+		  BBBB                d 
+		  B   B               d 
+		  B   B    eee     dddd 
+		  BBBB    e   e   d   d 
+		  B   B   eeeee   d   d 
+		  B   B   e       d   d 
+		  BBBB     eee     dddd 
+				
+For more documentation look at the manpage (cd doc;make bed.1; cat bed.1|nroff -man|less).
+
+Before compiling, you should have installed gcc, g++, make, libncurses?-dev, libmagic-dev (file-devel) and lynx.
+If you want to exchange selection and clipboard content with X programs, you should install the X11 windows development library.
+If you like to use google's libre2 and/or Intel's hyperscan (https://github.com/intel/hyperscan) regex besides GNU regex, you should install 
+their development version.
+
+If you want to compile press first:
+
+     bash ./configure
+
+When cross compiling add --host=host-type (when host-type-gcc, host-type-g++ and host-type-strip are in your path), to make bed run on host host-type 
+
+
+You can give CFLAGS CXXFLAGS and LDFLAGS values like -m32 or -D__ANDROID_API__=17
+e.g.
+
+     bash ./configure --host=arm-linux-androideabi CFLAGS=-D__ANDROID_API__=17
+
+     bash ./configure CFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32
+
+
+You can also define these values in ./settings which is read by ./configure
+
+
+This generates ./config (you can edit it if needed e.g. set CONFIG_DEBUG to turn on debug information)
+
+Now press:
+
+     make dep;make
+
+To install it you should become root and type
+
+     make install  [DESTDIR=path]
+
+DESTDIR=path, treats path as the root directory of the installation. This can be used to make a (tar/zip) archive to transfer the program to another computer.
+
+Press bed to start the program.
+
+If you are running bed in gnome-terminal you should disable gnome-terminal catching your keystrokes by Edit->Keyboard shortcuts-> Disable all menu access keys.
+
+Sometimes problems with the screen or keys are solved by copying another
+terminfo file to /usr/share/terminfo/x/xterm or setting TERM to another value.
+
+If the coloring is terrible you can try black and white only with "bed -B".  If this is OK, you can try to edit ~/.bedrc (copy from bedrc) to change the color names.
+
+If you use a different configuration from me, some keys possibly don't work.
+
+If your Alt-key combinations don't work, there is probably some misconfiguration of your operating system, X windows or the x terminal you are using. Try other terminal programs and system environments to find out were the problem is located and read its manual or ask someone in the IRC how to change it. 
+
+In my Debian 2.2R6 installation in xterm and rxvt the alt keys didnâ€™t work. 
+But after the following commands the Alt keys worked in newly created rxvt's 
+but not in xterm's:
+	xmodmap -e "keycode 115 = 0x6a1"
+	xmodmap -e "keycode 116 = 0x6a2"
+	xmodmap -e "keycode 117 = 0x6a3"
+	xmodmap -e "keycode 22 = BackSpace"
+after adding
+	xmodmap -e "keysym Alt_L = Meta_L Alt_L"
+the Alt keys also worked in newly created xterm's. 
+Yes Linux isn't as popular as MS windows because of its difficult user interface.
+
+The following only applies to function keys other than Alt or Control combinations. 
+
+If you use Linux console and you are using a different keyboard translation
+table then me, you can use ./bedkeys instead of bed.
+It saves the current translation table, loads my keyboard table and
+after termination of bed reloads the old table again (this keyboard table is shared by all virtual consoles). 
+
+You can also modify how bed interprets keys (see man bed). 
+With Alt-t,k you can view the current keybinding and how to describe a key combination.
+
+The missing keybinding of bed as mentioned in its menu can be set by pressing:
+
+     bed -k
+
+If keys are disabled by the keyboard translation tables this will not work. 
+It will also not work if you keyboard translation tables have codes bound to a different key. In that case you possibly can remove the old key definitions out of ~/.bedrc.
+
+The new key bindings will be applied if the TERM variable has the same value as now. If you want to make it dependent on another variable, place it below a different "context var val" statement (see man 1 bed).
+
+If something is unclear or wrong send me an email.
+
+Jaap Korthals Altes <binaryeditor@gmx.com>
+http://jkaltes.byethost16.com/bed

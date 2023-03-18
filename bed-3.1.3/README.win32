@@ -1,0 +1,88 @@
+To run you should make sure that you have only one examplar of cygwin1.dll on your computer and 
+all cygwin programs should be compiled with this version of cygwin1.dll
+
+UPDATE:
+You can also compile bed with mingw64 (see https://www.msys2.org/). If you compile with -static you 
+don't need a conflictious dynamic library. The instruction are the same as for the pdcurses version of 
+cygwin.
+
+
+
+PREREQUISITES:
+To compile you need:
+- from cygwin.org: bash, gcc, binutils, make, grep, diff, cmp,sed, 
+  textutils, fileutils, findutils and which
+- a curses library:
+	- pdcurses (e.g.  http://pdcurses.sourceforge.net/)
+		The library should be compiled with the same version of cygwin1.dll
+		you are using. 	From the pdcurses source directory copy curses.h /usr/include/pdcurses.h
+		From the directotry win32 of pdcurses copy pdcurses.a to /lib/libpdcurses.a 
+	 Or
+	- ncurses which is installed with cygwin's setup.exe program.
+- GNU regex library 
+	already included in directory regex-0.13 of bed's source.
+- optionally: 
+	libmagic: via cygwin's setup
+	libre2: https://github.com/google/re2
+	hyperscan: https://github.com/intel/hyperscan
+- man2html to create bed.html (http://www.filewatcher.com/m/man2html_1.6g.orig.tar.gz.256906-2.html). 
+   Already included in the man2html directory of bed's source
+- elinks, lynx or nroff from cygwin to create bed.txt
+
+
+COMPILATION:
+
+PDCURSES version:
+To just compile the Windows version for PDCURSES press
+
+sh ./pdwincompile.sh 
+
+NCURSES Version:
+
+To compile the NCURSES version press:
+
+sh nwincompile.sh 
+
+CUSTOM COMPILATION:
+
+For a custom compile, set in the file "settings"
+
+CURSESLIB=
+
+to the name of the curses library you are using (pdcurses or ncurses)
+and do the following:
+
+bash ./configure 
+
+edit the file config
+
+	(e.g. pathnames,CONFIG_DEBUG, LINKIN LINKINDYN) 
+
+make dep; make 
+
+This only works with gnumake.
+
+
+
+INSTALLATION:
+Become Administrator and press in this directory:
+
+make install 
+
+
+REMOVAL:
+make uninstall
+
+Manual removal:
+In  c:\Program Files press:
+rm -rf bed
+In c:\ProgramData\Start Menu
+rm bed
+In c:\Windows press
+rm bed.exe
+rm cygwin1.dll 
+
+
+Limitations:
+- No plugin support, you can only put the 'plugins' in the main program
+

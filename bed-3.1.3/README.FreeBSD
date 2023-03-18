@@ -1,0 +1,24 @@
+bed now compiles and runs under FreeBSD 4.3 
+with version bed-0.2.12 you can also edit large harddrive devices,
+(e.g. /dev/ad0). This port isn't tested very well, but I still recommend to 
+try it on you harddrive instead of your cdrom.
+
+To compile you need GNU make and bash 
+Press  after bash ./configure you need to press gmake dep; gmake
+
+To use bed while running in a text console, you should first 
+enable Alt-KEY combination. If you are using
+/usr/share/syscons/keymaps/us.iso.kbd
+you can enable the Alt keys by loading us.alt.kbd 
+(supplied with bed) by pressing:
+kbdcontrol -l us.alt.kbd
+
+You can findout which keymap table FreeBSD is using by looking
+at the keymaps= statement in /etc/rc.conf
+I had for example
+keymap="us.iso"
+and changed it to 
+keymap="us.alt"
+after copying us.alt.kbd to /usr/share/syscons/keymaps/
+You should then edit the alt column to the values of the alt column
+in us.alt.kbd

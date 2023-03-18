@@ -1,0 +1,12 @@
+
+DEFINES_H=../defines.h
+ifeq ($(CONFIG_STATIC),y)
+CFLAGS := $(CFLAGS) -DSTATIC=1
+endif
+ifeq ($(CONFIG_LARGEFILES),y)
+CFLAGS := $(CFLAGS) -DLARGEFILES=1
+endif
+ifeq ($(CONFIG_THREADS),y)
+CFLAGS := $(CFLAGS) -DUSETHREADS=1  -D_REENTRANT=1
+endif
+

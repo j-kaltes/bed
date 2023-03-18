@@ -1,0 +1,84 @@
+DATE=`date +"%d%b%y"`
+
+FILE=bed-$VERSION.src.tgz
+#RELEASE=`cat src/sourcenumber`
+
+
+SIZE=`ls -s --human-readable $DISTPATH/$FILE|cut -d ' ' -f 1`
+cat <<!
+
+%include Solaris.inc
+Name: bed
+Summary: Adjustable data format binary editor
+Version: $VERSION
+Release: 1
+License: GPL
+Source: sunsite.unc.edu:/pub/Linux/apps/editors/terminal/%{name}-%{version}.tar.gz
+Url: http://bed.dse.nl
+Group: Applications/Editors
+Distribution:	OpenSolaris
+Vendor:		OpenSolaris Community
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+SUNW_Basedir:   %{_basedir}
+SUNW_Copyright: %{name}.copyright
+%include default-depend.inc
+
+#BuildRequires: ______________
+#Requires: ___________________
+
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+SUNW_Basedir:   %{_basedir}
+SUNW_Copyright: %{name}.copyright
+
+
+# OpenSolaris IPS Manifest Fields
+#Meta(info.upstream): ____________________
+#Meta(info.repository_url): ______________
+Meta(info.maintainer): Jaap Korthals Altes <binaryeditor@gmx.com>
+%description 
+!
+sed -e 's/^[ 	]*//g' <description
+cat <<!
+%prep
+
+%setup -q -n %{name}-%{version}
+
+%build
+make realclean
+#export CFLAGS="%optflags"
+#export LDFLAGS="%{_ldflags}"
+./configure       --prefix=%{_prefix} --exec_prefix=%{_exec_prefix} --bindir=%{_bindir} --datadir=%{_datadir} --libdir=%{_libdir} --mandir=%{_mandir} 
+make dep
+make
+%install
+rm -rf \$RPM_BUILD_ROOT
+make installfiles ROOTDIR=\$RPM_BUILD_ROOT
+%post
+ln -s $CONFDIR $CONFDIRLINK
+cd $CONFDIR
+bash ./addmagic
+%clean
+rm -rf $RPM_BUILD_ROOT
+%files
+%config $CONFDIR
+$CONFDIRLINK
+$BINDIR/bed
+$MANDIR/bed.1
+!
+if test $HAS_APPLICATIONS
+then
+cat <<!
+$HAS_APPLICATIONS/bed-binary-editor.desktop 
+!
+fi
+
+tr ' ' '\n' <<!
+$PROGMANEXTRA
+
+!
+
+cat <<!
+%changelog
+- Sunday, 25 July 2010 10:11:18 CEST 
+- First OpenSolaris version
+!

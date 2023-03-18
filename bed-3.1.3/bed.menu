@@ -1,0 +1,2 @@
+?package(bed): needs="text" section="Editors" title="BED - BINARY EDITOR" command="env TERMINFO=/usr/share/bed/terminfo TERM=rxvt /usr/bin/bed" longtitle="Adjustable dataformat binary editor" icon-="binary.xpm"
+?package(bed): needs="x11" section="Utilities" title="bed - binary editor" command="rxvt +sb -e env TERMINFO=/usr/share/bed/terminfo TERM=rxvt /usr/bin/bed" longtitle="Adjustable dataformat binary editor" icon-="binary.xpm"

@@ -1,0 +1,10 @@
+Thunk to 16 bit windows dll to call bios via DPMI.
+
+biosdisk.dll: win16 dll
+biosdisk32.dll: win32 dll which calls biosdisk.dll
+
+biosdisk.dll is compiled with Borland 4.5
+biosdisk32.dll with gcc
+
+How to make this bios disk call with a win16 thunk, I have from the source
+of explore2fs (see http://uranus.it.swin.edu.au/~jn/linux/).

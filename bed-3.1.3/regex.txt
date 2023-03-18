@@ -1,0 +1,49 @@
+
+use re_search_2 from regex-0.12 not glibc
+
+glibc-2.26 doesn't really support searching through data not contained in a single buffer, copies both buffers into one:
+Of the newer regexes only hyperscan support a stream mode. All others are for small arrays of data.
+
+
+static int
+internal_function
+re_search_2_stub (struct re_pattern_buffer *bufp, const char *string1,
+                  int length1, const char *string2, int length2, int start,
+                  int range, struct re_registers *regs,
+                  int stop, int ret_len)
+{
+  const char *str;
+  int rval;
+  int len = length1 + length2;
+  char *s = NULL;
+
+  if (BE (length1 < 0 || length2 < 0 || stop < 0 || len < length1, 0))
+    return -2;
+
+  /* Concatenate the strings.  */
+  if (length2 > 0)
+    if (length1 > 0)
+      {
+        s = re_malloc (char, len);
+
+        if (BE (s == NULL, 0))
+          return -2;
+#ifdef _LIBC
+        memcpy (__mempcpy (s, string1, length1), string2, length2);
+#else
+        memcpy (s, string1, length1);
+        memcpy (s + length1, string2, length2);
+#endif
+        str = s;
+      }
+    else
+      str = string2;
+  else
+    str = string1;
+
+  rval = re_search_stub (bufp, str, len, start, range, stop, regs, ret_len);
+  re_free (s);
+  return rval;
+}
+
+

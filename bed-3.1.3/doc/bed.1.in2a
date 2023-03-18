@@ -1,0 +1,255 @@
+.SS Interface
+Some general remarks about working with bed.
+In bed you can do everything with the menu. You open a menu by pressing Alt in combination
+with the highlighted key. A menu item is selected by pressing only the highlighted key or
+using movement keys followed by Enter. You can get help about a menu item by pressing F1.
+You escape from the menu by pressing Esc.
+In dialog boxes you can jump to the highlighted character by pressing Alt-char or
+by using Tab and Alt-tab or shift-tab. Options are switched on by pressing space or *.
+Buttons like Ok and Cancel are operated by moving to the button and pressing Enter.
+.PP
+While editing the usual movement keys should work, if they don't run bed -k.
+.PP
+Select works wp5.1 (and vi) like: You specify a starting point (prockey setselect)
+and with whatever moving function exist you go to an other
+point and you then press copy (prockey copyselect) or save selection (prockey saveselect).
+.PP
+bed has only a type-over mode, so your data doesn't move to another offset without
+explicitly saying so. To extend a file you should explicitly call prockey extend. If you like to leave something out you should copy everything after it, past it
+over what you like to remove and truncate the file with prockey truncate.
+.PP
+To be able to handle large files (e.g. whole hard drives) bed only holds in memory what 
+is  changed and reads the other parts from disk at the moments they are needed. 
+.PP
+If bed seems to get into a time consuming operation, you can try Ctrl-C (Ctrl-Break when using win95 with pdcurses). It should bring bed back to it's main loop, but  sometimes problems arise.
+.SS Data types
+In bed you can display the file content in different dataformats for example: ASCII, signed and unsigned integers of variable base and size, and Floating point number of size 4 (float),8(double) and 12 (long double). 
+Beside this standard types there are lots of other data types like:  bitflags, bitfields, translate (enum), ebcdic etc. You can also also add new data types in plugins.
+.PP
+\fBcomposed data type\fP
+.br
+It is also possible to form composed data types (structures, records).
+At different offset within a unit the file content is displays in a different
+data type. 
+.nf
+struct nameincome {
+	char name[20];
+	unsigned long income;
+	};
+.fi
+For example if the file contains a database of strings of size 20 followed by a digit of 4 bytes, you can make a composed data type of ASCII/20 and Dec/4. You do this simple by first making a ascii of size 20 by pressing prockey naarASCII and filling in 20 for Nr Bytes and setting Separate and then adding a unsigned integer by pressing prockey makemode setting for Nr bytes 4 and check Dec and Add field.
+.PP
+All kind of operations which can be applied to basic (single) data types can also be applied on composed data types: search, replace and the addition of a filter (e.g reorder). To do this you need to make the composed data type the active data type. You can do this by setting the cursor between two of its elements or by using prockey uplevel.
+.PP
+\fBSwitching data type\fP
+.br
+Moving between parts of the screen with different data types
+you can do with Prev (prockey prevmode) and Next (prockey nextmode). 
+.br
+Zooming a data type you do with Full (prockey zoommode), removing a
+data type with Remove (prockey removemode).
+.br
+Save selection saves the selected part of the file in the
+format of the active data type. 
+.br
+\fBAdding data types\fP
+.br
+You can add a data type with ASCII, Integer, Signed, Float, Clone.
+Clone gives an identical copy of the currently active
+data type.
+.br
+Integer (alt-d,i) gives the following window:
+.nf
+                                          
+   (*) Hex   ( ) Dec   ( ) Custom:        
+   ( ) Oct   ( ) Bin   Base nr:           
+                                          
+   Nr bytes:   1                          
+                          (*) Add field   
+     Ok        Cancel     ( ) Separate    
+                                          
+.fi
+.br
+You can specify the base of the integer in the field Base nr
+or you can use one of the options Hex,Oct,Dec or Bin. Hex
+stands for hexadecimal, Oct for octal, Dec for decimal and bin
+for binary. You can also check Custom and specify a base number.
+.br
+You can specify the number of bytes and the order in which the
+bytes are interpreted.
+.br
+You can set Add field or Separate.
+Separate makes a separate data type. Add field means that this data type is added to the currently active data type, making a composed data type (struct, record).  In the last case where in the existing data type the new field is placed depends on the cursor position:
+.br
+- At the end of the existing data type if the cursor is at the end of the screen
+.br
+- At the beginning of the existing data type if the cursor is at the beginning of the screen
+.br
+- Otherwise at the place closest to the cursor.
+.br
+- After the cursor position if the distances are equal
+.br
+\fBModifying data types\fP: 
+.br
+Basic data types you can change by pressing prockey datatypeconfig (Config).
+This are operation you can apply on some data types which
+changes certain aspects while leaving other aspects the same. 
+It are usually the same options you had when creating a data type.
+.br
+\fBFilters\fP: 
+.br
+It is possible to place filters between the file and a data type. Such a filter can transform the file content before interpretating it as a certain kind of data type.
+Currently there are the following filters:
+.br
+.br
+Reorder (prockey reorderunit)
+.br
+Duplicate (prockey duplicate)
+.br
+Skip (prockey addskip)
+.br
+Backward (prockey backward)
+.br
+Index2table (prockey index2table)
+.br
+Translate (prockey translate)
+.br
+You can find a description by pressing F1 in the menu with the appropriate menu item
+selected. The same description you can find somewhat further in this file in the list of all procedures. You can remove the last added filter by pressing prockey rmlastfilter (Rm filter).
+.br
+When using some filters, filters, like Skip, Index2table and and possibly Backward, differences in
+file content are not always shown on the screen. Skip for example skips some bytes. Normal search translates the search string in a string of bytes and then
+searches for this string in the raw content of the file. This is obviously
+not possible if skipped bytes can contain different data within the file.
+Regex search uses a different method. It first transformes the file content
+to the search data type and then searches in this data type for the search string.
+So if you use this kind if filters you should check regex search. The same applies for other data type were what is displayed can corresponced to different bytes
+like Float and Empty.
+.PP
+\fBSaving data types\fP: 
+.br
+Press prockey savedatatype (Write Type) to save a data type. You can read it again with prockey readcontain (Read Type). CONFDIRLINK/misc contains some example
+saved data types. Read CONFDIRLINK/misc/README.txt for a description.
+.SS Search
+When you press on search of the Move menu (prockey search), you come in the
+search window. Standard you search in the currently active
+data type. To select a different data type you press on space
+when the appropriate data type is selected (like ASCII). 
+.br
+When you instead presses on Return the search string is also
+converted from the old data type to the new data type. 
+.br
+Beside this there are also the usual features like starting
+from the top or the bottom of the file instead of the cursor
+position, searching backwards, searching case insensitive and
+using regular expressions. 
+.br
+
+.br
+\fBRegular expression\fP:  Use the GNU regular expression library to
+match a pattern against the text (See 
+.BR regex(7)
+). When using regular expression you can search forward and backward in
+ascii text. In any other data type you can only search
+forward. When "Regular expression" is not checked everything
+is first converted to a general byte string and then for this
+byte string is searched in the file. When searching  with
+regular expressions enabled the file is block for block
+converted to the currently active data type and this printable
+representation is searched for regular expressions in exactly
+the same way as when the file was originally in this form.
+This means for example that when searching case sensitively
+the hex data type ff is different from FF.
+.br
+When using  a floating point plugin different byte
+strings can give the same superficial appearance. When you
+convert the search pattern first into bytes and then search
+for the bytes, you will only find one of this underlying byte
+strings. When searching in regex mode you will find all of
+them. The char2 plugin contains a data type which leaves out
+every other byte. And when converting to bytes you have to
+fill them in with something and when in the file they are
+filled different you will not find the byte string. But when
+searching only in the superficial appearance you can find
+them.
+.br
+I haven't tried any attempt to optimize regular
+expressions so regular expression search in ascii is very
+slow, and this conversion to other data types before searching
+makes it even slower. So only small distances can be searched
+this way.
+.br
+Further shortcoming of regular expressions search:
+.br
+- Only one hit in a single data type is returned. When
+searching for 1 in a hex data type it stops only once in 11.
+.br
+- The same byte can generate a hit in different alignments.
+Only one is shown. To see them all you should change the
+alignment around every hit.
+.PP
+\fBCase sensitive\fP: When checked upper and lower case are
+treated distinctively
+.br
+\fBBoundaries\fP: Multibyte data types can be aligned differently a 4
+byte digit can start at offset 0,1,2 or 3 and give then
+different 4 byte digits. Without checking Boundaries all will
+be returned. With Boundaries checked only bytes aligned in the
+same way as is now shown on the screen are returned.
+.br
+\fBForward\fP: When checked the file is searched in the forward
+direction going from lower to higher offsets.  When not checked the file is searched backward.
+.br
+\fBEdge file\fP: When checked the file is searched from the edge of
+the file. From offset 0 when searching forward, from end of
+file when searching backward.
+.br
+\fBFind\fP: Here you type the search pattern
+.br
+\fBList\fP: Generated a list of all hits. If compiled with
+CONFIG_THREADS=y, you can go on editing while hits are marked
+so you can view them in marklist (prockey showmarks).
+.br
+\fBASCII\fP, \fBDec\fP etc give when checked the current active data type.
+The last data type is the currently active. In this case that it char2. Which is a plugin data type.
+.br
+\fBNr bytes\fP: give the number of bytes each data item occupies. By
+some data type you can change this for example by unsigned integers. 
+.SS Replace
+Everything has the same meaning as in search, with a replace
+string added.
+.br
+At the place where the search string is found the replacestring is placed. The replace string
+.br
+overwrites the data. When Regular expression is checked you
+can insert the whole search string by & or
+.br
+subexpressions by \e1 \e2 to \e9. In the searchstring
+subexpressions are demarcated by \e(pattern\e).
+.SS Tools
+A few options not handles by other menus.
+.br
+\fBNumbertype\fP: changing the number type in which the offset in
+the file is shown (or removing offset numbers).
+.br
+\fBMessageline\fP: switching the messageline on and off, 
+.br
+\fBMenu\fP: switching the menu bar on and off
+.br
+\fBCommandmode\fP:  setting commandmode on and off. Inside command
+mode the normal keys are not automatically put into the
+document. This makes it possible to bound commands to normal
+keys, like is done inside vi. By default there are no
+key bindings of this kind, but you can put it into the
+configuration file if you want. 
+.br
+\fBProcedures\fP: View list off all procedures which can be bounded
+to keys or are part of the menu. Press return on a procedure
+to execute the procedure.
+.br
+\fBDynamic\fP: view procedures defined in plugins
+.br
+\fBLoad plugin\fP: file manager to select a plugin
+.br
+\fBKey binding\fP: shows the procedure bounded to a particular key
+.SH OPTIONS

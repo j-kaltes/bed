@@ -1,0 +1,555 @@
+.SH TERMINALS
+.SS Linux
+.br
+Bed is a terminal program. So you can
+use it with an X windows terminal emulator like
+.BR rxvt
+or
+.BR xterm
+or with
+\fBLinux console\fP
+without using X windows.
+These terminals give always problems with functions keys. What they do
+changes constantly and differs between computers. Here are some suggestions to make them work. As you can guess, this is probably also outdated.
+.br
+Add
+.nf
+
+XTerm*metaSendsEscape:  true
+XTerm*altSendsEscape:   true
+.fi
+to ~/.Xdefaults or /etc/X11/app-defaults/XTerm to use bed in xterm. 
+Changes take effect in newly created xterms after the next restart of X windows or after running 
+xrdb filename.
+.br
+.BR gnome-terminal
+becomes usable after the following changes:
+.br
+If
+.nf
+
+	set|grep TERM
+
+.fi
+returns TERM=xterm, you probably get a
+messed up screen.
+.nf
+
+	export TERM=rxvt
+
+.fi
+will solve the problem (if you have the
+right bedrc file, this is already done for you).
+.br
+If you run Ubuntu 18.04 under Windows 10 (Windows Subsystem for Linux) you have to set TERM to one of
+the following values: xterm, xterms-sun, xterm-sun or rxvt-unicode-256color
+.br
+xterm-sco works also for bed, but not mc.
+.PP
+In the 
+.nf
+
+Edit->Keyboard Shortcuts
+
+.fi
+menu of  gnome-terminal you switch off 
+.nf
+
+	[ ] Enable menu access keys
+
+.fi
+and
+.nf
+
+	[ ] Enable menu shortcut key
+
+.fi
+Also change the following Shortcut keys:
+.nf
+
+Help
+	Contents	Ctrl+Alt+H
+
+.fi
+(instead of F1)
+.nf
+
+View
+	Full Screen	Ctrl+Alt+F 
+
+.fi
+(instead of F11)
+.SS FreeBSD
+With the keymap of my FreeBSD installation Alt-key combinations didn't work properly in 
+virtual consoles. In /usr/local/share/bed/README.FreeBSD I explain how to solve that.
+.SS MS Windows
+The precompiled version is compiled with mingw-w64 and \fBpdcurses\fP and runs under MS Windows consoles like \fBcmd\fP, \fBcommand\fP and \fBpowershell\fP. 
+Earlier versions were compiled with cygwin and had beside a pdcurses version also an ncurses version running under x terminals like xterm and rxvt.
+Within xterm, koi8rxterm and uxterm you should check "Main Options->Meta Sends Escape" to use Alt-key combinations. To make it permanent
+add the following to  ~/.Xresources (or ~/.Xdefaults) or KOI8RXTerm, UXTerm, XTerm and XTerm-color in
+/usr/X11R6/lib/X11/app-defaults
+.nf
+
+XTerm*metaSendsEscape:  true
+XTerm*altSendsEscape:   true
+UXTerm*metaSendsEscape: true
+UXTerm*altSendsEscape:  true
+KOI8RXTerm*metaSendsEscape:     true
+KOI8RXTerm*altSendsEscape:      true
+.fi
+
+urxvt uses Alt-s itself. You can make urxvt send it to bed, by putting the following in ~/.Xresources
+.nf
+
+URxvt.Keysym.M-s: builtin:
+.fi
+On my computer urxvt did only read ~/.Xresources after I had also executed:
+.nf
+
+export XENVIRONMENT="${HOME}/.Xresources"
+.fi
+.SH CONFIGURATION
+In the configuration file you can change colors, assign keys, change
+the menulayout, loud plugins. and configure to call procedure's at certain moments.
+As configuration file is used the first file found of following:
+the argument to -f at the command line ,
+the environmental variable BEDRC, PERSCONFIG or GLOBALCONFIG.
+.SS Commandline Options
+.nf
+\fBoptions\fP options
+.fi
+After the keyword \fBoptions\fP options are given in exactly the same way as after
+PROGRAM in the command line. These options are processed after the commandline options and in
+the order they are given in the configuration file (when multiple \fBoptions\fP keywords
+are specified). For example if you add
+.nf
+options -C
+.fi
+to the GLOBALCONFIG (and that is the only configuration file) -B on the command line loses
+its effect.
+.br
+With
+.br
+.nf
+options -w
+.fi
+you can for example make bed always experimentally determine the sizes of hard drives and DVD's instead of relying on the sizes returned by system calls end the like.
+.SS Path
+\fBplugindir\fP path
+.br
+Sets plugindir to path. This makes bed search for plugins in path. It also affects
+prockey opendynlib.
+.br
+\fBdatatypedir\fP path
+.br
+Saved datatypes will be looked for in path. Affects prockey savedatatype and prockey readcontain.
+.br
+\fBmacrodir\fP path
+.br
+Save recorded (prockey saverecord) en Play File (prockey playkeysfile) will open
+the filemanager in path.
+.br
+\fBbedrcbin\fP filename
+.br
+Filename bed uses to save (search) settings.  Default ~/.bedrc-bin on unix.
+.br
+\fBnewfilesize\fP num
+.br
+The size of new files is num bytes, when created startup or with (prockey emptyfile).
+.SS Keys
+When the keys don't work or you want to make different key bindings, you can assign 
+ new key bindings in the configuration file. 
+.br
+In bedrc the keys are defined by lines of the following format:
+.br
+.br
+\fB\fPkeys key1 key2 ...keyn = procedure
+.br
+
+.br
+for example:
+.br
+
+.br
+keys 27 115 = search
+.br
+
+.br
+In which case Alt-s is bound to 'search' which is the search function.
+.br
+
+.br
+The numbers are a decimal representation of the escape sequences generated by a
+key or a key combination. Within bed you can press prockey showprocedure to press
+a key and see the keycodes and keybinding.
+
+Bed version 0.2.7 added the possibility to make keys statements of the
+following format:
+.br
+.br
+\fB\fPkeys capname  = procedure
+.br
+.br
+capname is a terminfo name for a key sequence. For example
+.br
+.br
+\fB\fPkeys kf1  = selectprocedure 
+.br
+.br
+binds selectprocedure to function key F1. See man terminfo(5) for details.
+There seems to be as much variation in keylabels as keycodes, 
+so don't expect to much.
+.br
+
+.br
+\fBbed -k
+.br
+\fPIf you only want to assign the right meaning to the keys used
+by the program
+(instead of making new keybinding), you can press bed -k. You are
+asked to press function
+keys and it will append the corresponding key assignments to
+PERSCONFIG.
+.br
+\fBPersonal keybindings
+.br
+\fPIf you want to make personal keybindings you should come to
+know the
+procedure argument to keys. To come to know the name of a
+procedure mentioned
+in the menu or bounded to an other key you press prockey showprocedure followed
+by the
+key or menukey combination.
+.br
+If you want for example to know what the name is of the
+procedure behind
+Alt-f,o you press prockey showprocedure followed by Alt-f,o and on the
+command line
+you see something like "menu item Alt-f,o = addfile".
+To bind this to insert you press prockey showprocedure ,INS and get as answer
+something like:
+No keybinding for 27 91 50 126
+You add now at the bottum of PERSCONFIG 
+.br
+keys 27 91 50 126 = addfile
+.br
+An other way to learn the names of the procedures is the read the
+Procedures section later in this manual, but the program itself is
+always  
+more up to date then the manual.
+.SS Menu
+New in bed-0.2.12 is the possibility to change the menu layout. 
+You can add new items to the menu, add new menus and delete
+menu items and menu's. A 'menu' corresponds to the list of names you get 
+when you press for example Alt-f, (the menu with menulabel "~File"). 
+A 'menuitem' corresponds on name in this list for example "~Open     C-o".
+.br
+The menu's are numbered. The first menu on the left usually
+"~File" has number 0, the following menu "~Edit" number 1 etc.
+This number I will call 'menunum' in this manual.
+.PP
+\fBmenu\fP [menunum] menulabel [+]
+.br
+This command is used to give a menu a certain label and
+keybinding. 
+One character in label should be prefixed by ~ meaning that is the
+highlighted letter what should be pressed in combination with Alt
+to open the menu. The menu label should be surrounded by  "'-s.
+e.g.
+.br
+     menu 0 "My F~ile"
+.br
+Changes the label of the "~File" menu to "My ~File".
+To insert a new empty menu at position 0 shifting the other menu's to the right, you
+should add a + after the previous command, getting:
+.br
+     menu 0 "My F~ile" +
+.br
+To create an empty menu at the very right you can use:
+.br
+     menu 8 "~Hallo"
+.br
+In this case you can also leave out 8, 
+.br
+     menu "~Hallo"
+.br
+In the menu command menunum defaults to the highest used menu number+1.
+.PP
+\fBmenuitem\fP [menunum] menuitemlabel [keylabel] [menitemnum] [+]= procedure
+.br
+This command is used to add menu items to menu's.
+For example:
+.br
+	menuitem 0 "~Quit" 1 = quit
+.PP
+	menuitem menunum menuitemlabel menuitemnum
+.br
+Replaces the existing menu item at position 1 in menu 0 with the label "~Quit" and the
+procedure quit.
+Menuitem's are numbered from 0 starting from above.
+If you like to insert the menu item, while shifting the existing menu items downwards,
+you can add a +, which gives:
+.br
+	menuitem 0 "~Quit" 1 + = quit
+.br
+If you like to add a keylabel (e.g. M-q) you can change it to
+.br 
+	menuitem 0 "~Quit" "M-q" 1 + = quit
+.br
+this will be displaced as something like " \fBQ\fPuit     M-q "
+to make M-q work you should also add something like:
+.br
+	keys 27 113 =quit
+.br
+In menu item menunum defaults to the last mentioned menu. menuitemnum defaults
+to the highest menu item number + 1 (in this menu).
+You can write:
+.nf
+     menu "S~imple"
+     menuitem "~New" = emptyfile
+     menuitem "~Open" = addfile
+     menuitem "~Save" = dosave
+     menuitem "~Quit" = quit
+.fi
+.PP
+\fBmenuitem\fP [menunum] LINE [menitemnum] [+]
+.br
+This command is used to create a blank like in a menu (leaving a menu item empty).
+.br
+To insert a line after "~Open" in the previous menu you can write:
+.br
+     menuitem LINE 2 +
+.PP
+\fBdeletemenu\fP [menunum]
+.br
+This command is used to delete a menu and all it's menu items. If you dislikes the first
+menu ("~File") you simply writes:
+.br
+     deletemenu 0
+.br
+In deletemenu menunum defaults to the highest numbered menu.
+.PP
+\fBdeletemenuitem\fP [menunum] [menitemnum]
+.br
+Deletes menu item menuitemnum from menu menunum. menunum defaults to the last
+mentioned menu, menuitemnum to the highest numbered menu item.
+When only one number is given it is interpret as meaning menuitemnum (for
+menunum the default is used).
+To delete the fourth menu item out of the first menu, you write:
+.br
+	deletemenuitem 0 3
+.br
+In all menu commands you can explicitly use the default value by using a negative
+number.
+.SS Call_on
+Instead of calling a procedure after pressing a key or using a menu, you can also
+specify in the configuration file that procedure will be called at certain moment (on
+startup,open,switch).
+.br
+\fBcall_on_start\fP procedure
+.br
+Calls procedure at startup, which means after the program is has started, and a file is opened. Operated is on this file. 
+.br
+\fBcall_on_open\fP procedure
+.br
+Procedure is called every time a file is opened.
+.br
+\fBcall_on_switch\fP procedure
+.br
+Procedure is called every time you switch to a file.
+.SS Context
+When you use more than one terminal (for example linux console and rxvt), you can set a environmental variable to differentiate between the type of terminal
+and use the context key word in ~/.bedrc.
+.br
+Everything started with the context keyword until the following context keyword or
+end of file is only used when the right environmental variable set.
+.br
+The format of context is the following.
+.br
+.br
+context [!] variablename [variablevalue]
+.br
+.br
+For example:
+.br
+.br
+context term xterm
+.br
+.br
+You can also say
+.br
+.br
+context variablename
+.br
+.br
+when it should apply for all cases in which the variablename has a definition.
+.br
+For example
+.br
+.br
+context termcap
+.br
+.br
+applies in all cases in which termcap is defined.
+.br
+If you like to apply the next configuration only when an enviromental variable
+is not set or has a different value, you have to write ! before the
+enviromental variable.
+.br
+context ! DISPLAY
+.br 
+means to apply the statements following this context statement and before
+the next context statement only when DISPLAY is not set.
+.br
+If there is no environmental variable shared by the context you like to give
+the same configuration you can set a environmental variable and use this at a context argument. It is possible to set enviromental variables within the configuration file with:
+.br
+\fBsetenv\fP name val
+.br
+To do the same by TERM=cons25 as with TERM=cons50 you can write:
+.nf
+	context TERM cons25
+	setenv consoleterm yes
+	context TERM cons50
+	setenv consoleterm yes
+	context TERM cons43
+	setenv consoleterm yes
+	context consoleterm
+	keys  27 91 97 = beginfile #S-F3
+	keys  27 91 98 = endfile #S-F4
+	keys  27 91 101 = middlepage #S-F7	
+.fi
+In combination with '!' you can this way create every possible boolean logic
+formula (using the statement that every propositional logical formula can
+be written with only not and or).
+With setenv you have an or and '!' adds the not.
+To apply statementZ only if X and Y you use "X and Y"<=>"not (not X or not Y)"
+transforming this to bedrc you get
+.nf
+context ! X
+setenv dont 1
+context ! Y
+setenv dont 1
+context ! dont 1
+statementZ
+.fi
+.SS Color
+Colors can also be changed in the configuration file. There are around 17 screen
+elements which you can give a foreground and background color and a list of
+attributes (standout, underline, etc).
+.br
+The format is:
+.br
+
+.br
+color screen-element [foreground background] [attr,attr...]
+.br
+
+.br
+You can give only attributes or both the foreground and the background color and
+any number of attributes.
+.br
+
+.br
+The screen parts are the following:
+.br
+TEXT: The color the text is showed in. It is better not to give this a color because this
+makes the screen updating much slower (some feature of ncurses)
+.br
+COMMAND: the command line
+.br
+SELECTION: selection
+.br
+CURSOR: cursor in active datatype
+.br
+CURSORPAS: cursor in passive datatype
+.br
+SELCURSOR: cursor during selection
+.br
+BAR: the menubar
+.br
+BARKEY: Key highlighting in the menubar
+.br
+MENU: Opened menu's
+.br
+MENUKEY: key highlighting in menu
+.br
+MENUSEL: color of menu element which is selected
+.br
+OPENTITLE: title of file manager
+.br
+OPENKEY: key highlighting of key manager
+.br
+OPENNORMAL: background key manager
+.br
+OPENLIST: color of non active items of list
+.br
+OPENLISTSEL: color of active item
+.br
+OPENLISTACT: color of active item when this piece is used
+.br
+SHOWBACK: Search/replace window
+.br 
+SPACEAFTER: color of space before and between datatypes
+.br
+
+.br
+The colors and attributes are just the colors and attributes of ncurses. When they
+don't look the way the name suggests you should send your complains to the makers
+of ncurses.
+.br
+
+.br
+Colors: BLACK RED GREEN YELLOW BLUE MAGENTA CYAN WHITE
+.br
+Attributes: NORMAL STANDOUT UNDERLINE REVERSE BLINK DIM BOLD
+PROTECT INVIS ALTCHARSET CHARTEXT
+
+.br
+For me only STANDOUT UNDERLINE REVERSE BLINK BOLD have a useful
+meaning.
+.br
+On example:
+
+.br
+color BAR WHITE RED blink
+.br
+
+.br
+Which makes a blinking white on red menu bar (on my computer it blinks only
+under linux console and not in xterm or rxvt).
+.br
+
+.br
+To make the cursor bold and underlined you can do
+.br
+
+.br
+color cursor bold underline
+.br
+
+.br
+The color lines can be intermixed with the keys lines and can also be specific to a
+context.
+.br
+
+.br
+.SS Procedures
+When you want to make you own key bindings you need to know the names of
+the procedures you can bind to keys. A selected subset of the procedures can also be assigned by using the name of the key they are normally bound to. There are the following key labels: 
+.I home
+, end, f1, up, down, left, right, pgup, pgdn, stab, delete, backspace and esc. When you assign a key sequence to a key label the meaning in the filemanager, search window  and menu is also changed.
+so 
+.br
+	keys 1 = home
+.br
+gives Contr-A the home functionality in all this application parts.
+
+For the filemanager and search window this is the only way the change keybindings. Inside the menu you can also change keybindings by putting 
+.I 253
+in front of the key numbers. See  proconly firstmenuitem.
+.br
+What follows are all procedures mentioned in the menu with a description and their
+place in the menu. It is exactly the same information as you get when you press F1
+within the menu.
+.br

@@ -1,0 +1,1440 @@
+//#define SEARCHTIME 1
+#include "defines.h"
+/*     Bed a menu-driven multi dataformat binary editor for Linux            */
+/*     Copyright (C) 1998 Jaap Korthals Altes <binaryeditor@gmx.com>       */
+/*                                                                           */
+/*     This program is free software; you can redistribute it and/or modify  */
+/*     it under the terms of the GNU General Public License as published by  */
+/*     the Free Software Foundation; either version 2 of the License, or     */
+/*     (at your option) any later version.                                   */
+/*                                                                           */
+/*     This program is distributed in the hope that it will be useful,       */
+/*     but WITHOUT ANY WARRANTY; without even the implied warranty of        */
+/*     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         */
+/*     GNU General Public License for more details.                          */
+/*                                                                           */
+/*     You should have received a copy of the GNU General Public License     */
+/*     along with this program; if not, write to the Free Software           */
+/*     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             */
+/* Fri Dec  8 22:14:27 2000                                                  */
+#include <assert.h>
+#include "desturbe.h"
+#include <alloca.h>
+#include "editor.h"
+#include "convert.h"
+#include "datatypes.h"
+#include "dialog.h"
+#include "screen.h"
+#include "myalloc.h"
+#include "main.h"
+#include "contain.h"
+#include "repeat.h"
+#include <stdlib.h>
+#include <type_traits>
+#define maxbytes 20
+#define maxbase 20
+#define MAXSEARCHSTR 512
+#define isasciimode(x) (instance(x,Ascii)&&(x->lastfilter==x->firstfilter))
+//#define standardascii(x) (instance(x,Ascii)&&(x->getbytes()==1)&&(x->lastfilter==x->firstfilter))
+//#define standardascii(x) (instance(x,Ascii)&&(x->getbytes()==1)&&(x->lastfilter==x->firstfilter))
+OFFTYPE Editor::searchstartpos() {return (Stype.Forward)?(Stype.Edge?0:filepos+editpos+1): (Stype.Edge?(mem.size()-1):(filepos+editpos-1)); }
+
+int standardascii(ScreenPart *x) {
+	return (instance(x,Ascii)&&(x->getbytes()==1)&&(x->lastfilter==x->firstfilter));
+	}
+#define isdigitmode(x) (instance(x,Digit)&&(x->lastfilter==x->firstfilter))
+//#define predefinedmode(x) (isasciimode((x))||(isdigitmode((x))&&((x)->type==2||(x)->type==8||(x)->type==16||(x)->type==10)))
+//#define onboundary (mem.lastforward&8)?1:0
+#define isregex   Stype.Regex
+#define onboundary Stype.Edge
+//#define onunit (mem.lastforward&32)?1:0
+#define onunit Stype.Unit
+//#define regextype (mem.lastforward>>6&3)
+#define dataname(x) ((x)->getname())
+#define namedata dataname(parts[mode])
+/*unsigned char tempformatsearch[512];
+#define strsearchingfor() ((regsearch(&mem))?formatsearch:(parts[mode]->fromascii((unsigned char *)searchstr,tempformatsearch,searchlen),tempformatsearch))
+*/
+#define strsearchingfor() formatsearch
+#define makesearchdataname() 
+//#define makesearchdataname() (((searchdataname==NULL)?(searchdataname= myallocar(char, 20)):NULL), snprintf(searchdataname,20,"%s%s %d",parts[mode]->getname(), modename(parts[mode]->type),parts[mode]->bytes))
+#define searchdataname() ((regsearch(&mem)?makesearchdataname():1),searchdataname)
+//#define searchdataname() searchdataname
+/*#define searchingfor() message("%s: Searching for %.50s",searchdataname(),strsearchingfor())
+#define nexsearchingfor() message("%s: Next search for %.50s",searchdataname(),strsearchingfor())
+//#define notfoundsearchingfor() {message("%s: Not found %.50s",searchdataname(),strsearchingfor()); standout2= 0;updated=0;}
+#define notfoundsearchingfor() {message("%s: Not found %.50s",searchdataname(),strsearchingfor()); }
+#define alreadysearchingfor() message("%s: Already searching for %.40s",searchdataname(),strsearchingfor())
+#define foundsearchingfor() message("%s: Found %.50s",searchdataname(),strsearchingfor())
+*/
+#ifdef INTSEARCH
+#ifdef USETHREADS
+static const OFFTYPE stoplimit=static_cast<OFFTYPE>(40000000L);
+#else
+static const OFFTYPE stoplimit=static_cast<OFFTYPE>(4000000L);
+#endif
+#define STOPCONDITION if(mem.filesize>stoplimit) message("Searching for %.*s (press s to stop)",thecols-14,strsearchingfor());else
+#else
+#define STOPCONDITION
+#endif
+
+#define searchingfor()    { STOPCONDITION  message("Searching for %.*s",thecols-14,strsearchingfor());}
+#define nexsearchingfor()      message("Next search for %.*s",thecols-16,strsearchingfor())
+//#define notfoundsearchingfor() {message("Not found %.*s",thecols-10,strsearchingfor()); standout2= 0;updated=0;}
+#define notfoundsearchingfor() {message("Not found %.*s",thecols-10,strsearchingfor()); }
+
+#define alreadysearchingfor()  message("Already searching for %.*s",thecols-22,strsearchingfor())
+#define foundsearchingfor() message("Found %.*s (%s)",thecols-6,strsearchingfor(),searchpart->label)
+//#define foundsearchingfor() message("%s: found %s",searchpart->label,strsearchingfor())
+//#define foundsearchingfor() message("Found %.*s",thecols-6,strsearchingfor())
+
+extern const char *regexerrorstring;
+//extern int onboundary;
+#ifdef ATOIBUG
+extern long strtoint(char *str) ;
+extern long mystrtol(char *bytes,char **endp,int base) ;
+#else
+#define    strtoint(x) atoi(x)
+#define mystrtol strtol
+#endif
+OFFTYPE Editor::searchswitch(SearchAim &aim) {
+	if(searchpart)
+		delete searchpart;
+//	setsearchstr(aim.str,aim.len);
+//	aim.str=searchstr;aim.len=aim.len;
+	aim.matchlen=aim.len;
+	searchpart=aim.datashown;
+	searchbytes=aim.datashown->bytes;
+	searchpart->mklabel() ;
+	searchgrens=(filepos+indatatype)%searchbytes;
+	searchpos=aim.start;
+	usesearch =searchproc(Stype.procel);
+	OFFTYPE res=OFFTYPEINVALID;
+	INCDEST();
+//	SearchInit init=usesearch.init;
+	if(usesearch.init) {
+		res=(this->*usesearch.init)(aim);
+		}
+	else {
+		assert(false);
+		regexerrorstring="Found no searcher for options";
+		}
+	DECDEST();
+	return res;
+	}
+		
+inline OFFTYPE Editor::nextsearchlast(SearchAim &aim) {
+INCDEST();
+OFFTYPE ret=OFFTYPEINVALID;
+if(usesearch.next)  
+	ret=(this->*usesearch.next)(aim);
+DECDEST();
+return ret;
+}
+
+#ifdef SEARCHTIME
+#include <sys/time.h>
+#endif
+#ifdef USETHREADS
+#define __GNU_VISIBLE 1
+#include <pthread.h>
+#undef ERR
+#include <signal.h>
+#undef ERR
+
+void Editor::stopthread(void) {
+	if(backgroundsearch) {
+#ifdef USE_PTHREAD_CANCEL
+		sem_wait(&sema);
+		 pthread_cancel(threadsearch);
+		if( gegsthread.ant)
+			myfree( gegsthread.ant);
+		if( gegsthread.part)
+			myfree( gegsthread.part);
+		 backgroundsearch=0;
+		sem_post(&sema);
+#else
+
+
+		 endthread=true;
+		pthread_join(threadsearch,NULL);
+		 backgroundsearch=0;
+		 endthread=false;
+#endif
+		}
+};
+void * listthread(void *arg) {
+
+	struct threadgegs *geg=(struct threadgegs*)arg;
+#ifdef HAVE_SIGADDSET
+	sigset_t sigs;
+	sigemptyset(&sigs);
+	sigaddset(&sigs,SIGINT);
+#ifdef DONTINTCURSES
+	sigaddset(&sigs, SIGUSR1) ;
+#endif
+	sigaddset(&sigs,SIGWINCH);
+	sigaddset(&sigs,SIGHUP);
+	sigaddset(&sigs,SIGCONT);
+	sigaddset(&sigs,SIGSTOP);
+	sigaddset(&sigs,SIGTSTP);
+	sigaddset(&sigs,SIGTERM);
+	sigaddset(&sigs,SIGQUIT);
+	sigaddset(&sigs,SIGALRM);
+	 pthread_sigmask(SIG_BLOCK,&sigs,NULL);
+#endif
+#ifdef USE_PTHREAD_CANCEL
+	 pthread_setcancelstate(PTHREAD_CANCEL_ENABLE ,NULL);
+	 pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
+#endif
+	geg->ed->searchlister(geg->aim);
+	myfree( geg->aim.str);
+//	delete geg->aim.datashown;
+#ifdef USE_PTHREAD_CANCEL
+	geg->aim.ant=NULL;
+	geg->aim.part=NULL;
+#endif
+	return arg;
+	}
+//int Editor::startthreadsearch(ScreenPart *part,char *ant, int len) {
+int Editor::startthreadsearch(SearchAim &aim) {
+
+	if(backgroundsearch) {
+		alreadysearchingfor();
+		return -1;
+		}
+	memorize();
+	message("Thread started, the results will be added to marklist (alt-k,l). Don't edit");
+
+	wrefresh(editscreen);
+	gegsthread.ed= this;
+	gegsthread.aim=aim;
+	signed char *ant=aim.str;
+	gegsthread.aim.str=myallocar( signed char,aim.len+1);
+	memcpy(gegsthread.aim.str,ant,aim.len+1);
+
+	backgroundsearch++;
+	  if(!pthread_create(&threadsearch, NULL, listthread, &gegsthread)) {
+		if(aim.len>15) {
+			char tmp=ant[15];
+			ant[15]='\0';
+			pthread_setname_np( threadsearch,(char *)ant);
+			ant[15]=tmp;
+			}
+		else
+			pthread_setname_np( threadsearch,(char *)ant);
+		}
+	return 0;
+	}
+
+#endif // USETHREADS
+
+#if !defined( USETHREADS) || defined(BIOSDISK) || defined(LONGTHREADS)
+int Editor::searchlist(SearchAim &aim) {
+	memorize();
+	if(aim.len) {
+		searchingfor();
+		}
+	else
+		nexsearchingfor();
+	wrefresh(editscreen);
+ return searchlister(aim) ;
+}
+#endif
+#define backgroundend() backgroundsearch=0
+//#define backgroundend() backgroundsearch--;
+//int Editor::searchlister(ScreenPart *part,char *ant,int len,OFFTYPE pos) {
+int Editor::searchlister(SearchAim &aim) {
+unsigned char r27[]={27,27,27};
+	found=0;
+	OFFTYPE pos;
+	if(aim.len>0) {
+		pos=searchswitch(aim);
+		}
+	else {
+		delete aim.datashown;
+		#ifdef USETHREADS
+			backgroundend();
+		#endif
+		return -1;
+/*
+		if(!usesearch.next) {
+			#ifdef USETHREADS
+				backgroundend();
+			#endif
+			return -1;
+			}
+		if(onboundary) {
+			searchbytes=searchpart->bytes;
+			searchgrens=(filepos+indatatype)%searchbytes;
+			}
+		pos= nextsearchlast(aim) ;
+*/
+		}
+	while(pos!=OFFTYPEINVALID) {
+		found++;	
+#ifdef USETHREADS
+		sem_wait(&sema);
+#endif
+		setmark( r27 ,3,pos,aim.matchlen);
+#ifdef USETHREADS
+	sem_post(&sema);
+#endif
+		pos= nextsearchlast(aim) ;
+		}
+#ifdef USETHREADS
+	backgroundend();
+#endif
+	return found;
+	}
+/*
+ returns offset of string or SEARCHFAILURE when not found */
+template <typename T> class setback {
+	T &back;
+	T val;
+public:
+setback(T &var,T nv): back(var), val(var){
+	back=nv;
+}
+
+~setback() {
+	back=val;
+	}
+	};
+
+OFFTYPE Editor::dosearch(OFFTYPE pos, char *ant,int len) {
+#ifdef USETHREADS
+	if(backgroundsearch) {
+		alreadysearchingfor();
+		return  SEARCHFAILURE ;
+		}
+#endif
+	if(formatsearch)
+		myfree( formatsearch);
+	formatsearch=myallocar( char,len+1);
+	formatsearchlen=len;
+	memmove(formatsearch,ant,len);
+	formatsearch[len]='\0';
+//s/bool/uint8_t/g
+	setback<uint8_t>_c(Stype.Case,true);
+	setback<RegexT>_r(Stype.Regex,None);
+	setback<uint8_t>_u(Stype.Unit,false);
+	setback<uint8_t>_e(Stype.Edge,false);
+	setback<uint8_t>_a(Stype.Align,false);
+	setback<uint8_t>_l(Stype.List,false);
+
+	SearchAim aim = {.sense=Stype.Case,.doreplace=false,.len=len,.align=parts[mode]->bytes,.str=(signed char *)ant,.matchlen=len, .start= pos , .datashown=parts[mode]->newone()};
+//	SearchAim aim = {.sense=Stype.Case,.doreplace=false,.len=len,.str=(signed char *)ant,.matchlen=len, .start= pos , .datashown=parts[mode]->newone()};
+	return dosearcher(aim);
+	}
+#if 0
+OFFTYPE Editor::searchfront(SearchAim &aim) {
+	if(Stype.List) {
+
+#ifdef USETHREADS
+#ifdef BIOSDISK
+if(!mem.isbiosdisk()) 
+#else
+#if defined(LONGTHREADS)
+	if(Stype.List==2)
+#endif
+#endif
+	{
+		message("Locations will be added to marklist (Alt-k,l)");
+		return startthreadsearch(aim) ;
+	}
+#if defined(BIOSDISK)|| defined(LONGTHREADS)
+else
+#endif
+#endif
+#if defined(BIOSDISK)||!defined( USETHREADS)|| defined(LONGTHREADS)
+
+
+		if( searchlist(aim)>0) {
+			erefresh();
+			message("Locations added to marklist (Alt-k,l)");
+			if(showmarks()==0) {
+				findgetmode(listsearchfound)
+				return 0;
+				}
+			else  {
+				return -1;
+				}
+			
+			}
+		else {
+			notfoundsearchingfor();
+			return -1;
+			}
+#endif
+		}
+	OFFTYPE pos;	
+#ifdef SEARCHTIME
+	struct timeval  tvstart,tvend,ver;
+	gettimeofday(&tvstart,NULL);
+const	OFFTYPE startfrom= searchstartpos();
+
+#endif
+	int oldmode=mode;
+	int oldnrparts=nrparts;
+	
+
+ findgetmode(foundmodenormaal)
+	if((pos=dosearcher(aim))==SEARCHFAILURE||pos<0) {
+		if(oldnrparts!=nrparts) {
+			removemode();
+			shouldreinit=0;
+			}
+		tomodenr(oldmode);
+		switch(reinterpret_cast<const intptr_t>(regexerrorstring)) {
+			case 0: {
+				showfileinfo=0;
+#ifdef SEARCHTIME
+				gettimeofday(&tvend,NULL);
+				timersub(&tvend,&tvstart,&ver);
+				long double speed=(filesize()-startfrom)/((ver.tv_sec*1000)+(long double)ver.tv_usec/1000);
+				message("Not Found %.80s %d:%d:%d (s:mil:mic) %Lg bytes/msec",formatsearch,ver.tv_sec,ver.tv_usec/1000,ver.tv_usec%1000,speed);
+#else
+						notfoundsearchingfor();
+#endif
+			  	};break;
+			case -1:break;
+			default: 	output(regexerrorstring);break;
+		};
+		regexerrorstring=NULL;
+		return -1;
+		}
+#ifdef SEARCHTIME
+
+	gettimeofday(&tvend,NULL);
+	timersub(&tvend,&tvstart,&ver);
+#endif
+	OFFTYPE blockpos;
+//blockpos=pos;
+	if(pos<indatatype) {
+		blockpos=pos;	
+		indatatype=0;
+		installpart(part->newone(),0);
+		}
+	else
+		blockpos=pos-indatatype;
+standout1= blockpos;
+standout2= pos+lastaim.matchlen;
+updated=0;
+	pretopos(blockpos);
+	toborder( blockpos);
+	cursorpos();
+	toscreen();
+#ifdef SEARCHTIME
+	long double speed=(pos-startfrom)/((ver.tv_sec*1000)+(long double)ver.tv_usec/1000);
+	message("Found %.40s %d:%d:%d (s:mil:mic)  %Lg bytes/msec",formatsearch,ver.tv_sec,ver.tv_usec/1000,ver.tv_usec%1000,speed);
+#else
+	foundsearchingfor();
+#endif
+	return len;
+	}
+#endif
+//OFFTYPE Editor::dosearcher(ScreenPart *part,OFFTYPE pos, char *ant,int len,int *matchlen,bool doreplace) {
+OFFTYPE Editor::dosearcher(SearchAim &aim) {
+
+#ifdef USETHREADS
+	if(backgroundsearch) {
+		regexerrorstring=reinterpret_cast<const char *>(-1);
+		alreadysearchingfor();
+		delete aim.datashown;
+		return  SEARCHFAILURE ;
+		}
+#endif
+	makesearchdataname();
+	memorize();
+DEBUGGING("Searching (" OFFPRINT ",%d)#%.80s#\n",aim.start,aim.len,aim.str);
+	if(aim.len>0) {
+		searchingfor();
+		wrefresh(editscreen);
+		return searchswitch(aim) ;
+		}
+	else {
+		delete aim.datashown;
+		regexerrorstring=reinterpret_cast<const char *>(-1);
+		message("Can't search for \"%s\" of length %d",aim.str,aim.len);
+		return SEARCHFAILURE;
+		}
+	}
+inline OFFTYPE Editor::nextsearcher(SearchAim &aim) {
+	OFFTYPE pos= nextsearchlast(aim);
+	if(pos==OFFTYPEINVALID) {
+		switch(reinterpret_cast<const intptr_t>(regexerrorstring)) {
+			case 0: notfoundsearchingfor();break;
+			case -1:break;
+			default: 	output(regexerrorstring);break;
+		};
+		return pos;
+		}
+OFFTYPE blockpos= (pos>=indatatype)? (pos-indatatype):(beep(), 0);
+standout1= blockpos;
+standout2= pos+aim.matchlen;
+updated=0;
+	pretopos(blockpos);
+	toborder( blockpos);
+	if(dofromfile) {
+		fromfile();
+		updated=0;
+		}
+	else
+		cursorpos();
+	if(!updated)
+		writebuf();
+	foundsearchingfor();
+	wrefresh(editscreen);
+	return pos;
+	}
+inline int Editor::nextsearch(SearchAim &aim) {
+#ifdef USETHREADS
+	if(backgroundsearch) {
+		alreadysearchingfor();
+		return -1;
+		}
+#endif
+	memorize();
+		if(usesearch.next) {
+			nexsearchingfor();
+			wrefresh(editscreen);
+			return nextsearcher(aim);
+			}
+		else {
+			output("No previous search");
+			return -1;
+			}
+
+	}
+
+
+int Editor::nextsearch(void) {
+	lastaim.start= searchpos=filepos+editpos+(Stype.Forward?parts[mode]->bytes:-1);
+ return nextsearch(lastaim); 
+}
+
+#include "reverse.h"
+int reord(ScreenPart *part) {
+	int reorder;
+	char *lab=part->lastfiltername();
+	if(lab&&lab[0]=='r'&&((strspn(lab+1,"0123456789")+1)>=strlen(lab))) {
+		Reverse *rev=(Reverse*)part->getlastfilter();
+		reorder=rev->unit;
+		}
+	else
+		reorder=0;
+		
+	return reorder;
+	}
+#if 1
+#else
+#define changedatatype() \
+	switch(dattype) {\
+		case 0:if(!isasciimode(copythis)) {\
+				if(!ascii) {\
+					ascii=new Ascii(this);\
+					}\
+				part=ascii;\
+				}\
+			else\
+				part=copythis;\
+			break;\
+		case 1: if(!isdigitmode(copythis)) {\
+				if(!digit) {\
+					digit=new Digit(this);\
+					}\
+				part=digit;\
+				}\
+			else\
+				part=copythis;\
+			break;\
+		case 2: part=copythis;break;\
+		case 3: part=subpart;break;\
+\
+		};\
+	if(byt!=part->datbytes()) {\
+		part->chbytes(byt); \
+		byt=part->datbytes();\
+		sprintf(bytes,"%d",byt);	\
+		}\
+	if(tmode!=part->type) {\
+		part->chbase(tmode) ;\
+		tmode=part->type;\
+		sprintf(basestr,"%d",tmode);	\
+		}\
+	if(oldorder!=reorder) {\
+		part->reverse();\
+		}
+
+#endif
+/* ask information
+Input: startstring, searchinfo
+Output: search,searchlen, searchinfo, datatype
+	mem.lastforward=forward|(cas<<1)|(reg<<2)|(boundary<<3);
+*/
+
+int subtypeoffset(const ScreenPart *part,const ScreenPart *super) {
+	int byt=0;
+	if(part->equal(super))
+		return 0;
+	if(iscontain(super)) {
+		const Contains *con=(const Contains*)super;
+		for(int i=0;i<con->nrsubparts;i++) {
+			const ScreenPart *sub=con->subpart(i);
+			int subbyt=subtypeoffset(part,sub);
+			if(subbyt>=0) {
+				return byt+subbyt;
+				}
+			byt+=sub->bytes;
+			}
+		}
+	return -1;
+	}
+int Editor::search(void) {
+	return searcher(0);
+	}
+#define FOREVER 
+#define ENDFOREVER(x) x:
+#define LEAVE(x) goto x;
+#define findgetmode(foundmode)\
+	indatatype=0;\
+FOREVER\
+	if(int byt=subtypeoffset(part,parts[mode]);byt>=0) {\
+		indatatype=byt;\
+		LEAVE(foundmode)\
+		}\
+	for(int i=0;i<nrparts;i++)\
+		if(i!=mode&&part->equal(parts[i])) {\
+			tomodenr(i);\
+			LEAVE(foundmode)\
+			}\
+	installpart(part->newone(),0);\
+ENDFOREVER(foundmode)
+
+extern char showfileinfo;
+
+#define regextype static_cast<std::underlying_type<RegexT>::type>(Stype.Regex)
+
+int Editor::searcher(int askrepl) {
+
+#ifdef USETHREADS
+	if(backgroundsearch) {
+		if(getkeyinput("Searching for %s press (s)top/(c)ontinue: ",formatsearch)=='s') {
+			stopthread();
+			clearmessage();
+
+			return 0;
+			}
+		clearmessage();
+		return -1;
+		}
+#endif
+	ScreenPart *copythis=parts[mode]->newone(),*part,*digit=NULL,*ascii=NULL;
+//	int fors,bins;
+	auto pro=progenitors();
+	ScreenPart *thesub=pro.back(), *subpart;
+//	ScreenPart *thesub=parts[mode]->getsubpart(fors,bins, parts[mode]->half),*subpart;
+	if(thesub&&thesub!=parts[mode]) {
+//		fprintf(stderr,"\nsubpart %s %s\n",thesub->getname(),parts[mode]->getname());
+			if(isasciimode(thesub)) {
+				part=ascii=thesub->newone();
+				subpart=NULL;
+				}
+			else {
+				if(isdigitmode(thesub)) {
+					part=digit=thesub->newone();
+					subpart=NULL;
+					}
+				else
+					part=subpart=thesub->newone();
+				}
+//		for(auto el:pro) fprintf(stderr,"%s (%d) ",el->getname(),el->bytes); fprintf(stderr,"%s (%d) ",part->getname(),part->bytes);
+		}
+	else {
+//		fprintf(stderr,"\nno subpart %s\n",parts[mode]->getname());
+		subpart=NULL;
+		part=copythis;
+		}
+	char ant[MAXSEARCHSTR]; ant[0]='\0';
+	char ascant[MAXSEARCHSTR];
+	char bytes[maxbytes];
+	char basestr[maxbase];
+	int flen=0,len,res=1,byt=1,dattype,regdattype;
+	int oldbytes,oldorder;
+	int wlin=15,wcol=60;
+const	int maxactive=30;
+	char active[maxactive+5];
+	char	subactive[maxactive+5];
+	bool reorder=false;
+
+auto doreg= static_cast<std::underlying_type<RegexT>::type>(Stype.Regex);
+if(askrepl) 
+	Stype.Regex=Stype.RegexReplace;
+else
+	Stype.Regex=Stype.RegexSearch;
+if(doreg)  {
+	if(formatsearchlen) {
+		flen=minnum(formatsearchlen,MAXSEARCHSTR);
+		memcpy(ant, formatsearch,flen);
+		}
+	}
+else {
+	if(searchstr ) 
+		 flen=frombytes(part,(unsigned char*)ant,(unsigned char*)searchstr,searchlen,MAXSEARCHSTR);
+	}
+int rlen;
+char *rep;
+char *rtmp;
+if(askrepl) {
+	wlin+=askrepl;
+	rep=(char *)alloca(MAXSEARCHSTR);
+	rtmp=(char *) alloca(MAXSEARCHSTR);
+	if(replacestrlen) {
+	//	if(!doreg||standardascii(part)) 
+		if(!doreg) 
+			 rlen=frombytes(part,(unsigned char*)rep,(unsigned char*)replacestr,replacestrlen,MAXSEARCHSTR);
+		else {
+			rlen=minnum(replacestrlen, MAXSEARCHSTR);
+			memcpy(rep,replacestr,rlen);
+			}
+		}
+	else {
+		rep[0]='\0';
+		rlen=0;
+		}
+	}
+else {
+	rep=rtmp=NULL;
+	}
+	int oldtm=(int)part->type,tmode=oldtm;
+	byt=part->datbytes();
+	reorder=reord(part)==1;
+	sprintf(basestr,"%d",tmode);	
+	sprintf(bytes,"%d",byt);	
+	if(isasciimode(part))
+		dattype=0;
+	else {
+		if(isdigitmode(part))
+			dattype=1;
+		else {
+			if(subpart)
+				dattype=3;
+			else
+				dattype=2;
+			}
+		}
+	strcpyn(active,copythis->getname(),maxactive-1);
+	active[maxactive-1]='\0';
+//#define DEBUGUIT(...) fprintf(stderr,__VA_ARGS__);
+#define DEBUGUIT(...)
+DEBUGUIT("maxactive=%d, name=.%s., active=.%s.\n",maxactive, copythis->getname(),active)
+
+	if(subpart) {
+		int len=minnum((int)strlen(subpart->getname()),(maxactive-3));
+		memcpy(subactive,subpart->getname(),len);
+		subactive[len]='~';
+		subactive[len+1]='.';
+		subactive[len+2]='\0';
+		}
+		Stype.Unit=Stype.keepUnit;
+		Stype.Align=Stype.keepAlign;
+	while(1) {
+	int afterdata,forwardpos,cancelpos,placeascii,unitpos=-4;
+	const bool oldreg=doreg,oldforward=Stype.Forward,oldunit=Stype.Unit;
+	oldorder=reorder;
+	oldbytes=byt;
+//#define placeascii 12
+#define startdia 1
+	//fprintf(stderr,"Unit=%d\n",Stype.Unit);
+	initdialog(26);
+	checkertrue("Rege~x",1+startdia,3, doreg);
+	if(doreg|| instance(part,Ascii))
+		checker( "Ca~se",3+startdia,3,Stype.Case); 
+	if(doreg) {
+		if(part->maxres>1)	{
+			checkertrue( "~Unit",2+startdia,3,Stype.Unit);unitpos=showformsiter;
+
+			}
+
+		else Stype.Unit=0;
+#if defined(USE_RE2) || defined(USE_HYPERSCAN)
+//#define regextype static_cast<underlying_type_t<Stype.Regex>>(Stype.Regex)
+#define regtype Stype.Regex //*reinterpret_cast<int *>(&Stype.Regex) /*Yes, C++ has an overly complicated syntax*/
+
+		if(!(Stype.Forward||Stype.Unit)) {
+			Stype.Regex=RegType::RegGNU;
+			optselect2(Stype.Regex,1, 1,opt2("~GNU",1+startdia,23,RegType::RegGNU));
+			}
+		else
+		if(!askrepl) {
+			optselect2(regtype,regtype,1,
+				opt2("~GNU",1+startdia,23,RegType::RegGNU)
+#ifdef USE_RE2
+				,opt2("~Re2",2+startdia,23,RegType::RegRE2)
+#endif
+#ifdef USE_HYPERSCAN
+
+				,opt2("~Hyperscan",3+startdia,23,RegType::RegHS)
+#endif
+				);
+			}
+		else {
+			optselect2(regtype,regtype,1,
+				opt2("~GNU",1+startdia,23,RegType::RegGNU)
+#ifdef USE_RE2
+				,opt2("~Re2",2+startdia,23,RegType::RegRE2)
+#endif
+				);
+		}
+#endif
+		}
+	else
+		Stype.Unit=0;
+	if(byt>1||(doreg&&pro.size()>1)) {
+		checker( "~Align",1+startdia,44,Stype.Align);
+		}
+	else
+		Stype.Align=false;
+	checkertrue( "For~ward",2+startdia,44,Stype.Forward); forwardpos=showformsiter;
+	checker( "~Edge file",3+startdia,44,Stype.Edge); 
+	int selected=showformsiter;
+	if(askrepl) {
+		linerlennrmax("~Find:",flen,ant,5+startdia,6,43,MAXSEARCHSTR);
+
+		linerlennrmax("Re~place:",rlen,rep,7+startdia,3,43,MAXSEARCHSTR);
+		}
+	else {
+		linerlennrmax("~Find: ",flen,ant,5+startdia,3,45,MAXSEARCHSTR);
+
+#ifdef USETHREADS
+		checkernr( "~List",8,3,Stype.List,2);
+#else
+		checker( "~List",8,3,Stype.List);
+#endif
+		}
+	oke(10+askrepl,3);
+	act("~Cancel", 12+askrepl,3); cancelpos=showformsiter;
+
+	checker( "~Keep",10+askrepl,10,Stype.Keep); 
+
+//if((!Stype.Regex)||standardascii(part))  
+if((!doreg))  {
+	saveact("Se~t", 10+askrepl,23);
+	saveact("Co~nvert", 12+askrepl,20);
+	placeascii=showformsiter;
+	if(subpart) {
+		optselect(dattype,dattype,
+			opt("Asc~ii",9+askrepl,30,0),
+			opt("~Digit",10+askrepl,30,1),
+			opt(active,11+askrepl,30,2),
+			opt(subactive,12+askrepl,30,3));
+			afterdata=4;
+			}
+		else {
+		optselect(dattype,dattype,
+			opt("Asc~ii",9+askrepl,30,0),
+			opt("~Digit",10+askrepl,30,1),
+			opt(active,11+askrepl,30,2));
+DEBUGUIT("active=.%s. ",active);
+			afterdata=3;
+		  	}
+		linernrmax("~Base ",basestr,9+askrepl,45,3,maxbase);
+		linernrmax("B~ytes: ",bytes,10+askrepl,45,3,maxbytes); 
+		if(byt>1)
+			checker( "Re~verse",12+askrepl,45,reorder);
+		else reorder=false;
+	}
+else  {
+	const int prolen=pro.size();
+	if(prolen>0) {
+		constexpr const int maxtype=maxactive+5;
+		char typestr[prolen][maxtype];
+		bool didright=false,didleft=false;
+		 const char usedkeys[]="acefghklorsuwx";
+		 const char *endkeys=usedkeys+sizeof(usedkeys)-1;
+		 char nowused[10],*endnow=nowused;
+		beginoptions(regdattype) 
+		int line=askrepl+8;
+		for(int i=0;i<prolen;i++)  {
+			const char *name=pro[i]->getname();
+			int pos=0;
+			for(;name[pos];pos++) {
+				char ch=tolower(name[pos]);
+				if(!std::binary_search(usedkeys,endkeys,ch)&&std::find(nowused,endnow,ch)==endnow)  {
+					*endnow++=ch;
+					typestr[i][pos]='~';
+					int len=strlen(name+pos);
+					memcpy(typestr[i]+pos+1,name+pos,len);
+					pos+=(len+1);
+					goto HAVEKEY;
+					}
+				typestr[i][pos]=name[pos];
+				}
+			if(!didleft)  {
+				snprintf(typestr[i]+pos,maxtype-pos," ~(%d)",pro[i]->bytes);
+				didleft=true;
+				}
+			else {
+				if(!didright) {
+					snprintf(typestr[i]+pos,maxtype-pos," (%d~)",pro[i]->bytes);
+					didright=true;
+					}
+				else {
+					HAVEKEY:
+					snprintf(typestr[i]+pos,maxtype-pos," (%d)",pro[i]->bytes);
+					}
+				}
+				
+			opt(typestr[i],line++,30,i);
+			}
+		endoptions(prolen-1)
+		}	
+	placeascii=afterdata=100;
+	}
+
+
+	dodialog(res,wlin,wcol,selected);
+
+auto changedatatype =[&]() {
+	switch(dattype) {
+		case 0:if(!isasciimode(copythis)) {
+				if(!ascii) {
+					ascii=new Ascii(this);\
+					}
+				part=ascii;
+				}
+			else
+				part=copythis;
+			break;
+		case 1: if(!isdigitmode(copythis)) {
+				if(!digit) {
+					digit=new Digit(this);
+					}
+				part=digit;
+				}
+			else
+				part=copythis;
+			break;
+		case 2: part=copythis;break;
+		case 3: part=subpart;break;
+
+		};
+	if(byt!=part->datbytes()) {
+		part->chbytes(byt); 
+		byt=part->datbytes();
+		sprintf(bytes,"%d",byt);	
+		}
+	if(tmode!=part->type) {
+		part->chbase(tmode) ;
+		tmode=part->type;
+		sprintf(basestr,"%d",tmode);	
+		}
+	if(oldorder!=reorder) {
+		part->reverse();
+		}
+	}; /*end changedatatype */
+		if(!res||res==cancelpos)	 { 
+			if(ascii)
+				delete ascii;
+			if(digit)
+				delete digit;
+			if(copythis)
+				delete copythis;
+			if(subpart)
+				delete subpart;
+			editup(); 
+			Stype.Regex=static_cast<decltype(Stype.Regex)>(doreg);
+			if(byt==1)
+				Stype.Align=Stype.keepAlign;
+			Stype.Unit=oldunit;
+			return -1; 
+			}
+		else {
+	//fprintf(stderr,"Align=%d, keepalign=%d\n", Stype.Align,Stype.keepAlign);
+	//fprintf(stderr,"new Unit=%d oldunit=%d res=%d, unitpos=%d\n",Stype.Unit,oldunit,res,unitpos);
+			if((unitpos==res&&oldunit!=Stype.Unit)||(forwardpos==res&&oldforward!=Stype.Forward)||(res==1&&oldreg!=doreg))
+				continue;
+			if(res==INT_MAX)  {
+				menuresized();
+				wrefresh(editscreen);
+				continue;
+				}
+			char *endp;
+			byt=mystrtol(bytes,&endp,10);
+			if(bytes==endp)
+				byt=oldbytes;
+
+			tmode=mystrtol(basestr,&endp,10);
+			if(basestr==endp)
+				tmode=oldtm;
+			res-=(placeascii+1);
+
+			if(res>=-1&&res<20) {
+	//		fprintf(stderr," if(res>=-1&&res<20) {");
+				if(res==(afterdata+2))
+					reorder=!oldorder;
+				if(res>=0&&res<afterdata)
+					dattype=res;
+				len=makebytes(part,(unsigned char*)ascant,MAXSEARCHSTR, (unsigned char*)ant, flen);
+		//		if(rtmp) // askrepl
+				if(askrepl) 
+					rlen= makebytes(part,(unsigned char *)rtmp,MAXSEARCHSTR,(unsigned char*)rep, rlen) ;
+				changedatatype();
+				flen=frombytes(part,(unsigned char*)ant,(unsigned char*)ascant,len,MAXSEARCHSTR);
+			//	if(rep) // askrepl
+				if(askrepl) 
+					rlen=frombytes(part,(unsigned char*)rep,(unsigned char*)rtmp,rlen,MAXSEARCHSTR);
+				 continue;
+
+				}
+			else {
+				if(res==-2) {
+					changedatatype();
+					continue;
+					}
+				}
+			}
+	if(flen<1)  {
+		beep();
+		output("Can't search for zero length string");
+		continue;
+		}
+	if(askrepl)  {
+	if(rep) { 
+		if(rep[0]=='\0') {
+			output("Use space to clear");
+			beep();
+			erefresh();
+			continue;
+			}
+		if(replacestr)
+			myfree( replacestr);
+		replacestr=myallocar( char,(rlen+1)*byt);
+		}
+		}
+if(doreg)  {
+	if(regdattype!=(pro.size()-1)) {
+		if(part==subpart)
+			delete part;
+		subpart=part=pro[regdattype]->newone();
+		}
+	}
+	if((!doreg)||standardascii(part))  {
+		changedatatype();
+		len= makebytes(part,(unsigned char *)ascant,MAXSEARCHSTR,(unsigned char *)ant, flen) ;
+		if(!len&&ant[0]) {
+			output("Conversion failed");
+			erefresh();
+			continue;
+			}
+	if(askrepl)  {
+			replacestrlen=makebytes(part,(unsigned char*)replacestr,MAXSEARCHSTR,(unsigned char*)rep, rlen);
+			if(!replacestrlen) {
+				message("User error: %.*s is no %s",thecols-20,rep,modename(part->type));
+				beep();
+				erefresh();
+				continue;
+				}
+			replacestr[replacestrlen]='\0';
+			}
+		}
+
+	else {
+		memcpy(ascant,ant,flen);
+		len=flen;
+	if(askrepl)  {
+		if(rep) {
+				memcpy(replacestr,rep,rlen);
+				replacestrlen=rlen;
+				replacestr[replacestrlen]='\0';
+		}
+		if(!rep&&replacestr) {
+			myfree( replacestr);
+			replacestr=NULL;
+			replacestrlen=0;
+			}
+	}
+	}
+		break;
+		} /*END WHILE */
+	if(formatsearch)
+		myfree( formatsearch);
+	formatsearch=myallocar( char,flen+1);
+	memcpy(formatsearch,ant,flen);
+	formatsearch[flen]='\0';
+	formatsearchlen=flen;
+	ascant[len]='\0';
+	makesearchdataname();
+
+	if(doreg) {
+		if(askrepl)
+			Stype.RegexReplace=Stype.Regex;
+		else
+			Stype.RegexSearch=Stype.Regex;
+		}
+	else
+		Stype.Regex=RegType::None;
+
+	if(!doreg|| standardascii(part))
+		Stype.Raw=true;
+	else
+		Stype.Raw=false;
+
+	if(Stype.Regex&&part->maxres>1)	
+		Stype.keepUnit=Stype.Unit;
+	if(part->bytes>1) 
+		Stype.keepAlign=Stype.Align;
+	if(Stype.Keep)
+		searchdefault();
+	if(!isleaf(part)) {
+		static_cast<HasSub *>(part)->active=-1;
+		}
+	lastaim = {.sense=Stype.Case,.doreplace=askrepl,.len=len,.align=part->bytes,.str=(signed char *)ascant,.matchlen=len, .start= searchstartpos() , .datashown=part};
+	editup();
+	if(ascii&&ascii!=part)
+		delete ascii;
+	if(digit&&digit!=part)
+		delete digit;
+	if(copythis&&copythis!=part)
+		delete copythis;
+	if(subpart&&subpart!=part)
+		delete subpart;
+
+	if(!askrepl&&Stype.List) {
+
+#ifdef USETHREADS
+#ifdef BIOSDISK
+if(!mem.isbiosdisk()) 
+#else
+#if defined(LONGTHREADS)
+	if(Stype.List==2)
+#endif
+#endif
+	{
+		message("Locations will be added to marklist (Alt-k,l)");
+		return startthreadsearch(lastaim) ;
+	}
+#if defined(BIOSDISK)|| defined(LONGTHREADS)
+else
+#endif
+#endif
+#if defined(BIOSDISK)||!defined( USETHREADS)|| defined(LONGTHREADS)
+
+
+		if( searchlist(lastaim)>0) {
+			erefresh();
+			message("Locations added to marklist (Alt-k,l)");
+			if(showmarks<0>()==0) {
+				findgetmode(listsearchfound)
+//				delete part;
+				return 0;
+				}
+			else  {
+//				delete part;
+				return -1;
+				}
+			
+			}
+		else {
+//				delete part;
+			notfoundsearchingfor();
+			return -1;
+			}
+#endif
+		}
+	OFFTYPE pos;	
+#ifdef SEARCHTIME
+	struct timeval  tvstart,tvend,ver;
+	gettimeofday(&tvstart,NULL);
+const	OFFTYPE startfrom= searchstartpos();
+
+#endif
+	int oldmode=mode;
+	int oldnrparts=nrparts;
+	
+
+ findgetmode(foundmodenormaal)
+//	OFFTYPE start=(mem.lastforward&1)?(edge?0:filepos+editpos+!askrepl): (edge?(mem.size()-1):(filepos+editpos-1));
+	if((pos=dosearcher(lastaim))==SEARCHFAILURE||pos<0) {
+		if(oldnrparts!=nrparts) {
+			removemode();
+			shouldreinit=0;
+			}
+		tomodenr(oldmode);
+		switch(reinterpret_cast<const intptr_t>(regexerrorstring)) {
+			case 0: {
+				showfileinfo=0;
+#ifdef SEARCHTIME
+				gettimeofday(&tvend,NULL);
+				timersub(&tvend,&tvstart,&ver);
+				long double speed=(filesize()-startfrom)/((ver.tv_sec*1000)+(long double)ver.tv_usec/1000);
+				message("Not Found %.80s %d:%d:%d (s:mil:mic) %Lg bytes/msec",formatsearch,ver.tv_sec,ver.tv_usec/1000,ver.tv_usec%1000,speed);
+#else
+						notfoundsearchingfor();
+#endif
+			  	};break;
+			case -1:break;
+			default: 	output(regexerrorstring);break;
+		};
+		regexerrorstring=NULL;
+//		delete part;
+		return -1;
+		}
+#ifdef SEARCHTIME
+
+	gettimeofday(&tvend,NULL);
+	timersub(&tvend,&tvstart,&ver);
+#endif
+	OFFTYPE blockpos;
+//blockpos=pos;
+	if(pos<indatatype) {
+		blockpos=pos;	
+		indatatype=0;
+		installpart(part->newone(),0);
+		}
+	else
+		blockpos=pos-indatatype;
+standout1= blockpos;
+standout2= pos+lastaim.matchlen;
+updated=0;
+	pretopos(blockpos);
+	toborder( blockpos);
+	cursorpos();
+	toscreen();
+	if(askrepl) {
+		return replacer(rep,pos,lastaim);
+		}
+#ifdef SEARCHTIME
+	long double speed=(pos-startfrom)/((ver.tv_sec*1000)+(long double)ver.tv_usec/1000);
+	message("Found %.40s %d:%d:%d (s:mil:mic)  %Lg bytes/msec",formatsearch,ver.tv_sec,ver.tv_usec/1000,ver.tv_usec%1000,speed);
+#else
+	foundsearchingfor();
+#endif
+	return len;
+	}
+
+
+#define tobinlen(len) (((len+maxunit-1)/(maxunit))*bytes)
+#define toforlen(len) ((((long long )len+bytes-1)/bytes)*maxunit)
+#define binlarger(len) 2*len+80
+
+#include "misc.h"
+#define enoughbytes(formlen) (((formlen+apart)/minnum(maxunit,2))*bytes+(searchlen*2))
+int Editor::gnureplacehere(OFFTYPE pos, char *str,int len  ) {
+	ScreenPart *part=searchpart;
+	int bytes=part->bytes;
+	int apart=part->apart;
+	int maxres=part->maxres;
+	int maxunit=maxres+apart;
+	int bs=blocksize();
+	int inblock=pos%bs;
+	auto bl=pos/bs;
+	int blen=(enoughbytes(len)+inblock)/bs+2;
+	char *const binbuf=(char *)alignedalloc(bs,blen*bs);;
+	int tot=mem.getblocks(bl,binbuf,blen);
+	char * const posbuf=binbuf+inblock;
+
+
+	int offset,i;
+//	struct re_registers *searchregs=searchregs;
+	int matchlen=searchregs->end[0]-searchregs->start[0];
+	int maxout=2*mem.BLOCKSIZE;
+	char *whole;
+	int binnen=(searchregs->start[0])%maxunit;
+	int flen=matchlen;
+	char *to=myallocar( char,maxout);	
+	if(!standardascii(part)) {
+		int binlen=tobinlen(matchlen);
+		whole=myallocar(char,matchlen+2*(part->maxres+part->apart+1));	
+		flen=part->fromascii((unsigned char*)whole,(unsigned char *)posbuf,binlen) ;
+		memcpy(to,whole,flen);
+		to+=binnen;
+		whole+=binnen;
+		}
+	else {
+		whole=posbuf;
+		}
+	for(offset=0,i=0;i<len;) {
+#ifdef AMPERSAND
+		if(str[i]=='&'&&(!i||str[i-1]!='\\')) {
+			memmove(to+offset,whole,matchlen);
+			offset+=matchlen;
+			i++;
+			}
+		else 
+#endif
+		{
+			if(str[i]=='\\'&&(str[i+1]>='0'&&str[i+1]<='9')&&searchregs->start[str[i+1]-'0']!=-1) {
+				int gr=str[++i]-'0';
+				int grlen=searchregs->end[gr]-searchregs->start[gr];
+				memmove(to+offset,whole+searchregs->start[gr]-searchregs->start[0],grlen);
+				offset+=grlen;
+				i++;
+				}
+			else {
+				to[offset++]=str[i++];
+				}
+		      }
+		}
+	int binlen;
+	if(!standardascii(part)) {
+		offset+=binnen;
+		to-=binnen;
+		whole-=binnen;
+		int rest=offset%maxunit;
+		int in=offset/maxunit;
+		if(rest) {
+			char *tmp=posbuf+(in*bytes);
+			char *form=myallocar( char,maxunit+1);	
+			int l;
+			l=part->fromascii((unsigned char *)form,(unsigned char *)tmp,bytes) ;
+			memcpy(to+offset,form+rest,l-rest) ;
+			offset+=(l-rest);
+			myfree( form);
+			}
+if(Stype.Unit) {
+	appendstrtoundo(pos,posbuf, bytes);
+	binlen=part->search2bin((char *)to,(unsigned char*)posbuf,offset,bytes);
+}
+else  {
+
+		int undosize=enoughbytes(offset);
+		unsigned char *undostr=(unsigned char *)expandchunk(NULL,undosize,0);
+		memcpy(undostr,posbuf,undosize);
+		int bins=part->search2bin((char *)to,(unsigned char*)posbuf,offset);
+		if(bins>undosize) {
+				undostr=(unsigned char *)expandchunk(undostr,bins,undosize);
+				mem.getpart(pos+undosize,bins-undosize,(char *)undostr+undosize);
+				}
+		inundo(pos,undostr,bins);
+		binlen=bins;
+}
+		myfree( whole);
+		}
+	else {
+		/*
+		if(Stype.Unit)  Never happens
+			offset=bytes;
+			*/
+		appendstrtoundo(pos,posbuf, offset);
+		memcpy(posbuf,to,offset);
+		binlen=offset;
+		}
+	const int bloks=(binlen+inblock-1)/bs+1;
+	myfree( to);
+	mem.putblocks(bl,binbuf,bloks);
+	alignedfree(binbuf);
+	return binlen;
+	}
+
+
+
+//#define regextype static_cast<int>(Stype.Regex)
+inline void Editor::replacehere(OFFTYPE pos, SearchAim &aim,char *str,int len  ) {
+	int replaced;
+	if(Stype.Regex)  {
+	switch(Stype.Regex) {
+#ifdef USE_RE2
+		case RegType::RegRE2: replaced=re2replace(pos,aim.matchlen,str,len);break;
+#endif
+		case RegType::RegGNU: replaced= gnureplacehere( pos,str, len  ) ;break;
+		default: fprintf(stderr,"Can't replace regex %d", static_cast<std::underlying_type<RegexT>::type>(Stype.Regex)) ;return;;
+	};
+	}
+	else
+		replaced=posputbuf(pos,str,len); 
+	if(Stype.Forward) {
+		const int bytes= parts[mode]->bytes;
+		searchpos=pos+((replaced/bytes)*bytes);
+		}
+	aim.start=searchpos;
+	}
+
+//int Editor::replacer(char *rep,OFFTYPE foundpos,int matchlen) {
+int Editor::replacer(char *rep,OFFTYPE foundpos,SearchAim &aim) {
+	OFFTYPE lastpos=mem.size()-1,pos;
+	while(1) {
+		if((!updated||(selectpos!=OFFTYPEINVALID))) {
+			writebuf();
+			wrefresh(editscreen);
+			}
+
+		while(1) {
+				if(foundpos==OFFTYPEINVALID) {
+					output("Done");
+					return 0;
+					}
+				if((foundpos)>lastpos) {
+						message("User error: Replace over end of file");
+						return -1;
+						}
+				switch(getkeyinput("%s: Replace with %s (y)es/(n)o/(s)top/(a)all)",namedata,rep)) {
+					case 'n': case 'N': break; 
+					case 'a': case 'A': 
+						output("Replace all ...");
+						wrefresh(editscreen);
+						replacehere(foundpos,aim,replacestr,replacestrlen);
+						while((pos=nextsearchlast(aim))!=SEARCHFAILURE) {
+							if(pos>lastpos) {
+								topos(pos);
+								if(!updated)
+									writebuf();
+								message("User error: Replace over end of file");
+								return -1;
+								}
+							replacehere(pos,aim,replacestr,replacestrlen);
+							}
+						fromfile();
+						updated=0;
+						output("Done");
+						return 0;
+					case 'y': case 'Y': 
+							 
+						replacehere(foundpos,aim,replacestr,replacestrlen);
+							fromfile();
+							writebuf();
+							wrefresh(editscreen);break;
+					case 27: case 's': case 'c': case 'S': clearmessage();return -1;
+					default: continue;
+					}
+
+			  break;
+			  }
+
+		if((foundpos=nextsearcher(aim))<0)
+			return -1;
+		}
+	}
+	
+int Editor::replace(void) {	
+	setback<uint8_t>_c(Stype.List,0);
+	return searcher(1);
+	}
+
+/*
+#define searchoption(option,bit) int Editor::search##option(short yes) { int old= mem.lastforward&bit; if(yes) mem.lastforward|=bit; else mem.lastforward&=(0xffff-bit); return old; }
+searchoption(onboundary,8)
+searchoption(regex,4)
+searchoption(forward,1)
+searchoption(case,2)
+int Editor::searchedge(short yes) {
+	int oldedge=edge;
+	edge=yes;
+	return oldedge;
+	}
+*/
+int Editor::gotolastsearchpos(void) {
+	return topos(searchpos);
+	}
+
+extern void writesearchgegs(void) ;
+int Editor::searchdefault(void) {
+	static bool registered=false;
+	defaultsearch=Stype;
+	if(!registered) {
+		registered=true;
+		atexit(writesearchgegs);
+		}
+	return 0;
+}

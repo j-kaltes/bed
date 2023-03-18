@@ -1,0 +1,35 @@
+#!/bin/sh
+for fil in /usr/local/share/bed /usr/share/bed
+do
+if test -f  $fil/uninstallbed.sh
+	then
+wasdir=`pwd`
+cd $fil
+LINKTO=`readlink $fil`
+if test ! -d $LINKTO
+then
+LINKTO=`dirname $fil`/`readlink $fil`
+fi
+cd $wasdir
+echo previous version in $LINKTO
+if test /usr/share/bed = $fil 
+then
+#	if test $LINKTO = /usr/lib/bed-3.1.3
+#	then
+#		echo overwrite $LINKTO
+#	else
+#		echo link to different dir $LINKTO 
+#	fi
+	echo uninstall the old version with:
+	echo bash $LINKTO/uninstallbed.sh
+	echo uninstall what is left of the new version with: 
+	echo dpkg -r bed
+	echo and reinstall bed
+else
+	echo press:
+	echo bash $LINKTO/uninstallbed.sh
+	echo to uninstall previous version
+	echo and hope that it doesn\'t remove part of the new installation.
+fi
+fi
+done

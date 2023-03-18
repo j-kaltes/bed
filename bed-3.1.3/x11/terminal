@@ -1,0 +1,10 @@
+/Terminal/*
+{Font 1}	^@\E]50;#1
+{Font 2}	^@\E]50;#2
+{Font 3}	^@\E]50;#3
+{Font 4}	^@\E]50;#4
+{Normal}	^@\E]50;#
+{Larger}	^@\E]50;#+
+{Smaller}	^@\E]50;#-
+{-}
+{ReverseVideo}	^@\E[?5t

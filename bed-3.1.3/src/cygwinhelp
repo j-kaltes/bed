@@ -1,0 +1,7 @@
+Files:
+At the command line you can specify files:
+  DOS like: separated with \ case insensitive no wildcard 
+  UNIX like: separated with / case sensitive wildcards (*,?,[..],etc)
+  Windows NT like: \\.\PhysicalDrive0 \\.\Harddisk0Partition1 (rawdisk edit)
+Inside bed: separated with \ case insensitive wildcards
+

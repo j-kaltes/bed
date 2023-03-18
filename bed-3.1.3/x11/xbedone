@@ -1,0 +1,161 @@
+#!/bin/sh 
+$FROMXBED false||FROMXBED=true exec rxvt -geometry 80x25 -fn 12x24 +sb -T "XBed: binary editor" -e sh $0  $*
+Echo="echo -n"
+$Echo "]10;[read:$0;bed]"
+exec c:/windows/bed $*
+
+[menu:bed]
+[clear]
+[title:XBed: binary editor]
+/File/*
+{New} M-fn
+{Open}{C-o} M-fo
+{Disk} M-fd
+{-}
+{Fileinfo} M-ff
+{Modified?} M-fm
+{Save}{F2} M-fs
+{Save as} M-fa
+{-}
+{Refresh}{C-l} M-fr
+{Shell} M-fh
+{-}
+{Close}{M-c} M-fc
+{Exit}{M-x} M-fx
+/Edit/*
+{Undo}{C-u} M-eu
+{Redo}{C-r} M-er
+{-}
+{Select}{F12} M-es
+{Copy}{C-y} M-ec
+{Past}{M-p} M-ep
+{Save selection} M-ea
+{-}
+{Replace}{M-r} M-ee
+{Repeat nr}{M-.} M-en
+{-}
+{Extend file} M-ex
+{Truncate} M-et
+{-}
+{Save Shown} M-ev
+{Insert shown} M-eh
+{To Clipboard} M-eo
+{From Clipboard} M-ef
+{Edit} M-ed
+{Input}{Enter} M-ei
+/Move/*
+{Search}{M-s} M-ms
+{Nextsearch}{F3} M-mn
+{Not searched} M-mo
+{-}
+{Position}{C-p} M-mp
+{-}
+{Next Item}{C-x} M-mx
+{Back Item}{C-b} M-ma
+{-}
+{Begin file}{S-F3} M-mb
+{End file}{S-F4} M-me
+{Begin Pg}{F9} M-mi
+{End Pg}{F10} M-md
+{Middle Pg}{S-F7} M-m 
+{-}
+{Undo move}{C-j} M-mm
+{Redo move}{C-k} M-mv
+/Shift/*
+{Top} M-it
+{-}
+{Up}{M-\} M-iu
+{Down}{M-|} M-iw
+{-}
+{Left item}{M-[,M-[} M-il
+{Right item}{M-]} M-ir
+{-}
+{Left byte}{M-{} M-if
+{Right byte}{M-}} M-ig
+/Mark/*
+{Make}{C-g} M-km
+{Goto}{M-g} M-kg
+{Next}{Tab} M-kx
+{Previous}{M-Tab} M-kp
+{-}
+{List}{M-l} M-kl
+{Delete}{C-d} M-kt
+{Clear} M-kc
+{-}
+{Save} M-ks
+{Read} M-kr
+/Data/*
+{Prev}{F7} M-dv
+{Next}{F8} M-dn
+{-}
+{Remove}{C-v} M-dr
+{Full}{C-f} M-df
+{-}
+{Integer} M-di
+{Ascii} M-da
+{Empty} M-dy
+{Clone} M-dc
+{-}
+{Signed} M-ds
+{Float} M-do
+{BitFlags} M-db
+{Bitfield} M-de
+{Translate} M-dl
+{List} M-dt
+/Type/*
+{Reorder} M-yo
+{Duplicate} M-yi
+{Skip} M-yk
+{Rm filter} M-ym
+{-}
+{Repeat} M-yp
+{Config} M-yg
+{Misc} M-ys
+{-}
+{Parent}{M-;} M-yt
+{Child}{M-:} M-yc
+{Sub} M-yu
+{Levelout} M-yv
+{Stretch} M-yr
+{-}
+{Write Type} M-yw
+{Read Type} M-yd
+/Window/*
+{Add Prev}{S-F5} M-wd
+{Add Next}{S-F6} M-wa
+{Prev}{F5} M-wp
+{Next}{F6} M-wn
+{-}
+{First} M-wf
+{Last} M-wt
+{-}
+{Zoom}{M-z} M-wz
+{Hide}{M-h} M-wh
+{List}{M-0} M-wl
+/Tools/*
+{Offset} M-to
+{Messageline} M-tm
+{Menu} M-tu
+{Commandmode(on/off)} M-tc
+{-}
+{Record keys}{C-t} M-tr
+{Save Recorded} M-ts
+{Play file} M-ty
+{Play}{F4} M-ta
+{-}
+{Dynamic} M-td
+{Procedures} M-tp
+{Key binding} M-tk
+/Terminal/*
+{Font 1}	^@\E]50;#1
+{Font 2}	^@\E]50;#2
+{Font 3}	^@\E]50;#3
+{Font 4}	^@\E]50;#4
+{Normal}	^@\E]50;#
+{Larger}	^@\E]50;#+
+{Smaller}	^@\E]50;#-
+{-}
+{ReverseVideo}	^@\E[?5t
+/
+[show]
+[done]

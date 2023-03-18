@@ -1,0 +1,56 @@
+#!/bin/bash
+# Make version
+MDFILE=md5file
+VERSIONFILE=sourcenumber
+NEWMD5FILE=newmd5file
+#MD5SUM=`( which md5 ||which md5sum) 2>/dev/null`
+MD5SUM=amd5sum
+function amd5sum() {
+if md5 $* 
+then
+	true
+else
+	md5sum -b $*
+fi
+}
+function mkdate() {
+	echo -n 'char srcdate[]="' >date.c
+	echo -n `date` >> date.c
+	echo  '";' >> date.c
+	}
+function mkinfo() {
+	echo -n "`hostname`, " > machine
+	pwd >> machine
+	}
+if test ! -s $VERSIONFILE
+then
+	if ! -s $VERSIONFILE.bak
+	then
+		echo no file
+		echo 1 >  $VERSIONFILE
+		$MD5SUM $* > $MDFILE
+		mkdate
+		mkinfo
+		exit
+	else
+		mv $VERSIONFILE.bak $VERSIONFILE
+	fi
+fi
+
+$MD5SUM $* > $NEWMD5FILE
+if diff  $NEWMD5FILE $MDFILE
+then
+	echo No change
+	rm $NEWMD5FILE 
+else
+		OLDVERSION=`cat $VERSIONFILE`
+		NEWVERSION=$[$OLDVERSION+1]
+		cp $VERSIONFILE $VERSIONFILE.bak
+		echo oldversion $OLDVERSION  newversion $NEWVERSION
+		echo $NEWVERSION > $VERSIONFILE
+		mv $NEWMD5FILE $MDFILE
+		mkdate
+		mkinfo
+		exit
+fi
+

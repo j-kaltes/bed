@@ -1,0 +1,249 @@
+ifneq ($(INCLUDEDCONFIG),yes)
+CFLAGS+= -Wall   #-Wno-write-strings -Wno-char-subscripts
+LDFLAGS+= 
+BEDSRCDIR=/home/jka/bed-0.2.27
+#include $(BEDSRCDIR)/prognames.mk
+INCLUDEDCONFIG=yes
+export LC_ALL=POSIX
+# test,sed,sort,grep etc should produce exactly the intented output.
+# Data access don't work anymore if e.g. sort order is changed
+# and some idiot made sort (Mandrake 7.2) produce different sort order
+# depending on locale. try
+#LC_ALL=nl sort
+#aA
+#AB
+export LOWVERSION=27
+export MIDVERSION=2
+export UPVERSION=0
+export VERSION=0.2.27
+export PROGRAM=bed
+SYSTEM=Linux
+CYGWIN=no
+export HAS_RE_SEARCH=y
+export CONFFILE=$(PROGRAM)rc
+export CONFLASTDIR=$(PROGRAM)-$(VERSION)
+export ROOTDIR=
+HAS_APPLICATIONS=/usr/share/applications
+LN_S=ln -s
+# compile support for the use of plugins. Needs libdl
+# if CONFIG_PLUGIN=n then GIVE=.. in plugin/examples/Makefile determines
+# which plugins are linked in instead
+DL_LIBRARY=-ldl 
+CONFIG_PLUGIN=y
+ifneq ($(HAS_RE_SEARCH),y)
+OBJECTS=regex.o
+endif
+
+DYNAMICCURSES=/usr/lib/libcurses.so
+STATICCURSES=/usr/lib/libcurses.a
+CURSESLIB=-lncurses
+CFLAGS+=-DCURSESTYPE=ncurses -DCURSES=1
+
+# user threads to go on while making a searchlist. 
+# Adds instability, but is also the most widely used. 
+# Not tried with win95 requires ReadFile with offset in OVERLAPPED 
+CONFIG_THREADS=y
+THREADSLIB=-lpthread 
+ifneq ($(CYGWIN),yes)
+# The user of the program is unix minded
+FULLUNIX=y
+else
+CFLAGS+=-D_WIN32=1 -DWindows=1 -DUSE_WINFILE
+WINDOWS=y
+FULLUNIX=n
+export EXEEXT=.exe
+CONFIG_PLUGIN=n
+#export BIOSDISK=y
+#set to y if you want to to use raw disk edit under win95/98/ME 
+CYGWINDLL=
+# >= 1007 no support for Windows 95/98/ME anymore so
+		      #	shouldn't be defined  -DBIOSDISK  -DRUNONWIN95=1
+
+ifeq ($(shell if test 0$(CYGWINDLL) -ge 01007;then echo nowin95;else echo win95 ;fi),nowin95)
+export BIOSDISK=n
+endif
+ifeq ($(BIOSDISK),y)
+CFLAGS+= -DBIOSDISK  -DRUNONWIN95=1 
+CONFIG_THREADS=n
+endif
+endif
+
+ifeq ($(FULLUNIX),y)
+#LINK some useful 'plugins' in main program instead of dynamic linkage?
+CONFIG_LINKINPLUGINS=y
+prefix=/usr
+bindir=${exec_prefix}/bin
+datadir=${prefix}/share
+mandir=${prefix}/share/man
+export MANDIR=$(mandir)/man1
+ifneq ($(CYGWIN),yes)
+export CONFDIR=$(datadir)/$(CONFLASTDIR)
+HAS_X=y
+else
+# bed under CYGWIN uses windows find file
+export CONFDIR=$(datadir)/$(PROGRAM)
+endif
+export CONFDIRLINK=$(datadir)/$(PROGRAM)
+PERSCONFFILE=~/.$(CONFFILE)
+GLOBALCONFFILE=$(CONFDIRLINK)/$(CONFFILE)
+
+else
+
+prefix=/usr
+bindir=
+datadir=$(prefix)/Program\ Files
+mandir=$(CONFDIR)
+export MANDIR=$(CONFDIR)
+export CONFDIR=$(datadir)/$(PROGRAM)
+export CONFDIRLINK=$(datadir)/$(PROGRAM)
+PERSCONFFILE=$(prefix)/.$(CONFFILE)
+
+GLOBALCONFFILE=$(datadir)/bed/bedrc
+CFLAGS+=-DNCURSES_BED=\"$(CONFDIR)/bedn.exe\" -DNCURSES_BEDENV=\"BEDN\" 
+endif
+CFLAGS+= -DPERSCONFFILE=\"$(PERSCONFFILE)\" 
+CFLAGS+=  -DGLOBALCONFFILE=\"$(GLOBALCONFFILE)\" 
+
+export EXEPROGRAM=bed$(EXEEXT)
+
+exec_prefix=${prefix}
+#HAS_MAKEDEPEND=@HAS_MAKEDEPEND@
+export BASEDIR=$(prefix)
+export XPROGRAM=x$(PROGRAM)
+export BINDIR=$(bindir)
+
+export CONFVAR=BEDRC
+#s/AC_SUBST(\(.*\))/\1=@\1@
+EXTRALIBS=
+OTHERLIBS=
+ICONPATH=/usr/share/icons
+MENUPATH=/usr/lib/menu
+KDEMENU=/usr/share/applnk
+GNOMEMENU=/usr/share/gnome/apps
+BEDMENU=Editors
+XBEDMENU=Utilities
+XMENUNAME="bed - binary editor"
+MENUNAME="BED - BINARY EDITOR"
+DEFINES_H=$(BEDSRCDIR)/src/defines.h
+CFLAGS+= -DHAVE_CONFIG_H   -imacros $(DEFINES_H) 
+CONFIG_XBED=n
+NRXVT= rxvt rxvt.bin rxvt.sh rxvt-xpm rxvt-xterm
+RXVT=rxvt
+CONFIG_PROGMAN=n
+GCC=gcc
+CXX=g++
+CC=$(GCC)
+HAS_X=n
+X_CFLAGS=
+X_LIBS=
+X_EXTRA_LIBS=
+X_PRE_LIBS=
+
+PDCURSES=
+HAS_FILE=y
+USES_ELF=y
+HAS_NROFF=y
+# *** spaces and tabs matter!!!! ***
+#configuration options:
+
+# link static=y
+CONFIG_STATIC=n
+
+
+ifeq ($(CYGWIN),yes)
+CONFIG_XBED=n
+endif
+
+
+
+
+# Uses mmap when searching makes searching (forward, casesensitive,
+# non regex) maybe a little bit faster. When true around 0.001%.
+# and until 0.2.4 it somehow didn't work on extended files
+CONFIG_MMAP=y
+
+# debug -g and making /tmp/bedtrace* and /tmp/beddebug* files. (y=do,m=only -g, n=nodebug, t=only debug files o=only -g -O2)
+CONFIG_DEBUG=n
+
+#y: offset in long long instead of long (not always supported)
+# needed for large harddrives
+CONFIG_LARGEFILES=y
+
+# Write the pieces between datatypes and offset numbers
+# Objective measures say that doing this makes the screen somehow faster,
+# but my subjective impression is that it becomes slower
+#y: write over with color TEXT which you should define  ~/.bedrc or $CONFDIR/bedrc
+#n: leave them background
+#c: give spacebetween new colour SPACEAFTER (little bit slower). When using rxvt
+#this leads sometimes to the wrong coloring.
+#b: same as c but no line after last datatype ("")
+#i: other colour APART between items (much slower)
+CONFIG_WRITEBETWEENPARTS=b
+
+# make msdos (edit, turbo-C IDE, Midnight/Norton Commander) lines around some menu's
+#y: do
+#n: don't do
+CONFIG_MENULINES=n
+
+#color support (depends also on color lines in (.)bedrc)
+#y: default color, black-white with option -B
+#n: not possible
+#o: default black-white, color with option -C
+CONFIG_COLOR=y
+
+ifeq ($(CONFIG_STATIC),y)
+CONFIG_PLUGIN=n
+endif
+
+#Plugins can also be linked in the main program
+#LINKIN: Puts it among other linked in procedures
+#LINKINDYN: shows the linked in plugin like a dynamic one. Can not be put in menu's
+#Plugins to choice from: bitcontains.plug bitflags.plug duplicate.plug ebcdic2ascii.plug elftables.plug (needs index2table.plug) file.plug filter.plug float.plug gdb.plug nextitem.plug record.plug signed.plug skip.plug index2table.plug time.plug translate.plug  xterm.plug
+#defaults:
+#
+ifeq ($(CONFIG_LINKINPLUGINS),)
+ifeq ($(CONFIG_PLUGIN),y)
+CONFIG_LINKINPLUGINS=n
+else
+CONFIG_LINKINPLUGINS=y
+endif
+endif
+
+ifneq ($(CONFIG_LINKINPLUGINS),y)
+LINKIN+=time.plug timelocal.plug signed.plug float.plug bitflags.plug bitcontains.plug  duplicate.plug skip.plug nextitem.plug translate.plug
+#LINKINDYN+=
+else
+LINKIN+= ebcdic2ascii.plug time.plug timelocal.plug signed.plug float.plug bitflags.plug bitcontains.plug translate.plug duplicate.plug skip.plug nextitem.plug  helpf1.plug
+LINKINDYN+= backward.plug searchclip.plug datatypeinfo.plug cut.plug undoall.plug
+
+ifneq ($(CYGWIN),yes)
+ifeq ($(HAS_X),y)
+LINKINDYN+=title.plug putselect.plug switchsize.plug rxvt.plug
+endif
+endif
+
+ifeq ($(FULLUNIX),y)
+LINKINDYN+=disass.plug filter.plug
+endif
+ifeq ($(HAS_FILE),y)
+LINKINDYN+=  file.plug
+endif
+ifeq ($(USES_ELF),y)
+LINKINDYN+=index2table.plug elftables.plug
+endif
+endif
+
+ifeq ($(CYGWIN),yes)
+LINKIN+=clipboard.plug title.plug
+ifeq (ncurses,ncurses)
+LINKINDYN+=rxvt.plug
+endif
+endif
+LINKIN+=edit.plug # if left out edit src/menu.h
+
+INLINKLIB=inlink.a
+
+#CFLAGS+=-DVERSION=\"$(VERSION)\" -DPROGRAM=\"$(PROGRAM)\"  -DCONFDIR=\"$(CONFDIR)\" -DCONFDIRLINK=\"$(CONFDIRLINK)\" -DBINDIR=\"$(BINDIR)\" -DCONFVAR=\"$(CONFVAR)\"  -DCONFFILE=\"$(CONFFILE)\"
+CFLAGS+= -DVERSION=\"$(VERSION)\" -DPROGRAM=\"$(PROGRAM)\"  -DCONFDIR=\"$(CONFDIR)\" -DCONFDIRLINK=\"$(CONFDIRLINK)\" -DBINDIR=\"$(BINDIR)\" -DCONFVAR=\"$(CONFVAR)\"  -DCONFFILE=\"$(CONFFILE)\" 
+
+endif
