@@ -1,0 +1,22 @@
+#set before ./configure
+
+#GCCcompiler=i686-pc-cygwin-gcc.exe  doesn't work anymore
+#GXXcompiler=i686-pc-cygwin-g++.exe 
+#CURSESLIB=pdcurses
+CURSESLIB=ncurses
+SRCROOT=/home/jka/src/bed-3.1.4
+LDFLAGS="-static-libstdc++ -L$SRCROOT/libs/android_arm64"
+CXXFLAGS="-I$SRCROOT/include -D__ANDROID_API__=26 -DANDROID_STL=c++_static"
+
+CFLAGS="-I$SRCROOT/include -D__ANDROID_API__=26 -DANDROID_STL=c++_static"
+
+prefix=/data/local/tmp/nontmp
+
+host_alias=aarch64-linux-android
+host=$host_alias
+cross_compiling=yes
+ac_tool_prefix=$host_alias-
+# should have used ./configure --host=aarch64-linux-android  instead
+
+CURSESLIB=ncurses
+EXTRALIBS=-lc++_static 

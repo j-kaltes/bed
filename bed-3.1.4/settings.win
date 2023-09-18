@@ -1,0 +1,15 @@
+#set before ./configure
+CXXFLAGS=
+CPPFLAGS=
+CFLAGS=
+LDFLAGS=
+SRCROOT=/home/jka/src/bed-3.1.4
+LDFLAGS="-static -L$SRCROOT/libs/win64"
+CXXFLAGS="-static -I$SRCROOT/include/win64"
+
+CFLAGS="-static -I$SRCROOT/include/win64"
+#prefix=/usr
+#CC=clang
+#CXX=clang++
+
+CURSESLIB=pdcurses

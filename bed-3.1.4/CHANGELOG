@@ -1,0 +1,404 @@
+Version 3.1.4, Source number 6813 Thu Sep 7 18:35:59 CEST 2023
+- Changes to use newer re2 (using  std::string_view)
+Version 3.1.2, Source number 6794 Wed Sep 7 15:20:19 CEST 2022
+- Symlinked directory no longer used in bedrc, because symlinks to directories are broken in some Androids
+- Bed no longer keeps trying to use getch when it has no terminal anymore
+- now use bash ./configure instead of ./configure or sh. Because sometimes
+  sh refers to ksh or dash
+Version 3.1.1, Source number 6741 Thu May 20 11:58:49 CEST 2021
+- test filesize didn't work anymore
+Version 3.1.0, Source number 6734 Sat May 15 14:31:08 CEST 2021
+- search dialog in regex mode shows encompassing datatypes
+- raw bytesearch under aarch64, didn't find results on block boundary. (char!=unsigned char)
+- saveas en savesel preserves sparse files
+- extend now makes sparse file (don't undo and redo etc)
+- Moved Unit and Align from keep version to front of search
+Version 3.0.3, Source number 6542 Thu Feb 25 14:50:07 CET 2021
+- changed showmark::showmark so it stops with head
+Version 3.0.2, Source number 6514 Wed Feb 24 17:01:29 CET 2021
+- int Editor::input(void): repaired buffer overrun par
+- changed process (shell.h) to template
+- README.android.txt changes
+- configure.ac changes
+- added multiply.plug
+- time.plug now works with sizeof(time_t)==8 on other platforms than x86_64
+Version 3.0.1, Source number 6444 Thu Sep 19 19:22:10 CEST 2019
+- compiles with clang++, compiles within android termux
+- removed VERSION out of settings, now only in configure.ac
+Version 3.0.0, Source number 6338 Wed Jan 17 16:46:17 CET 2018
+- Faster version of showmarks 
+- Uniformalized search procedures
+- changed plugin searchclip so that is doesn't take over all search options.
+- MS windows: bedrc now in %APPDATA%
+- replace old regex-0.12 with NETBSDs external/gpl3/binutils/dist/libiberty/regex.c and external/gpl3/binutils/dist/include/xregex*.h
+- changed copyselect so recent changes are memorized
+- added unit search and replace
+- doesn't search icase in non ascii, non regex anymore
+- added Keep options to search to save search options
+- Changed regex syntax: regex interpretation now without \: 0{10} now means 0000000000
+- MSWindows: ReadFile and WriteFile in PhysicalDrive[0-9]+ need only work with RAM addresses 
+  starting at sector boundaries. And one of my hardrives only worked with even addresses, so I 
+  rearanged everything to comply.
+- color shows search hits
+- libre2 and hyperscan regex
+- nextsearch starts now from cursor position
+- removed MAXUNDO limit
+- sometimes no key input, because of rejecting of * giving negativ intptr_t. Repaired.
+- Alt-f,n (emptyfile) no longer connected to .neededbybed, size can vary
+- use libmagic for instead of file for filetype
+- ANDROID search for temporary file locations
+- compiles with Androids NDK bionic g++ libc
+- float.cc works with sizeof(long double)=8 
+- cross-compiling using ./configure --host=host-type now possible
+Version 2.27.2, Source number 5108 Wed Sep 13 17:17:47 CEST 2017
+- end thread without using pthread_cancel(threadsearch), because of problems in win64: closing file during background search end
+interrupting background search.
+- added  LOGMESSAGE
+- added some read error reporting Editor::fromfile(OFFTYPE pos)
+- Removed some serious errors in Windows NT+ version: 
+	-FSCTL_ALLOW_EXTENDED_DASD_IO was not always set after reopening disk.
+- minor changes to make it compile unter cygwin64
+- inconsequental removal of some warning messages
+- change of = to == somewhere
+Version 0.2.27, Source number 4997 Mon Jul 26 11:06:52 CEST 2010
+- Removed some size restrictions, can now open linux's /dev/full
+- configASCII byt=maxres
+- getfree now gives a better estimate of free memory
+- made it compile under  64 bits Linux and FreeBSD and 32 bits OpenSolaris x86
+- removed compiler warning, by changing char in unsigned and signed char, changed to const, cast unsigned to int
+	etc
+- closes disk handle in disk.cpp
+- set off desturbe.h/.cpp 's locks with USETHREADS. It has only to do with interrupt and isn't mentioned in the background thread, 
+  so why add it when using multiple threads? And for interrupt to normal course should never wait, interrupt should only succeed when
+	it is save to do so.
+- set background searching in win32 version
+- merged some searched functions in memory.cpp and added interrupt posibility under 
+  cygwin while searching harddisk
+- Switched to windows versions for file attributes (getfiles, filegeg, filedata) en chdir
+- used fullname because cygwin didn't use windows current directory (or so)
+Version 0.2.26, Source number 4307 Thu Aug 13 10:43:06 CEST 2009
+- minor changes in manual en mvtakefile getfile.cc
+- Document->Untitled
+Version 0.2.25, Source number 4303 Mon Jan 5 15:51:56 2009
+- in getvolumegegs always remove '\' again
+- added Editor::consoleresize
+- ncurses version in windows console sets screenbuffer equal to window size
+- bedrc: TERM=rxvt if COLORTERM=gnome-terminal
+- getotherterm only once when called within 2 seconds
+- %LOCALAPPDATA%
+- makes switchsize.plug switch to smaller above a certain percentage of maximum
+Version 0.2.24, Source number 4243 Mon Dec 22 22:08:52 CET 2008
+- configure aangepast voor nieuwe pdcurses
+- windows: disk aanduidingen, filedata nu werkend in windows xp/vista
+- removed some code mvtakefile(int ypos,int xpos,const char *com,const char *pat) (file getfile.cpp) which resulted in a endless loop and didn't seem to have a function.
+- made it compile under gcc version 4.3.0 20080428 (Red Hat 4.3.0-8) (GCC) (changed classname:: within class classname, changed x= new (type *)[nr] etc)
+Version 0.2.23, Source number 4083 Wed Jul 7 09:24:30 GMT 2004
+- Added a few changed in memory.cpp, getfile.cpp and disk.cpp to 
+	improve raw disk acces under Windows XP: ]
+		- determining the size of \\.\PHYSICALDRIVE[0-20]
+		- opening raw disk via Alt-f,o
+		- faster detection of devices
+- Use new WINDIR (Makefile, config.in) variable
+- Modifies makes now a difference between detecting a different and the
+	 occurrance of an error (file.cpp).
+Version 0.2.22, Source number 4068 Fri Mar 5 20:27:02 CET 2004
+- Removed atexit from HANDLE initcursorinfo(void) 
+- Shell in subprogram possible under FreeBSD
+- use real suspend again under Linux 
+- use PAGER if helptext> LINES_USE_PAGER
+- disass paths and install corrected
+Version 0.2.21, Source number 4043 Wed Jan 28 12:35:31 CET 2004
+- a few unimportant files wrong in uninstall list and archive
+Version 0.2.20, Source number 4034 Tue Jan 27 17:24:41 CET 2004
+- putselect.plug made debugfile /tmp/putselect.txt. changed
+- changed plugins/examples/Makefile a little bit to precompile a few more plugins
+- changed at some places in src/Makefile GCC in GXX
+- Removed struct cast out of src/keyconfig.cpp
+- varmacro.h condition changed
+- change help menus a little bit
+Version 0.2.19, Source number 4013 Fri Apr 18 21:49:50 CEST 2003
+- opencreate now sets mode so that doesn't create files it can't open
+- moved part->mklabel to top Repeat::mklabel
+- putselect did block with redhat 9, changed from pthread_cond_timedwait to pthread_cond_wait
+- file.plug didn't work with binaries. Changed from pipe to file.
+- ifneq ($(CYGWIN),yes) instead of ifeq (CYGWIN,) in make files
+- removed default arguments out of function definition
+- sys_errlist to strerror
+- added install-sh and config.sub because autoconf refuses to work without
+- little changes in configure.in in "Checking if SIGSTOP and threads work together.."
+Version 0.2.18, Source number 3984 Sat Jun 1 21:19:29 2002
+- last line of /proc/partition was not shown in selectdisk
+- a terrible bug in the biosdisk made that when optimalised the whole bios  
+	interface (also when used by other programs) gave the wrong results.
+	The problem is not present in the tested non optimalised debug version of the
+	biosdisk.dll.
+Version 0.2.17, Source number 3975 Thu May 30 14:42:34 2002
+- the first part (before the first keys statement) of bedrc is now read 
+before curses is initiated (initscr).
+so it is possible to set enviromental variables TERM and TERMINFO in the 
+front of bedrc. 
+- bedrc keywords: editor,setenv,plugindir,datatypedir,macrodir and context
+not take for the last argument everything to end of line or '#' 
+(instead of to space).
+- added datatype win32selection.bedda
+- added plugin cut.plug
+- added selectdisk 
+- In SHELL and EDITOR can backslashes can be used
+- changed executes so it process is terminated when exec fails
+- Added biosdisk to access disk under win95. Use CreateFile for winNT
+- unchanged files without names are now saved correctly
+- start procedure or recorded keys from command line. quit included in recorded
+keys if quiting while recording.
+Version 0.2.16, Source number 3905 Tue Apr 30 16:31:01 CEST 2002
+- Changed maxsize saved datatype from 4096 to 4096*1024
+- putselect.plug now always uses beds selection when selection has no owner
+- title.plug new adds 0 on end of string
+- changed name symtable to index2table
+- updated the manual page
+- redo buffers freed when no longer needed (close, add to undo)!!!
+- changed cyberbrain.com to hetnet.nl
+- added searchclip.plug to search for the content of copy buffer 
+  and comparing last made selection with current file from cursor
+- Int after select doesn't stop program anymore after changing sigaction to signal
+- minor changes to compile in debian 2.2r6 
+- changes around the use of expandfilename so filenames with ~ in the name
+can bed opened (with \~ if ~name exists)
+- getfree changed 
+- shell instead of suspend if suspend has problems with threads (FreeBSD 4.4)
+Version 0.2.15, Source number 3735 Sun Sep 23 20:45:59 2001
+- repaired Multidigit::calcsizes pushlpushl works again.
+- added context sensitive help (F1)
+- pdcurses: Ascii other then strict works, Alt-num works.
+Version 0.2.14, Source number 3676 Sun Aug 26 22:36:48 CEST 2001
+- compiles again under redhat 6.2 and slackware 3.1
+Version 0.2.13, Source number 3657 Sun Aug  5 21:38:02 CEST 2001
+- context !
+- make dep in readme
+- editpos (always?) on boundaries current datatype
+- select/clipboard now correct in larger units on all cursor positions 
+Version 0.2.12, Source number 3614 Mon Jul 30 21:02:09 2001
+- saving searching on background not longer share lseek
+- ISO C standard of 1999 __VA_ARGS__ 
+- dontdesturbe now also uses sem_wait
+- reordered readconfig, new bedrc commands:
+	- make menu's inside bedrc
+	- call_on_start/switch/open
+	- setenv
+- to manual 
+- made title.plug, rxvt.plug and putselect.plug
+- repaired hidewindow
+- esc-key works like alt-key now
+- More cygwin adaptions:
+   works with other shell then command.com
+   compiles with newer cygwin gcc 2.95.3-5 and pdcurses 2.4
+   clipboard
+- removed some small uglynesses
+Version 0.2.11, Source number 3309 (Sat Jun 23 11:06:03 2001)
+- all plugins now use adddynprocedure (more portable)
+- re_search_2 in libc supplied with RedHat 7.1 incompatible with previous 
+version. Modified code. 
+- color in binary, datatypedir
+- make Signed child of Digit and so without limits and need for strtoll
+- made it compile under windows95 with cygwin
+Version 0.2.10, Source number 3226 (Tue May 1 21:51:58 CEST 2001)
+- Bug fixes
+- Ported to FreeBSD 4.3 and Redhat 7.1
+Version 0.2.9, Source number 3168 (Mon Jan 29 14:35:45 CET 2001)
+- very imperfectly runs with XCURSES
+- added remember last keystrokes remember
+Version 0.2.8, Source number 3116 (Tue Jan 16 20:27:54 CET 2001)
+- realloc instead of new for parts and subparts
+- segmentation violation when more then 10 datatypes beside each other, solved.
+- Rearranged and added gotosymbol to elftables.cc
+Version 0.2.7, Source number 3065 (Thu Dec 21 14:41:40 CET 2000)
+- looks up some labels in terminfo database 
+- showprocedure looks inside menu
+- changed some code to make it compile with gcc version 2.95.3 
+- assume_default_colors now with -1 -1
+Version 0.2.6, Source number 2985 (Tue Dec 12 18:39:53 CET 2000)
+- add to desktop
+- added xbed
+- searchlist no longer adds mark when no string present (emerged in 0.2.5)
+- added configure.in, tests  assume_default_colors
+- added missing xterm keybindings, changed showprocedure and keyconfig
+Version 0.2.5, Source number 2916 (Fri Nov 17 02:23:49 CET 2000)
+- repaired and turned on lines between ScreenParts
+- save Document's filename now large enough
+- Compiled in plugins to menu
+- Added bitflags.plug, bitcontain.plug, translate.plug symtable.plug tables.plugbackward.plug
+- Added embedded containers, modefied save datatype format, levelout, stretch
+- in Memory::openfile now tests if block device is cdrom
+- use a child of keyinput instead of Editor member procedures for keyinput. Added table
+- added some short cuts in ScreenPart::rewriteunit and debugged Editor::writebuf's
+- removed the 127 byte limit of Digit units
+- Screen speedups: 
+	- added ncurses use_default_colors
+	- make a color with -1 when no color given. In this version of ncurses
+	that is faster (in a previous version it was just the opposide)
+	- removed erase by writing every character
+- after ending and cancelling could result in segmentation violation 
+	of recordfunctions, solved 
+Version 0.2.4, Source number 2213 (Fri Oct 20 02:01:14 CEST 2000)
+- shortcuts when no filters
+- Editor::changestr now with new ScreenPart::oppos/2
+- added readshown and edit
+- plugins can no be linked in binary adddynprocedure added
+- execute statements are now executed after very open
+- Made some ad hoc repairs in the chbytes-filter-Contains mess
+- add calcsizes to ScreenPart to recalculate Contains/Repeat after
+  adding filter
+- skip filter can now be applied directly to subfield
+- filters now also correction applied in input in Repeat 
+- composed/repeat addkey uses now sub addkey and explicit filters. Reorder repeat works now correctly and no side effects when changing only part of data subfield
+- save read composed datatype config added
+- if no filters in composed then when only one subfield is left composed is also removed
+- subfields are now added at different places in composed datatype
+depending on cursor position (before current subfiels when cursor at begin
+subfiels else after current subfield)
+- added record/play keystrokes, changed repeat
+- delete Editor instances derevered to leaving Editor procedure's
+- repeat with more keys
+- free marks, more free in ~Memory
+- visualoffset changes with smallest step now
+- sem_wait added to stopthread
+- removed limit off maxparts=10, Editor::parts is now dynamic
+- added clearmarks and deletemark
+- input,search/replace modified so leading 0's etc don't need to be given
+ (uses format2bin)
+- smaller MAXDISCSIZE with LARGEFILES
+- Runs again under libc5 by patch Jim Blackson (untested)
+Version 0.2.3, Source number 1693 (Sun Sep 3 01:12:24 CEST 2000)
+- Message by segmentation violation
+- Segmentation violation with screens with less then 3 lines solved.
+Version 0.2.2, Source number 1682 (Tue Jul 18 00:25:44 CEST 2000)
+- changed keylookup::lookup so tomark does work again with wrong key
+- bug in exitall nrparts naar filenr, added scroll at end
+Version 0.2.1, Source number 1672 (Fri Jun 30 00:18:56 CEST 2000)
+- chlevel also to most specific datatype
+- subfield datatype in search
+- removed unknownkey and strange coloring
+Version 0.2.0, Source number 1648 (Mon Jun 19 01:04:31 CEST 2000)
+- Added general FILTER support. Rorder and skip are instances
+- Now datatypes COMPOSED out of other datatypes, incl repeat and empty
+- made virtual screen larger then visual screen so large and unaligned datatype
+	are possible
+- Regex search on multibyte datatypes did skip items at end of file, repaired.
+Version 0.1.7, Source number 1447 (Wed May 24 00:36:25 CEST 2000)
+- Shorter fileinfo
+- added function input
+- changed plugins time.cpp and signed.cpp
+- error out of General::f2bin: converce with reverse didn't work
+- Cursor offset now goes up while typing and is always start unit
+Version 0.1.6, Source number 1429 (Mon May 8 13:18:34 CEST 2000)
+- Large devices up to 1023 gigabyte load now 
+- ebcdic plugin added
+- getotherterm better
+Version 0.1.5, Source number 1376 (Sun Mar 26 20:54:35 CEST 2000)
+- newterm instead of initscr, but ncurses has a memory leak there
+- use also plugins define LARGEFILES in plugins so the work again
+Version 0.1.4, Source number 1359 (Sat Mar 25 20:55:26 CET 2000)
+- when receiving a SIGTERM  signal bed now tries to find a terminal
+- hanged exitall so is no longer has segmentation violations
+- added option CONFIG_LARGEFILES (now works again with libc5)
+Version 0.1.3, Source number 1301 (Sun Mar 19 00:36:03 CET 2000)
+- now also checked on screensize not under X. 
+- Converting between datatypes in searchscreen could lead to segmentation violations, scricter length criteria added
+Version 0.1.2, Source number 1283 (Wed Mar 15 03:20:36 CET 2000)
+- bug out of addbefore which caused segmentation violations
+- Stops now on write error
+- reorder and skip so subscreen of Integerscreen
+- minimum screen larger
+- mmapfailed flag set to 1 by all non regular files ( searchin /dev/mem didn't work)
+- mmapblocksize different from rbtree blocksize now possible
+Version 0.1.1, Source number 1251 (Thu Feb 24 21:17:09 CET 2000)
+- Removed hang by only allowing sigals at specific accocions in nextregexshown()
+- Changed regex mode to greplike
+- Changed integer menu
+- added replace unit
+- user information in manual
+- take over skipped values in replacehere
+- add initplugin and execute
+Version 0.1.0, Source number 1230 (Mon Feb 21 20:30:21 CET 2000)
+- Save in shown datatype
+- regex forward search through though datatypes other than ascii
+- Added leaveout support for mulitbyte datatypes
+- Support for larger windows, but getfile limit is not jet removed
+- Changed datatypes and functions to support large harddrives, but had no opportunity to tests it
+- rather useless addition of mmap in normal forward search. Gives minimal speed advantage 98%
+- re_search_2 (memory.cpp) had wrong arguments leading to skipping of words on block boundary
+- undo didn't free by destroying Editor. This was responsible for using huge quantities of memory on the long run
+- int Editor::searchlist(char *ant, int len) gegsthread.pos is now also set
+- in inline int Editor::changechar(int pos,unsigned char ch)  changed pos+1 into filepos+pos+1
+- resize works in search
+- no segmentation violation in long double plugins/examples/float.plug anymore
+- name changes in screenpart.h/.cpp
+Version 0.0.9, Source number 989 Thu Nov 18 13:38:12 CET 1999
+- removed bug out of plugin testall
+- changed strncpy to memcpy int Editor::searchlist(char *ant, int len) 
+Version 0.0.8, Source number 988 Thu Nov 18 01:39:06 CET 1999
+- take part of text immediately when making a mark, so marklist is faster
+- searchlist with USETHREADS gave stack data to thread (gave sometimes the to be expected results) changed to heap data. 
+- global variables to static in plugins
+- General extra optional argument for defining data without space after every token
+- example plugin char2 which shows only one in two characters
+- try to find cdrom size without experimenting, because my cdrom driver starts
+a lot of retries when the program lseeks over the cd boundary and I found
+some bytes which corresponded with real the size at some place on the cdrom.
+Version 0.0.7, Source number 972 Sun Jun 13 23:02:50 CEST 1999
+- Put key and procedure listings under Options
+- Splited editor.cpp in editor.h, main.cpp, parts.cpp editor.cpp and screenpart.cpp
+- removed a lot of refreshes out of getfile.cpp
+- Added plugins support data types and plugins for float/double/long double and signed integers
+- Changed to realloc instead of my own buggy chunk management
+- Added posibility to use bed when ioctl(0, TIOCGWINSZ, &win) gives no screen sizes
+- Added multibyte data types
+- Opening non existing file resulted in unending loop, repaired
+- Easier configurations, more robust default without plugin support.
+- Adds multithread search option
+- Tests on array sizes. Removes some segmentation violations  on error messages while reading configurationfile.
+Version 0.0.6, Source number  497 Tue May 25 16:15:39 MET DST 1999
+- Port to redhat 6.0 consisting of solving screen problems
+Version 0.0.5, Source number  429 Wed Mar 24 23:39:06 MET 1999
+- added putreturn instead of the builtin return. Also changed 0x0d to 0x0a
+- typing one character at end of the previous filesize immediately after an extend resulted in confusion. It was
+appended to the undo entry which belonged to the extend.
+- don't try to save truncated parts anymore (Memory::saveall)
+- putpartpiece doesn't check on size of read part (went wrong when file is again extended by undo)
+- new opens Document#
+- removed a 0.0.4 bug in proceskey, which caused bed to coredump when closing a file
+Version 0.0.4, Source number  404 Sat Feb 7 05:06:59 MET 1999
+- location on manpage
+- no strange color after making the xterm smaller
+- more portable member function pointers 
+- '-' in name of archive
+Version 0.0.3, Source number  348 Sat Jan 16 05:06:59 MET 1999
+- Tracing calling of functions for debugging (because gdb version 4.16 support of c++ is 
+	restricted, no stack when failing in delete )
+- Solved mysterous segmentation violation
+- Longer filenames possible in listfiles
+- previously the program could only run with libncurses1.9.9e, now also with libncurses1.9.9g
+	and libncurses.4.2
+- can't open /proc/locks anymore (only known file which creates problems)
+- explicit long limit on filesize, because of problems with /dev/dev1_8
+Version 0.0.2, Source number 241 (Thu Dec 17 09:38:55 MET 1998)
+
+- In search and replace 
+	- conversion between formats was no good when the number contained zero.
+	- now padding with zero's on the left when not enough characters
+- added menus to alt-f,p
+- Added the possibility to see keybinding (Alt-f,k)
+- By some unknown reason, when ascii took the full screen, linedown gave strange
+results. Solved with an extra refresh when ENDOFLINEBUF is defined. When this
+buf, in probably ncurses is solved, this should not be defined.
+
+Version 0.0.1 Sourcenumber 205 Mon Dec 14 07:51:42 MET 1998
+
+- getselbuf was wrong
+- Bug in regex compile (searchexpr was not set properly to zero before compile). This
+	resulted in a segmentation violation when using groupings.
+- Jump over replaced part in regex replace;
+- Processking of key bindings changed so that keys that overwrite a shorter or longer definition will not get into 
+trouble.
+- Alt-F in open now not changed by other operations
+
+Version 0.0.0 Sourcenumber 151 Thu Dec 10 06:23:27 MET 1998
