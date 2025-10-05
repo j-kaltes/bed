@@ -1,0 +1,191 @@
+checking build system type... x86_64-pc-linux-gnu
+checking host system type... armv7a-unknown-linux-androideabi
+checking for armv7a-linux-androideabi-gcc... armv7a-linux-androideabi-gcc
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... yes
+checking for suffix of object files... o
+checking whether the compiler supports GNU C... yes
+checking whether armv7a-linux-androideabi-gcc accepts -g... yes
+checking for armv7a-linux-androideabi-gcc option to enable C11 features... none needed
+checking for armv7a-linux-androideabi-g++... armv7a-linux-androideabi-g++
+checking whether the compiler supports GNU C++... yes
+checking whether armv7a-linux-androideabi-g++ accepts -g... yes
+checking for armv7a-linux-androideabi-g++ option to enable C++11 features... none needed
+checking for armv7a-linux-androideabi-llvm-strip... no
+checking for armv7a-linux-androideabi-strip... no
+checking for llvm-strip... llvm-strip
+configure: WARNING: using cross tools not prefixed with host triplet
+llvm-strip, compatible with GNU strip
+checking for man2html... no
+not found, use included version.
+Host os for bed linux-androideabi
+Host cpu armv7a
+checking for grep that handles long lines and -e... /usr/bin/grep
+checking for egrep... /usr/bin/grep -E
+checking for stdio.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for strings.h... yes
+checking for sys/stat.h... yes
+checking for sys/types.h... yes
+checking for unistd.h... yes
+checking size of long... 4
+checking for off64_t... yes
+checking for __off64_t... no
+checking for GetStdHandle... no
+checking for GetStdHandle in -lkernel32... no
+checking for strchrnul... yes
+checking for setenv... yes
+checking for ftruncate64... yes
+checking for truncate64... yes
+checking for open64... yes
+checking for stat64... yes
+checking for fstat64... yes
+checking for glob... yes
+checking for stpcpy... yes
+checking for sendfile... yes
+checking for sendfile64... yes
+checking for bzero... no
+checking for sigsuspend... yes
+checking for sigaddset... yes
+checking for memccpy... yes
+checking for kill... yes
+checking for tcsetattr... yes
+checking for curses.h... yes
+checking for ncurses.h... no
+checking for ncurses/ncurses.h... no
+checking for gnuregex.h... no
+checking for regex.h... yes
+checking for float.h... yes
+checking for sys/errno.h... yes
+checking for errno.h... yes
+checking for sys/ioctl.h... yes
+checking for dirent.h... yes
+checking for sys/wait.h... yes
+checking for termios.h... yes
+checking for sys/mman.h... yes
+checking for re2/re2.h... yes
+checking for magic_buffer in -lmagic... no
+checking for magic_buffer in -lz... no
+checking how to run the C++ preprocessor... armv7a-linux-androideabi-g++ -E
+checking for egrep -e... (cached) /usr/bin/grep -E
+checking for PDC_ungetch in -lncurses... no
+checking for assume_default_colors in -lncurses... yes
+checking for delscreen in -lncurses... yes
+checking for curs_set in -lncurses... yes
+checking for start_color in -lncurses... yes
+checking for wresize in -lncurses... yes
+checking for tigetstr in -lncurses... yes
+checking for library containing dlopen... none required
+checking for dlopen in -ldl... yes
+checking for library containing lseek64... none required
+Checking for sigsetjmp ... yes
+checking size of off_t... 4
+checking size of ssize_t... 4
+checking size of long double... 8
+checking for library containing mremap... none required
+checking for library containing mkstemp... none required
+checking for library containing strnlen... none required
+checking for getusershell in -lc... no
+checking for gmtime_r in -lc... yes
+checking for localtime_r in -lc... yes
+checking for strtoll in -lc... yes
+checking for pread in -lc... yes
+checking for realpath in -lc... yes
+checking for timegm... yes
+Checking for tm_gmtoff... yes
+checking for strptime in -lc... yes
+checking for library containing clock_gettime... none required
+checking for library containing xre_search_2... no
+checking for library containing hs_scan_stream ... no
+checking for library containing _ZN3re23RE27ExtractESt17basic_string_viewIcSt11char_traitsIcEERKS0_S4_PNSt7__cxx1112basic_stringIcS3_SaIcEEE... no
+checking for library containing _ZN3re23RE27ExtractERKNS_11StringPieceERKS0_S3_PNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE ... no
+checking for library containing pthread_create... none required
+CONFIG_THREADS=y
+checking for library containing sem_wait... none required
+checking for library containing sem_getvalue... none required
+checking for sysconf(_SC_AVPHYS_PAGES)... yes
+checking for library containing log... none required
+checking for update-menus... n
+checking for file... y
+checking for nroff... y
+armv7a-linux-androideabi-gcc -I/n/ojka/src/bedall/bed-3.1.5/include -DANDROID_STL=c++_static -static-libstdc++ -L/n/ojka/src/bedall/bed-3.1.5/libs/androidarm conftest.c -o conftest
+Checking ELF format ...clang-17: warning: argument unused during compilation: '-static-libstdc++' [-Wunused-command-line-argument]
+ yes 32 bits
+checking whether ln -s works... yes
+checking for X... no
+nox: yes
+checking for new... yes
+Checking for std::set_new_handler ... yes
+c++20: take c++20
+checking for features.h... yes
+checking for alloca.h... yes
+FOR BUILD ARCH gcc
+FOR BUILD ARCH g++
+configure: creating ./config.status
+config.status: creating config
+config.status: creating pkg/Makefile
+config.status: creating man2html/Makefile
+config.status: WARNING:  'man2html/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating src/confdefines.h
+=== configuring in regex-0.13 (/n/ojka/src/bedall/bed-3.1.5/regex-0.13)
+configure: running /bin/sh ./configure --disable-option-checking '--prefix=/data/local/tmp/nontmp'  --cache-file=/dev/null --srcdir=.
+checking build system type... x86_64-pc-linux-gnu
+checking host system type... armv7a-unknown-linux-androideabi
+checking target system type... armv7a-unknown-linux-androideabi
+checking for armv7a-linux-androideabi-gcc... armv7a-linux-androideabi-gcc
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... yes
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether armv7a-linux-androideabi-gcc accepts -g... yes
+checking for armv7a-linux-androideabi-gcc option to accept ISO C89... none needed
+checking for a BSD-compatible install... /usr/bin/install -c
+checking how to run the C preprocessor... armv7a-linux-androideabi-gcc -E
+checking for grep that handles long lines and -e... /usr/bin/grep
+checking for egrep... /usr/bin/grep -E
+checking for ANSI C header files... yes
+checking for sys/types.h... yes
+checking for sys/stat.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for memory.h... yes
+checking for strings.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for unistd.h... yes
+checking minix/config.h usability... no
+checking minix/config.h presence... no
+checking for minix/config.h... no
+checking whether it is safe to define __EXTENSIONS__... yes
+checking for library containing getmntent... none required
+checking for library containing strerror... none required
+checking for ANSI C header files... (cached) yes
+checking for string.h... (cached) yes
+checking for size_t... yes
+checking for working alloca.h... yes
+checking for alloca... yes
+checking for an ANSI C-conforming const... yes
+configure: creating ./config.status
+config.status: creating Makefile
+checking for gcc... gcc
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to accept ISO C89... none needed
+configure: creating ./config.status
+config.status: creating build
+armv7a-linux-androideabi-g++ -I/n/ojka/src/bedall/bed-3.1.5/include -DANDROID_STL=c++_static -static-libstdc++ -L/n/ojka/src/bedall/bed-3.1.5/libs/androidarm hosttest.cc reversetime.cc -o hosttest
+****Cross Compiling: certain information about future host of bed not known. Run ./hosttest on the host to get this information.	****
+****information will be saved in conf-armv7a-linux-androideabi.h										****
+****put the generated file conf-armv7a-linux-androideabi.h in  directory ./src 								****
