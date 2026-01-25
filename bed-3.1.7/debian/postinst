@@ -1,5 +1,0 @@
-#!/bin/sh
-ln -T -fs /usr/lib/bed-3.1.7 /usr/share/bed
-cd /usr/lib/bed-3.1.7
-bash ./addmagic
-if which update-menus ; then update-menus ; fi

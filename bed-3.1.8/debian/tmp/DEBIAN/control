@@ -1,0 +1,18 @@
+Package: bed
+Version: 3.1.8
+Architecture: amd64
+Maintainer: Jaap Korthals Altes <binaryeditor@gmx.com>
+Installed-Size: 1496
+Depends: libc6 (>= 2.38), libgcc-s1 (>= 13), libhyperscan5 (>= 5.4.2), libmagic1t64 (>= 5.12), libncurses6 (>= 6), libstdc++6 (>= 5), libtinfo6 (>= 6)
+Section: utils
+Priority: optional
+Description: Adjustable data format binary editor
+ Adjustable data format binary editor. Data formats are
+ ASCII, unsigned and signed integers, float, bit-flags,
+ bit-fields, labels, ebcdic and time_t. Different sizes
+ and byte orderings are possible. Data types can
+ be used in structures. Other data formats, filters and
+ procedures can be defined in plugins. Contains copy,
+ past, undo, redo, search, replace, marks, record/play and
+ context sensitive help. Raw edit of hard drives. Under
+ Linux and FreeBSD even usable without X windows.

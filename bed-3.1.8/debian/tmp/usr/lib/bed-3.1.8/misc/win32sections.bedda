@@ -1,0 +1,10 @@
+bed-datatype:
+
+Composed(40,40,0,7,[
+  Ascii(8,8,256,".",[],"",1,1),
+  Digit(4,4,16,"",[],"VirtSize",1,1),
+  Digit(4,4,16,"",[],"RVA",1,1),
+  Digit(4,4,16,"",[],"PhysSize",1,1),
+  Digit(4,4,16,"",[],"Phys off",1,1),
+  Empty(12,12,10,"#",[],"",0,1),
+  BitFlags(4,4,2,",D,,,,C,I,U,,,,,,,,,,,,,,,,,,,,,S,E,R,W`-``0",[],"R=read,W=write,E=exec,S=Shared,U=Uninitialised,I=Initialised,C=code,D=Discard",1,1)],"",[],"Win32 sections",1,1);

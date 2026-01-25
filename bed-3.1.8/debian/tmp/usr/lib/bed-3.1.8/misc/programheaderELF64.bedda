@@ -1,0 +1,11 @@
+bed-datatype:
+
+Composed(56,56,0,8,[
+  Ascii(7,4,256,".u",[Translate(4,7,"3F202020:05000000:50484452202020:06000000,4C4F4144202020:01000000,4E4F5445202020:04000000,494E5445525020:03000000,44594E414D4943:02000000,")],"Type",1,1),
+  BitFlags(4,4,2,"E,W,R`-``0",[],"Flags",1,1),
+  Digit(8,8,16,"",[],"Offset",1,1),
+  Digit(8,8,16,"",[],"VirtAddr",1,1),
+  Digit(8,8,16,"",[],"PhysAddr",1,1),
+  Digit(8,8,16,"",[],"FileSize",1,1),
+  Digit(8,8,16,"",[],"MemSize",1,1),
+  Digit(8,8,16,"",[],"Align",1,1)],"",[],"ELF64 Program Header. Starts at offset 64.",1,1);

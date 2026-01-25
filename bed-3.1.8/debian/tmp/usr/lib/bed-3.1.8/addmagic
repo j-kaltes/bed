@@ -1,0 +1,68 @@
+#!/bin/sh
+PREMAGICFILE=`file  -v 2>&1|sed -n -e '{s/^[^/]*\(\/[^:]*\).*$/\1/p;s/^.*$//g;}'`
+OTHERMAGICFILE=`file  -v 2>&1|sed -n -e '{s/[^/]*\(\/[^:]*\):\([^:]*\).*$/\2/p;s/^.*//;}'`
+MAGICPLACES="$PREMAGICFILE /etc/magic /usr/share/file/magic /usr/share/misc/magic"
+for MAGICFILE in $MAGICPLACES
+do
+	if test   -f $MAGICFILE
+	then
+		break
+	fi
+done
+
+if test !  -f $MAGICFILE
+then
+	echo None of following files exists: $MAGICPLACES
+	exit
+fi
+echo $MAGICFILE
+if test  .$PREMAGICFILE = .$MAGICFILE
+
+then
+BEDMAGIC=bedmagic
+else
+BEDMAGIC=bedmagic.short
+fi
+IDNUM=`id -u`
+NEWMAGIC=/tmp/newbedmagic.$$-$IDNUM
+OLDMAGIC=/tmp/oldbedmagic.$$-$IDNUM
+THISMAGIC=/tmp/thisbedmagic.$$-$IDNUM
+file -m $BEDMAGIC testmarks.bedm >$NEWMAGIC
+file  testmarks.bedm >$OLDMAGIC
+THISDIR=`pwd`
+if cmp -s $NEWMAGIC $OLDMAGIC
+then
+	echo Bed magic already added
+else
+	cd `dirname $MAGICFILE`
+	cp $MAGICFILE $MAGICFILE.beforebed
+	cat $THISDIR/$BEDMAGIC>> $MAGICFILE
+
+if test  .$PREMAGICFILE = .$MAGICFILE
+then
+		file -C -m   $MAGICFILE
+	if test ! -z $OTHERMAGICFILE 
+	then
+	if test -f $OTHERMAGICFILE
+	then
+	echo Recompile $OTHERMAGICFILE
+		cd `dirname $OTHERMAGICFILE`
+		file -C -m   $OTHERMAGICFILE
+	fi	
+	fi
+fi
+	cd $THISDIR
+	file   testmarks.bedm > $THISMAGIC
+	if cmp -s $OLDMAGIC $THISMAGIC
+	then
+		mv $MAGICFILE.beforebed $MAGICFILE
+		echo appending $BEDMAGIC to $MAGICFILE had no effect
+		echo restored existing magic file
+
+	else
+		echo $BEDMAGIC appended to $MAGICFILE   
+		echo old magic saved in $MAGICFILE.beforebed
+	fi
+rm $THISMAGIC
+fi
+rm $NEWMAGIC $OLDMAGIC

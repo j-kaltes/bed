@@ -1,0 +1,14 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Bed - Binary Editor
+Name[nl]=Bed - Binaire Editor
+GenericName=Binary Editor
+GenericName[nl]=Binaire Editor
+Comment=Adjustable dataformat: ascii,integer,unsigned,float,struct
+Comment[nl]=Instelbaar datatype: ascii,integer,unsigned,float,struct
+Exec=bed %U
+Terminal=1
+Type=Application
+Categories=Application;Utility;Editor;ConsoleOnly;;X-Red-Hat-Base;
+StartupNotify=true
+X-Desktop-File-Install-Version=0.3

@@ -1,0 +1,1 @@
+shlibs:Depends=libc6 (>= 2.38), libgcc-s1 (>= 13), libhyperscan5 (>= 5.4.2), libmagic1t64 (>= 5.12), libncurses6 (>= 6), libstdc++6 (>= 5), libtinfo6 (>= 6)
